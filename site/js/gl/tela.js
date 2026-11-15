@@ -30,6 +30,8 @@ const float RAIO_LUZ = ${f(RAIO_LUZ)};
 const float GANHO = ${f(GANHO)};
 const float PASSO = ${PASSO_UV.toFixed(8)}; // UV (mesmo de passoDoRelevo em core/luz.js)
 uniform sampler2D uMapa;
+uniform sampler2D uMapaAnterior; // a miniatura, enquanto a definitiva a cobre
+uniform float uMistura; // 0..1: de uMapaAnterior a uMapa (1: só uMapa, sem a 2ª leitura)
 uniform vec3 uCor;
 uniform float uTemMapa;
 uniform float uRevela;
@@ -86,7 +88,9 @@ void main() {
   vec3 cor = uCor;
   float fator = 1.0;
   if (uTemMapa > 0.0) {
-    cor = mix(uCor, texture2D(uMapa, vUv).rgb, uTemMapa);
+    vec3 pintura = texture2D(uMapa, vUv).rgb;
+    if (uMistura < 1.0) pintura = mix(texture2D(uMapaAnterior, vUv).rgb, pintura, uMistura);
+    cor = mix(uCor, pintura, uTemMapa);
     float forca = uRelevo * uTemMapa;
     if (forca > 0.0) {
       vec2 passo = vec2(PASSO, PASSO * uProporcao);
@@ -120,6 +124,8 @@ export function criarTela(plano, info) {
     transparent: true,
     uniforms: {
       uMapa: { value: null },
+      uMapaAnterior: { value: null },
+      uMistura: { value: 1 },
       uCor: { value: new THREE.Color(info.cor) },
       uTemMapa: { value: 0 },
       uRevela: { value: 1 },

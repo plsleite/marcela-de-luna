@@ -17,6 +17,9 @@ export function criarCarregamento({ linha, stops, images, telas, texturas, gsap,
     const u = m.material.uniforms;
     const mini = minis.get(m.userData.imagem);
     gsap.killTweensOf(u.uTemMapa);
+    gsap.killTweensOf(u.uMistura);
+    u.uMistura.value = 1;
+    u.uMapaAnterior.value = null;
     if (mini && !semMiniatura(m)) { u.uMapa.value = mini; u.uTemMapa.value = 1; }
     else { u.uMapa.value = null; u.uTemMapa.value = 0; }
   }
@@ -30,15 +33,22 @@ export function criarCarregamento({ linha, stops, images, telas, texturas, gsap,
     mostrarMiniaturas();
   }
 
-  // A textura definitiva troca a miniatura sem esmaecer; sobre a cor chapada, entra em 0,6 s
-  // (a capa, na abertura, entra direto: quem a mostra são as pinceladas).
+  // A textura definitiva cobre a miniatura em 0,35 s; sobre outra definitiva (outra largura),
+  // troca direto (a anterior já foi descartada); sobre a cor chapada, entra em 0,6 s (a capa,
+  // na abertura, entra direto: quem a mostra são as pinceladas).
   function aplicar(id, tex, esmaecer = true) {
     for (const m of telasDe(id)) {
       const u = m.material.uniforms;
       if (u.uMapa.value === tex) continue;
-      const jaTinha = u.uMapa.value !== null;
+      const anterior = u.uMapa.value;
       u.uMapa.value = tex;
-      if (jaTinha) continue;
+      if (ehMini.has(anterior)) {
+        u.uMapaAnterior.value = anterior;
+        gsap.killTweensOf(u.uMistura);
+        gsap.fromTo(u.uMistura, { value: 0 }, { value: 1, duration: 0.35, ease: 'power1.out',
+          onComplete: () => { u.uMapaAnterior.value = null; } });
+      }
+      if (anterior !== null) continue;
       if (esmaecer) gsap.fromTo(u.uTemMapa, { value: 0 }, { value: 1, duration: 0.6, ease: 'power1.out' });
       else u.uTemMapa.value = 1;
     }
