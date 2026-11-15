@@ -4,7 +4,7 @@ Achados das revisões do Plano 1 e do Plano 2 (extensão às 58 páginas) que n�
 
 ## Arquitetura e testes
 
-- `montarTravessia` continua em `site/js/main.js` (431 linhas): carregamento, luz e pincel já saíram para `site/js/travessia/`, e a decisão do clique para `core/clique.js`, mas a montagem das telas, o cartão final, a paralaxe e o laço do quadro seguem ali; avaliar nova divisão.
+- `montarTravessia` continua em `site/js/main.js` (431 linhas): carregamento, luz e pincel já saíram para `site/js/travessia/`, e a decisão do clique para `core/clique.js`, mas a montagem das telas, o cartão final, a paralaxe e o laço do quadro seguem ali. Próxima divisão: `cartao`, `moverCartao` e `emFocoParaClique` em `travessia/cartao.js`, com o predicado do clique em `core/clique.js` e teste.
 - Levar a máquina de `texturas` para código testável.
 - Testes de integração inexistentes: desmontagem, resize, ciclo do mergulho, roteamento de clique, `irPara`, cache de texturas, orquestração da abertura.
 - Módulos de `site/js/travessia/` (carregamento, luz, pincel) sem teste automático: dependem de DOM e WebGL.
@@ -17,7 +17,7 @@ Achados das revisões do Plano 1 e do Plano 2 (extensão às 58 páginas) que n�
 - `smoothstep` duplicada em três arquivos (`core/abertura.js`, `core/trilho.js` e `core/final.js`), e `clamp01` em `core/abertura.js` e `core/trilho.js`; `textoVale` mora no módulo do trilho, que é de câmera.
 - `com-legenda` é posta em qualquer parada, não só nas obras.
 - Comentário longo no cabeçalho de `ui/preenchimento.js` (linhas 1 a 3).
-- `main.js` com cerca de 430 linhas: `cartao`, `moverCartao` e `emFocoParaClique` caberiam em `travessia/cartao.js`, com o predicado do clique em `core/clique.js` e teste.
+- Ao fechar uma ampliação, `ui/mergulho-ui.js` segura em 0 a opacidade das telas mais próximas que `surge[1]`, mas o shader só garante alfa 0 abaixo de `surge[0]`: uma tela entre os dois valores apareceria de uma vez no fim da volta. Nenhuma tela dos dados atuais cai nessa faixa.
 - O contrato de `mesh.userData` (`plano`, `perto`, `surge`, `alcance`, `luzNeutra`, `deCostas`) é escrito em dois arquivos e lido em quatro, sem um lugar que o descreva.
 - `travessia/carregamento.js` sem teste: um teste em Node com `texturas` e `gsap` falsos fixaria que a tela liberada volta à miniatura, que a imagem ampliada nunca é liberada e que uma textura tardia não é aplicada depois de `ativo() === false`.
 
