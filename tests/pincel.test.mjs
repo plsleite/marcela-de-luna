@@ -1,5 +1,5 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
-import { carimbosEntre, corDaParada, gesto, distanciaAoRetangulo, forcaSobreTexto, pigmentoPara } from '../site/js/core/pincel.js';
+import { carimbosEntre, carimbosNaCurva, corDaParada, gesto, distanciaAoRetangulo, forcaSobreTexto, pigmentoPara, tamanhoDoAlvo } from '../site/js/core/pincel.js';
 import { PIGMENTOS } from '../site/js/config.js';
 
 test('carimbosEntre: passo, último carimbo e ângulo do gesto', () => {
@@ -77,4 +77,57 @@ test('forcaSobreTexto: 30% dentro do bloco, sobe até 100% em 40 px', () => {
   // o bloco mais próximo manda; os padrões são 0,3 e 40 px
   const dois = [...r, { esq: 330, dir: 400, topo: 100, base: 200 }];
   assert.equal(forcaSobreTexto({ x: 335, y: 150 }, dois), 0.3);
+});
+
+test('tamanhoDoAlvo: um ponto de tinta por ponto de tela até densidade 2, com teto de área', () => {
+  assert.deepEqual(tamanhoDoAlvo(1440, 900, 2), { w: 1440, h: 900 });
+  assert.deepEqual(tamanhoDoAlvo(3440, 1440, 1), { w: 3440, h: 1440 });
+  assert.deepEqual(tamanhoDoAlvo(1280, 720, 1), { w: 1280, h: 720 });
+  assert.deepEqual(tamanhoDoAlvo(1280, 720, 1.5), { w: 1280, h: 720 });
+  assert.deepEqual(tamanhoDoAlvo(1000, 500, 3), { w: 1500, h: 750 });
+  const g = tamanhoDoAlvo(5120, 2880, 1);
+  assert.ok(g.w * g.h <= 8_300_000 && g.w * g.h > 8_200_000);
+  assert.ok(Math.abs(g.w / g.h - 5120 / 2880) < 0.002);
+  const t = tamanhoDoAlvo(100, 100, 1, 2500);
+  assert.deepEqual(t, { w: 50, h: 50 });
+  assert.deepEqual(tamanhoDoAlvo(0, 0, 1), { w: 1, h: 1 });
+});
+
+test('carimbosNaCurva: com três pontos alinhados, o mesmo espaçamento de carimbosEntre', () => {
+  const a = { x: 0, y: 0 }, b = { x: 31, y: 0 };
+  const reto = carimbosEntre(a, b, 6);
+  const curva = carimbosNaCurva(a, { x: 15.5, y: 0 }, b, 6);
+  assert.equal(curva.length, reto.length);
+  curva.forEach((p, i) => {
+    assert.ok(Math.abs(p.x - reto[i].x) < 1e-6 && Math.abs(p.y - reto[i].y) < 1e-6);
+    assert.ok(Math.abs(p.ang - reto[i].ang) < 1e-9);
+  });
+  // controle alinhado mas fora do meio: o espaçamento ainda é o passo
+  const torto = carimbosNaCurva({ x: 0, y: 0 }, { x: 0, y: 4 }, { x: 0, y: 30 }, 6);
+  assert.equal(torto.length, 5);
+  torto.forEach((p, i) => { assert.ok(Math.abs(p.y - 6 * (i + 1)) < 0.05 && Math.abs(p.x) < 1e-9); });
+  assert.equal(carimbosNaCurva({ x: 2, y: 2 }, { x: 2, y: 2 }, { x: 2, y: 2 }, 6).length, 0);
+  assert.equal(carimbosNaCurva({ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 0 }, 6).length, 0);
+});
+
+test('carimbosNaCurva: sobre a curva, espaçados pelo passo e tangentes a ela', () => {
+  const a = { x: 0, y: 0 }, c = { x: 60, y: 0 }, b = { x: 60, y: 60 };
+  const cs = carimbosNaCurva(a, c, b, 6);
+  assert.ok(cs.length >= 14 && cs.length <= 16); // o arco mede entre 84 e 96 px
+  const ponto = (t) => ({ x: (1 - t) ** 2 * a.x + 2 * (1 - t) * t * c.x + t * t * b.x, y: (1 - t) ** 2 * a.y + 2 * (1 - t) * t * c.y + t * t * b.y });
+  let ant = a;
+  for (const p of cs) {
+    const d = Math.hypot(p.x - ant.x, p.y - ant.y);
+    assert.ok(d >= 3 && d <= 9, `vizinhos a ${d}`);
+    ant = p;
+    // o ponto está na curva: o t mais próximo (busca fina) fica a menos de 0,05 px
+    let menor = Infinity, tMelhor = 0;
+    for (let t = 0; t <= 1; t += 1e-4) { const q = ponto(t); const e = Math.hypot(q.x - p.x, q.y - p.y); if (e < menor) { menor = e; tMelhor = t; } }
+    assert.ok(menor < 0.05, `fora da curva por ${menor}`);
+    const tg = Math.atan2(2 * (1 - tMelhor) * (c.y - a.y) + 2 * tMelhor * (b.y - c.y), 2 * (1 - tMelhor) * (c.x - a.x) + 2 * tMelhor * (b.x - c.x));
+    assert.ok(Math.abs(p.ang - tg) < 0.01, 'tangente');
+  }
+  // começa pela horizontal e termina pela vertical
+  assert.ok(Math.abs(cs[0].ang) < 0.2 && Math.abs(cs.at(-1).ang - Math.PI / 2) < 0.2);
+  assert.ok(Math.hypot(b.x - cs.at(-1).x, b.y - cs.at(-1).y) < 6); // a sobra fica para o próximo trecho
 });

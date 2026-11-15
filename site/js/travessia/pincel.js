@@ -34,7 +34,10 @@ export function montarPincel({ palco, raiz, telas, porId, images, estado, criarT
   const preenchimento = criarPreenchimento(raiz);
   const aoMover = (e) => {
     if (e.pointerType !== 'mouse' || estado.mergulho) return;
-    tinta.pintar(e.clientX, e.clientY, corDaParada(porId.get(estado.id), images));
+    const cor = corDaParada(porId.get(estado.id), images);
+    // os movimentos agrupados no quadro dão a curva inteira, não só o último ponto
+    const evs = e.getCoalescedEvents?.() ?? [];
+    for (const ev of evs.length ? evs : [e]) tinta.pintar(ev.clientX, ev.clientY, cor, ev.timeStamp);
     preenchimento.tocar(e.clientX, e.clientY);
   };
   const aoSair = (e) => { if (!e.relatedTarget) { tinta.romper(); preenchimento.romper(); } };

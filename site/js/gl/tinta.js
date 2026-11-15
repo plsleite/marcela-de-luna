@@ -1,11 +1,13 @@
-// Camada de tinta do pincel: um alvo de renderização em meia resolução, em espaço de janela
+// Camada de tinta do pincel: um alvo de renderização com um ponto de tinta por ponto de tela
+// (tamanhoDoAlvo), em espaço de janela
 // (não acompanha câmera nem scroll), desenhado como fundo da cena — antes das telas e sem teste
 // de profundidade, de modo que pinturas e texto sempre fiquem por cima.
-// Cada movimento deposita carimbos de cerdas a cada 6 px; a cada quadro a tinta perde opacidade
+// Cada movimento deposita carimbos de cerdas a cada 6 px, numa curva entre os pontos médios das
+// posições do mouse (o traço não faz quinas); a cada quadro a tinta perde opacidade
 // (linear, 0,1 de alfa por segundo): o corpo de uma passada (alfa ≈ 0,75–0,8) some sozinho em
 // cerca de 8 s; bordas e cerdas ralas secam antes. Cor guardada em sRGB, pré-multiplicada.
 import * as THREE from 'three';
-import { carimbosEntre, gesto } from '../core/pincel.js';
+import { carimbosEntre, carimbosNaCurva, gesto, tamanhoDoAlvo } from '../core/pincel.js';
 
 const PASSO = 6;        // px entre carimbos
 const LARGURA = 46;     // px, largura do pincel (perpendicular ao gesto)
@@ -14,6 +16,7 @@ const VIDA = 10000;     // ms para sumir a tinta de alfa 1 (várias passadas sob
 const ALFA = 0.85;      // tinta de um carimbo (vários se sobrepõem)
 const SALTO = 320;      // px: acima disso o ponteiro "pulou" e o traço recomeça
 const PAUSA = 250;      // ms parado: o pincel volta carregado
+const FECHO = 90;       // ms sem movimento: o traço vai até o mouse
 const MAX = 512;        // carimbos por desenho
 
 // Textura das cerdas (canvas 2D): x ao longo do gesto, y através do pincel. Cada linha é uma
@@ -205,8 +208,8 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
   }
   function redimensionar() {
     for (const rt of alvos) rt.dispose();
-    const tam = renderer.getDrawingBufferSize(new THREE.Vector2());
-    const w = Math.max(1, Math.floor(tam.x / 2)), h = Math.max(1, Math.floor(tam.y / 2));
+    const tam = renderer.getSize(new THREE.Vector2());
+    const { w, h } = tamanhoDoAlvo(tam.x, tam.y, renderer.getPixelRatio());
     escala = w / innerWidth;
     alvos = [0, 1].map(() => new THREE.WebGLRenderTarget(w, h, {
       type: flutuante ? THREE.HalfFloatType : THREE.UnsignedByteType,
@@ -215,7 +218,8 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
     }));
     alvos.forEach(limpar);
     camOrto.right = w; camOrto.top = h; camOrto.updateProjectionMatrix();
-    matExibe.uniforms.uTexel.value.set(1 / w, 1 / h);
+    // relevo medido a 1 px de janela, qualquer que seja a resolução do alvo
+    matExibe.uniforms.uTexel.value.set(escala / w, escala / h);
     matExibe.uniforms.uTinta.value = alvos[0].texture;
     viva = 0;
     exibe.visible = false;
@@ -224,7 +228,7 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
   let viva = 0;          // ms até a última tinta sumir (0: camada vazia, nada a fazer)
   let perdaPendente = 0;
   let fila = 0;          // carimbos à espera do próximo quadro
-  let ultimo = null;     // { x, y } do último carimbo; t, px, py do último evento
+  let ultimo = null;     // { x, y } do último carimbo; t, px, py, hex do último evento
   let velocidade = 0;    // px/ms, suavizada
   let percurso = 0;      // px desde a última pausa (a tinta vai gastando)
   let distancia = 0;     // px ao longo do traço (para o ruído das cerdas)
@@ -245,34 +249,46 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
 
   const cor = { r: 0, g: 0, b: 0 };
   const canal = (hex, i) => parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16) / 255;
+  function depositar(cs, hex) {
+    if (!cs.length) return;
+    // sRGB direto (#rrggbb): a camada não converte espaço de cor
+    cor.r = canal(hex, 0); cor.g = canal(hex, 1); cor.b = canal(hex, 2);
+    const g = gesto(velocidade, percurso);
+    for (const p of cs) {
+      distancia = (distancia + PASSO) % 30000; // limitado: precisão do ruído na GPU
+      const f = forca(p.x, p.y);
+      if (f > 0) enfileirar(p, cor, g, f);
+    }
+    const fim = cs.at(-1);
+    ultimo.x = fim.x; ultimo.y = fim.y;
+  }
+  // Mouse parado: o último meio trecho (do último carimbo até o mouse) é desenhado em linha reta,
+  // na direção em que a curva já chegava. O próximo movimento continua do último carimbo.
+  function fechar() {
+    if (ultimo) depositar(carimbosEntre(ultimo, { x: ultimo.px, y: ultimo.py }, PASSO), ultimo.hex);
+  }
   const tinta = {
     ativa: true,
-    // Um movimento do ponteiro em (x, y) px de janela, com a cor da tela vizinha (#rrggbb).
-    pintar(x, y, hex) {
+    // Um movimento do ponteiro em (x, y) px de janela, com a cor da tela vizinha (#rrggbb), no
+    // instante t (timeStamp do evento; os eventos agrupados de um quadro têm cada um o seu).
+    pintar(x, y, hex, t = performance.now()) {
       if (!tinta.ativa || !hex) { ultimo = null; return; }
-      const agora = performance.now();
-      if (!ultimo || Math.hypot(x - ultimo.x, y - ultimo.y) > SALTO) {
-        ultimo = { x, y, t: agora, px: x, py: y };
+      if (!ultimo || Math.hypot(x - ultimo.px, y - ultimo.py) > SALTO) {
+        ultimo = { x, y, t, px: x, py: y, hex };
         percurso = 0;
         return;
       }
-      const dt = Math.max(1, agora - ultimo.t);
+      const dt = Math.max(1, t - ultimo.t);
       const d = Math.hypot(x - ultimo.px, y - ultimo.py);
-      velocidade += (d / dt - velocidade) * 0.35;
+      // suavização por tempo: com eventos agrupados (vários por quadro) fica igual à de um por quadro
+      velocidade += (d / dt - velocidade) * (1 - 0.65 ** Math.min(1, dt / 16.7));
       percurso = dt > PAUSA ? 0 : percurso + d;
-      ultimo.t = agora; ultimo.px = x; ultimo.py = y;
-      const cs = carimbosEntre(ultimo, { x, y }, PASSO);
-      if (!cs.length) return;
-      // sRGB direto (#rrggbb): a camada não converte espaço de cor
-      cor.r = canal(hex, 0); cor.g = canal(hex, 1); cor.b = canal(hex, 2);
-      const g = gesto(velocidade, percurso);
-      for (const p of cs) {
-        distancia = (distancia + PASSO) % 30000; // limitado: precisão do ruído na GPU
-        const f = forca(p.x, p.y);
-        if (f > 0) enfileirar(p, cor, g, f);
-      }
-      const fim = cs.at(-1);
-      ultimo.x = fim.x; ultimo.y = fim.y;
+      // curva do último carimbo até o meio entre a posição anterior e esta, com a anterior de
+      // controle: emenda na mesma direção do trecho de antes
+      const meio = { x: (ultimo.px + x) / 2, y: (ultimo.py + y) / 2 };
+      const cs = carimbosNaCurva(ultimo, { x: ultimo.px, y: ultimo.py }, meio, PASSO);
+      ultimo.t = t; ultimo.px = x; ultimo.py = y; ultimo.hex = hex;
+      depositar(cs, hex);
     },
     // O traço termina (ponteiro saiu da janela, mergulho etc.).
     romper() { ultimo = null; velocidade = 0; percurso = 0; },
@@ -291,6 +307,7 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
 
   palco.aoQuadro((t, dt) => {
     if (!tinta.ativa) { ultimo = null; fila = 0; }
+    if (ultimo && performance.now() - ultimo.t > FECHO) fechar();
     if (viva <= 0 && fila === 0) return; // camada vazia: custo zero
     perdaPendente += dt / VIDA;
     if (perdaPendente > perdaMinima && viva > 0) {

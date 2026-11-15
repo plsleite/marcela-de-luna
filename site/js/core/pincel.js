@@ -18,6 +18,51 @@ export function carimbosEntre(a, b, passo) {
   return c;
 }
 
+// Carimbos a cada `passo` px (medidos ao longo do arco) na Bézier quadrática a→b com `controle`,
+// sem o ponto de partida; `ang` é a tangente à curva. Mesma regra de sobra de carimbosEntre.
+export function carimbosNaCurva(a, controle, b, passo) {
+  const c = controle;
+  const ponto = (t) => {
+    const u = 1 - t;
+    return { x: u * u * a.x + 2 * u * t * c.x + t * t * b.x, y: u * u * a.y + 2 * u * t * c.y + t * t * b.y };
+  };
+  const angulo = (t) => {
+    const dx = 2 * (1 - t) * (c.x - a.x) + 2 * t * (b.x - c.x);
+    const dy = 2 * (1 - t) * (c.y - a.y) + 2 * t * (b.y - c.y);
+    // controle sobre uma ponta: a derivada zera ali; vale a corda
+    return Math.hypot(dx, dy) > 1e-9 ? Math.atan2(dy, dx) : Math.atan2(b.y - a.y, b.x - a.x);
+  };
+  const poligono = Math.hypot(c.x - a.x, c.y - a.y) + Math.hypot(b.x - c.x, b.y - c.y);
+  if (!(poligono >= passo)) return [];
+  // arco medido numa poligonal fina; cada carimbo é calculado na curva, no t interpolado
+  const n = Math.min(1000, Math.max(8, Math.ceil(poligono * 2)));
+  const cs = [];
+  let ant = a, s = 0, alvo = passo;
+  for (let i = 1; i <= n; i++) {
+    const t = i / n, p = ponto(t);
+    const d = Math.hypot(p.x - ant.x, p.y - ant.y);
+    while (d > 0 && s + d >= alvo - 1e-9) {
+      const tc = (i - 1 + (alvo - s) / d) / n;
+      cs.push({ ...ponto(tc), ang: angulo(tc) });
+      alvo += passo;
+    }
+    s += d; ant = p;
+  }
+  return cs;
+}
+
+// Tamanho do alvo da tinta (px): um ponto de tinta por ponto de tela até a densidade 2, mais
+// acima disso; se a área passar do teto, os dois lados encolhem na mesma proporção.
+export function tamanhoDoAlvo(larguraCss, alturaCss, razaoDePixels, teto = 8_300_000) {
+  const k = Math.max(1, razaoDePixels / 2);
+  let w = Math.max(1, Math.round(larguraCss * k)), h = Math.max(1, Math.round(alturaCss * k));
+  if (w * h > teto) {
+    const f = Math.sqrt(teto / (w * h));
+    w = Math.max(1, Math.floor(w * f)); h = Math.max(1, Math.floor(h * f));
+  }
+  return { w, h };
+}
+
 const rgbDe = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 function matiz([r, g, b]) {
   const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
