@@ -16,6 +16,8 @@ export const VISIBILIDADE = { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.
 // da parada mais próxima, em duracaoMin s até 20 vh de distância, crescendo até duracaoMax s em
 // 80 vh ou mais; a menos de `folga` vh do foco, não faz nada.
 export const IMA = { espera: 160, duracaoMin: 0.45, duracaoMax: 0.9, folga: 0.5 };
+// Música de fundo: volume-alvo, subida no primeiro gesto (s) e transição do botão (s).
+export const SOM = { volume: 0.22, entrada: 3, troca: 0.6 };
 // Pigmentos do pincel (paleta da artista, medida no acervo): azul, rosa neon, magenta, laranja.
 // O primeiro é o padrão.
 export const PIGMENTOS = ['#305fa3', '#e91b6a', '#d15ca1', '#f3953e'];

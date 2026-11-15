@@ -57,11 +57,11 @@ async function iniciarTravessia(stops, images) {
   const [
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
     { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { criarNavegacao },
-    { criarIma }, { default: Lenis }, { gsap },
+    { criarIma }, { criarSom }, { default: Lenis }, { gsap },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
-    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('lenis'), import('gsap'),
+    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('./ui/som.js'), import('lenis'), import('gsap'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -414,6 +414,10 @@ async function iniciarTravessia(stops, images) {
     const fundo = telas.filter((m) => m !== telaDaCapa);
     abertura = rodarAbertura({ telaDaCapa, pronto: Promise.all(etapas), etapas, fundo });
     aoDesmontar(() => abertura.encerrar());
+    // Música de fundo: o arquivo só é pedido depois da abertura (sem ele, não há botão).
+    const som = criarSom();
+    aoDesmontar(() => som.encerrar());
+    abertura.then(() => { if (ativo) som.carregar(); }).catch(desmontar);
     if (capa) {
       Promise.race([capa, abertura]).catch(() => {}) // erro da capa já registrado acima
         .then(() => { if (ativo) carregarJanela(indiceAtual); })
