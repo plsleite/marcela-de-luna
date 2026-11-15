@@ -1,7 +1,7 @@
-import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, FOV } from './config.js';
+import { PILOTO_ULTIMA_PAGINA, DIST_FOCO } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
-import { zDaCamera, zDoStop, planosDoStop } from './core/camera.js';
+import { zDaCamera, zDoStop, planosDoStop, fovPara } from './core/camera.js';
 import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { paralaxe, suavizar } from './core/paralaxe.js';
@@ -127,7 +127,8 @@ async function iniciarTravessia(stops, images) {
 
     // Retângulo de cada tela na janela, com a câmera no foco da sua parada.
     const retanguloNoFoco = (mesh) => {
-      const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, mesh.userData.stopId) + DIST_FOCO, innerWidth / innerHeight);
+      const aspecto = innerWidth / innerHeight;
+      const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, mesh.userData.stopId) + DIST_FOCO, aspecto, fovPara(aspecto));
       return { esq: r.esq * innerWidth, dir: r.dir * innerWidth, topo: r.topo * innerHeight, base: r.base * innerHeight };
     };
     const legendas = criarLegendas(raiz, linha);
@@ -206,7 +207,7 @@ async function iniciarTravessia(stops, images) {
     let textoAnterior = '';
     function poseDoScroll(vh = (scrollY / innerHeight) * 100) {
       const p = paralaxe(palco.ponteiro);
-      return { x: p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: FOV };
+      return { x: p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: fovPara(innerWidth / innerHeight) };
     }
     function aplicarParalaxe(vh) {
       const p = paralaxe(palco.ponteiro);

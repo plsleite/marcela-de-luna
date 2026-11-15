@@ -1,7 +1,8 @@
 // Palco three.js: cena branca, câmera em perspectiva olhando para −z, o laço de quadros
 // e o ponteiro do mouse (suavizado) para a paralaxe e a luz rasante.
 import * as THREE from 'three';
-import { FOV, DIST_FOCO } from '../config.js';
+import { DIST_FOCO } from '../config.js';
+import { fovPara } from '../core/camera.js';
 import { suavizar } from '../core/paralaxe.js';
 
 export function criarPalco(canvas) {
@@ -18,7 +19,7 @@ export function criarPalco(canvas) {
   renderer.toneMapping = THREE.NoToneMapping;
 
   const cena = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(FOV, innerWidth / innerHeight, 0.1, 80);
+  const camera = new THREE.PerspectiveCamera(fovPara(innerWidth / innerHeight), innerWidth / innerHeight, 0.1, 80);
   camera.position.set(0, 0, DIST_FOCO);
 
   // Ponteiro em −1..1 (y para cima): `alvo` segue o mouse; `ponteiro` o persegue a cada quadro.
@@ -79,6 +80,7 @@ export function criarPalco(canvas) {
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(innerWidth, innerHeight, false);
     camera.aspect = innerWidth / innerHeight;
+    camera.fov = fovPara(camera.aspect); // janela estreita: campo horizontal constante
     camera.updateProjectionMatrix();
   }
   redimensionar();

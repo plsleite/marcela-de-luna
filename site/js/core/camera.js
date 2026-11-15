@@ -1,5 +1,16 @@
-import { DIST_FOCO, UNIDADES_POR_VH } from '../config.js';
+import { DIST_FOCO, UNIDADES_POR_VH, FOV } from '../config.js';
 import { focoDe } from './timeline.js';
+
+// Campo vertical efetivo (graus) para a proporção da janela. Acima de 1,65, o FOV de sempre;
+// abaixo, o campo horizontal fica o de 1,65 (as telas diminuem, com mais branco acima e abaixo,
+// mas nada se corta nas laterais), até o limite da proporção 0,9.
+const ASPECTO_BASE = 1.65;
+const ASPECTO_MIN = 0.9;
+export function fovPara(aspecto) {
+  if (aspecto >= ASPECTO_BASE) return FOV;
+  const a = Math.max(aspecto, ASPECTO_MIN);
+  return (2 * Math.atan(Math.tan((FOV / 2) * Math.PI / 180) * ASPECTO_BASE / a) * 180) / Math.PI;
+}
 
 export const zDaCamera = vh => DIST_FOCO - vh * UNIDADES_POR_VH;
 export const zDoStop = (linha, id) => 0 - focoDe(linha, id) * UNIDADES_POR_VH; // "0 -" evita -0

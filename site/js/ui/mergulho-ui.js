@@ -6,7 +6,7 @@
 // Tudo o que o mergulho cria (elementos, ouvintes, tweens) sai em fechar() e em encerrar().
 import * as THREE from 'three';
 import { gsap } from 'gsap';
-import { FOV } from '../config.js';
+import { fovPara } from '../core/camera.js';
 import { aplicarZoom, arrastar, distanciaDeEncaixe, extensaoVisivel, fovDoZoom, ZOOM_MIN } from '../core/mergulho.js';
 import { pontoNaTela } from '../gl/tela.js';
 
@@ -47,11 +47,14 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   }
   const poseAtual = () => ({ x: cam.position.x, y: cam.position.y, z: cam.position.z, rx: cam.rotation.x, ry: cam.rotation.y, fov: cam.fov });
   const dims = (mesh) => mesh.geometry.parameters;
-  const ext = (mesh) => extensaoVisivel(dims(mesh).width, dims(mesh).height, innerWidth / innerHeight, FOV, OCUPA);
+  // Campo vertical efetivo da janela atual (o mesmo da travessia: core/camera.js).
+  const aspecto = () => innerWidth / innerHeight;
+  const ext = (mesh) => extensaoVisivel(dims(mesh).width, dims(mesh).height, aspecto(), fovPara(aspecto()), OCUPA);
   function poseDaVista(mesh, v) {
     const { width: w, height: h } = dims(mesh);
-    const d = distanciaDeEncaixe(w, h, innerWidth / innerHeight, FOV, OCUPA);
-    return { x: mesh.position.x + (v.cx - 0.5) * w, y: mesh.position.y + (v.cy - 0.5) * h, z: mesh.position.z + d, rx: 0, ry: 0, fov: fovDoZoom(FOV, v.zoom) };
+    const fov = fovPara(aspecto());
+    const d = distanciaDeEncaixe(w, h, aspecto(), fov, OCUPA);
+    return { x: mesh.position.x + (v.cx - 0.5) * w, y: mesh.position.y + (v.cy - 0.5) * h, z: mesh.position.z + d, rx: 0, ry: 0, fov: fovDoZoom(fov, v.zoom) };
   }
   // Ponto da tela (UV, v para cima) sob (x, y) px da janela, com a câmera do último quadro.
   function uvSob(mesh, x, y) {
@@ -386,7 +389,8 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     } finally {
       pararSaida();
       html.classList.remove('tela-clicavel', 'mergulhando', 'arrastando');
-      if (cam.fov !== FOV) { cam.fov = FOV; cam.updateProjectionMatrix(); }
+      const fov = fovPara(aspecto());
+      if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
     }
   }
 

@@ -84,3 +84,26 @@ test('dados reais: linha cobre as 58 paradas e planos resolvem', () => {
     for (const p of planosDoStop(s, o, imgs, l)) assert.ok(p.largura > 0, `${s.id}/${p.imagem}`);
   }
 });
+
+test('fovPara: campo horizontal constante abaixo da proporção 1,65', async () => {
+  const { fovPara } = await import('../site/js/core/camera.js');
+  const meiaLarg = (aspecto, d = cfg.DIST_FOCO) => d * Math.tan((fovPara(aspecto) / 2) * Math.PI / 180) * aspecto;
+  assert.equal(fovPara(1.65), 35);
+  assert.equal(fovPara(2.4), 35);
+  assert.equal(fovPara(1.65 + 1e-6), 35);
+  assert.ok(fovPara(1.2) > 35);
+  assert.ok(Math.abs(meiaLarg(1.2) - meiaLarg(1.65)) < 1e-9);
+  assert.ok(Math.abs(meiaLarg(1) - meiaLarg(1.65)) < 1e-9);
+  assert.ok(Math.abs(meiaLarg(0.9) - meiaLarg(1.65)) < 1e-9);
+  // monotonia: quanto mais estreita a janela, maior o campo vertical
+  let anterior = fovPara(3);
+  for (let a = 2.9; a >= 0.5; a -= 0.05) {
+    const f = fovPara(a);
+    assert.ok(f >= anterior - 1e-12, `aspecto ${a}`);
+    anterior = f;
+  }
+  // limite: abaixo de 0,9 fica o valor de 0,9
+  assert.equal(fovPara(0.5), fovPara(0.9));
+  assert.equal(fovPara(0.3), fovPara(0.9));
+  assert.ok(fovPara(0.9) > fovPara(1));
+});
