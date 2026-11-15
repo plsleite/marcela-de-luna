@@ -64,14 +64,14 @@ Seis mudanças no modo "Travessia" do site, decididas depois da primeira sessão
 
 - Arquivo: `site/assets/audio/o-cisne.mp3`. **O arquivo pode não existir ainda.** Se não carregar, o botão de som não aparece e nada mais muda; nenhum erro no console além do 404 do próprio pedido.
 - Novo módulo `site/js/ui/som.js`, criado só no modo travessia e encerrado em `desmontar()`.
-- O site abre em silêncio. No primeiro `pointerdown` ou `keydown` do visitante, a música começa, subindo de 0 ao volume 0,6 em 3 s (o arquivo é entregue já atenuado em 9 dB, porque no iPad o site não controla o volume), e toca em looping.
+- O site abre em silêncio. No primeiro `pointerdown` ou `keydown` do visitante, a música começa, subindo de 0 ao volume 0,6 em 3 s, e toca em looping. O arquivo já tem volume baixo (cerca de −25,6 LUFS), porque no iPad o site não controla o volume.
 - O arquivo só começa a ser baixado depois que a abertura termina.
 - Botão discreto no canto superior direito: três barrinhas finas desenhadas em CSS, que oscilam com a música tocando e ficam paradas e baixas com o som desligado. `aria-label` "Desligar o som" ou "Ligar o som" e `aria-pressed`. Liga e desliga com transição de 0,6 s.
 - A escolha fica em `localStorage` (`som` = `ligado` ou `desligado`). Se estiver `desligado`, a música não começa sozinha.
 - A música pausa quando a aba fica oculta e retoma quando volta.
 - O botão continua visível e utilizável com uma tela ampliada.
 - Lógica de estado (deve tocar? com que volume-alvo?) em função pura com teste.
-- Crédito da gravação: comentário no `index.html` e no topo de `som.js`, com o texto que o coordenador informar quando o arquivo for escolhido.
+- Crédito da gravação: comentário no `index.html` e no topo de `som.js` (Alisa Weilerstein e Jason Yoder, Casa Branca, 2009; Wikimedia Commons).
 
 ## Conferência no navegador
 

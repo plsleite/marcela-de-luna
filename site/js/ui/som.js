@@ -1,5 +1,5 @@
 // Música de fundo (só na travessia): "O Cisne", de Saint-Saëns, em looping e volume baixo.
-// Crédito da gravação: a informar pelo coordenador quando o arquivo for escolhido.
+// Música: Camille Saint-Saëns, "Le Cygne" (O Carnaval dos Animais, 1886). Alisa Weilerstein (violoncelo) e Jason Yoder (piano), Casa Branca, 4/11/2009. Fonte: Wikimedia Commons, arquivo "20091104 Alisa Weilerstein and Jason Yoder - Saint Saëns' The Swan.ogg" (domínio público nos EUA como obra do governo federal; execução sob CC BY 3.0). Editado: silêncio inicial e aplausos cortados, convertido para MP3.
 //
 // O site abre em silêncio (os navegadores não tocam som antes de um gesto): no primeiro
 // pointerdown ou keydown do visitante a música sobe de 0 a SOM.volume em SOM.subida s. O arquivo

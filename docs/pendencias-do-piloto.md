@@ -32,6 +32,8 @@ Achados das revisões do Plano 1 que não bloqueiam a validação do piloto. Cad
 - Som: erros do `play()` que não sejam recusa de autoplay são engolidos sem registro; ao ligar pelo botão a música entra em 0,6 s (a subida de 3 s vale só para o primeiro gesto); rótulo de ação junto com `aria-pressed` pode soar como estado duplo em leitor de tela.
 - Realce do vulto: um raio e um `filter` novo a cada quadro, mesmo com o mouse parado.
 - Gravação de "O Cisne": confirmar os direitos antes de publicar.
+- Em janela muito baixa (cerca de 320 px de altura), a legenda não encolhe com a cena e volta a encostar no vulto da tela seguinte: a fonte da legenda deveria acompanhar a altura da janela.
+- A música tem grande variação de volume (trechos suaves bem mais baixos que os fortes); se os trechos suaves sumirem em caixas de notebook, aplicar uma compressão leve ao arquivo.
 
 ## Conceito de celular
 
@@ -40,7 +42,7 @@ Achados das revisões do Plano 1 que não bloqueiam a validação do piloto. Cad
 - "PORTFÓLIO" cortado na página base do celular.
 - `ImageBitmap` mantido na memória depois do envio à GPU.
 - Abrir o mergulho só é possível com mouse; falta teclado e toque.
-- Música no iPad e no iPhone: `HTMLMediaElement.volume` é somente leitura (fica em 1), então não há a subida gradual de 3 s nem a transição de 0,6 s do botão; a música entra e sai de uma vez. O arquivo vem atenuado em 9 dB para soar como fundo mesmo em volume 1. Resolver exige `AudioContext` com `GainNode`.
+- Música no iPad e no iPhone: `HTMLMediaElement.volume` é somente leitura (fica em 1), então não há a subida gradual de 3 s nem a transição de 0,6 s do botão; a música entra e sai de uma vez. O arquivo já tem volume baixo (cerca de −25,6 LUFS), para soar como fundo mesmo em volume 1.
 
 ## Acabamento
 

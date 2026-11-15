@@ -17,7 +17,7 @@ export const VISIBILIDADE = { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.
 // 80 vh ou mais; a menos de `folga` vh do foco, não faz nada.
 export const IMA = { espera: 160, duracaoMin: 0.45, duracaoMax: 0.9, folga: 0.5 };
 // Música de fundo: volume-alvo, subida no primeiro gesto (s) e transição do botão (s). O arquivo
-// vem atenuado em 9 dB (no iOS o volume fica em 1), daí o alvo 0,6 em vez de ~0,22.
+// já é baixo (cerca de −25,6 LUFS) e no iOS o volume fica em 1; daí o alvo 0,6 em vez de ~0,22.
 export const SOM = { volume: 0.6, subida: 3, troca: 0.6 };
 // Pigmentos do pincel (paleta da artista, medida no acervo): azul, rosa neon, magenta, laranja.
 // O primeiro é o padrão.
