@@ -1,5 +1,5 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
-import { cartaoFinal } from '../site/js/core/final.js';
+import { cartaoFinal, noMeioDoGiro } from '../site/js/core/final.js';
 
 test('cartaoFinal: o último close centraliza, gira e chega ao verso', () => {
   const p = { focoFrente: 1000, focoVerso: 1072.5, frente: { x: 1.5, y: -0.25, altura: 6.2 }, verso: { x: 0, y: 0, altura: 4.6 } };
@@ -15,4 +15,11 @@ test('cartaoFinal: o último close centraliza, gira e chega ao verso', () => {
   assert.deepEqual(cartaoFinal(500, p), a);                                                          // antes: parado na frente
   assert.ok(Math.abs(cartaoFinal(2000, p).giro - Math.PI) < 1e-9);                                    // depois: parado no verso
   let anterior = -1; for (let vh = 1000; vh <= 1072.5; vh += 2.5) { const g = cartaoFinal(vh, p).giro; assert.ok(g >= anterior); anterior = g; }
+});
+
+test('noMeioDoGiro: só estritamente entre 0 e π', () => {
+  assert.equal(noMeioDoGiro(0), false);
+  assert.equal(noMeioDoGiro(Math.PI), false);
+  assert.equal(noMeioDoGiro(Math.PI / 2), true);
+  assert.equal(noMeioDoGiro(1e-6), true);
 });

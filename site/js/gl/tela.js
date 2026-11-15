@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { RELEVO, VISIBILIDADE as VIS } from '../config.js';
 import { ALTURA_LUZ, RAIO_LUZ, GANHO, PASSO_UV } from '../core/luz.js';
 import { PINCELADA as PC } from '../core/abertura.js';
+import { caixaProjetada } from '../core/projecao.js';
 
 const f = (v) => v.toFixed(4); // constante JS → literal GLSL
 
@@ -153,18 +154,13 @@ export function pontoNaTela(mesh, raio) {
   };
 }
 
-// Retângulo da tela na janela (px, y para baixo) com a câmera do último quadro.
-const _canto = new THREE.Vector3();
+// Retângulo da tela na janela (px, y para baixo): a caixa envolvente dos quatro cantos levados
+// pela matrixWorld do mesh (posição, escala e giro: o cartão final) e pela câmera. As matrizes
+// são atualizadas aqui, porque o cartão e a câmera mudam no quadro antes do render.
 export function retanguloProjetado(mesh, camera) {
   const { width, height } = mesh.geometry.parameters;
-  const r = { esq: Infinity, dir: -Infinity, topo: Infinity, base: -Infinity };
-  for (const sx of [-0.5, 0.5]) {
-    for (const sy of [-0.5, 0.5]) {
-      _canto.set(mesh.position.x + sx * width, mesh.position.y + sy * height, mesh.position.z).project(camera);
-      const x = ((_canto.x + 1) / 2) * innerWidth, y = ((1 - _canto.y) / 2) * innerHeight;
-      r.esq = Math.min(r.esq, x); r.dir = Math.max(r.dir, x);
-      r.topo = Math.min(r.topo, y); r.base = Math.max(r.base, y);
-    }
-  }
-  return r;
+  mesh.updateMatrixWorld();
+  camera.updateMatrixWorld();
+  return caixaProjetada(width, height, mesh.matrixWorld.elements, camera.matrixWorldInverse.elements,
+    camera.projectionMatrix.elements, innerWidth, innerHeight);
 }

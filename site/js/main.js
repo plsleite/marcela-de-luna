@@ -6,7 +6,7 @@ import { retanguloNaTela } from './core/projecao.js';
 import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
 import { criarTrilho, textoVale } from './core/trilho.js';
-import { cartaoFinal } from './core/final.js';
+import { cartaoFinal, noMeioDoGiro } from './core/final.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
 
@@ -163,7 +163,8 @@ async function iniciarTravessia(stops, images) {
           frente: medidas(frente.userData.plano), verso: medidas(verso.userData.plano) },
       };
     })();
-    // Com uma tela ampliada, o cartão não se move.
+    // Com uma tela ampliada, o cartão não se move: luzNeutra e deCostas ficam os da pose congelada,
+    // que continuam a descrevê-la (e a ampliação só abre num foco, com giro 0 ou π).
     function moverCartao(vh) {
       if (!cartao || estado.mergulho) return;
       const c = cartaoFinal(vh, cartao.p);
@@ -172,7 +173,7 @@ async function iniciarTravessia(stops, images) {
         m.position.set(c.x, c.y, c.z);
         m.rotation.y = giro;
         m.scale.setScalar(c.altura / altura);
-        m.userData.luzNeutra = c.giro > 0 && c.giro < Math.PI;
+        m.userData.luzNeutra = noMeioDoGiro(c.giro);
         m.userData.deCostas = Math.cos(giro) < 0; // não é desenhada nem barra o pincel
       }
       cartao.giro = c.giro;
@@ -180,7 +181,7 @@ async function iniciarTravessia(stops, images) {
     // Parada clicável como "em foco": não com o trilho fora da folga nem com o cartão no meio do
     // giro (aí a tela da parada leva ao foco dela, em vez de ampliar).
     const emFocoParaClique = (vh) => (textoVale(trilho(vh), TRILHO_FOLGA_TEXTO)
-      && !(cartao && cartao.giro > 0 && cartao.giro < Math.PI) ? emFoco(linha, vh) : null);
+      && !(cartao && noMeioDoGiro(cartao.giro)) ? emFoco(linha, vh) : null);
 
     const legendas = criarLegendas(raiz, linha, trilho);
     const posicionar = () => {

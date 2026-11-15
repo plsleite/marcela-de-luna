@@ -15,6 +15,31 @@ export function retanguloNaTela(plano, zCamera, aspecto, fov = FOV) {
   };
 }
 
+// Ponto (x, y, z) por uma matriz 4×4 em coluna, com a divisão perspectiva (a mesma conta, na
+// mesma ordem, de Vector3.applyMatrix4 do three).
+function porMatriz([x, y, z], e) {
+  const w = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
+  return [(e[0] * x + e[4] * y + e[8] * z + e[12]) * w,
+    (e[1] * x + e[5] * y + e[9] * z + e[13]) * w,
+    (e[2] * x + e[6] * y + e[10] * z + e[14]) * w];
+}
+
+// Caixa envolvente (px, y para baixo) dos quatro cantos de uma tela largura × altura, levados ao
+// mundo por `mundo` (matrixWorld: posição, escala e giro), à câmera por `vista`
+// (matrixWorldInverse) e ao recorte por `projecao`. Matrizes = Matrix4.elements (em coluna).
+export function caixaProjetada(largura, altura, mundo, vista, projecao, W, H) {
+  const r = { esq: Infinity, dir: -Infinity, topo: Infinity, base: -Infinity };
+  for (const sx of [-0.5, 0.5]) {
+    for (const sy of [-0.5, 0.5]) {
+      const [nx, ny] = porMatriz(porMatriz(porMatriz([sx * largura, sy * altura, 0], mundo), vista), projecao);
+      const x = ((nx + 1) / 2) * W, y = ((1 - ny) / 2) * H;
+      r.esq = Math.min(r.esq, x); r.dir = Math.max(r.dir, x);
+      r.topo = Math.min(r.topo, y); r.base = Math.max(r.base, y);
+    }
+  }
+  return r;
+}
+
 const PASSO_LINHA = 60;   // ms entre linhas
 const ATRASO_NEGRITO = 300; // ms depois da última linha
 

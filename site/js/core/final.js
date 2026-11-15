@@ -19,3 +19,7 @@ export function cartaoFinal(vh, { focoFrente, focoVerso, frente, verso }) {
     giro: Math.PI * s,
   };
 }
+
+// O cartão está girando (nem frente nem verso de chapa): aí a luz rasante fica neutra e o
+// clique na tela não amplia.
+export const noMeioDoGiro = (giro) => giro > 0 && giro < Math.PI;
