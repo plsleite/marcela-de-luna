@@ -14,9 +14,12 @@ Achados das revisões do Plano 1 e do Plano 2 (extensão às 58 páginas) que n�
 - O teste de dados reais não afirma `|x| + largura/2 ≤ 3,8` em todas as obras de uma tela; em `planosDoStop`, `3,8 − largura/2` fica negativo para largura > 7,6 e inverte o lado da obra.
 - O teste de `janelaDeViagem` (0 → 3) não prova que as paradas do meio ficam de fora.
 - O teste do trilho não faz varredura de continuidade; `xDaTela` não dá erro explícito se faltar o plano 0 de uma parada.
-- `smoothstep` e `clamp01` duplicadas em `core/abertura.js` e `core/trilho.js`; `textoVale` mora no módulo do trilho, que é de câmera.
+- `smoothstep` duplicada em três arquivos (`core/abertura.js`, `core/trilho.js` e `core/final.js`), e `clamp01` em `core/abertura.js` e `core/trilho.js`; `textoVale` mora no módulo do trilho, que é de câmera.
 - `com-legenda` é posta em qualquer parada, não só nas obras.
 - Comentário longo no cabeçalho de `ui/preenchimento.js` (linhas 1 a 3).
+- `main.js` com cerca de 430 linhas: `cartao`, `moverCartao` e `emFocoParaClique` caberiam em `travessia/cartao.js`, com o predicado do clique em `core/clique.js` e teste.
+- O contrato de `mesh.userData` (`plano`, `perto`, `surge`, `alcance`, `luzNeutra`, `deCostas`) é escrito em dois arquivos e lido em quatro, sem um lugar que o descreva.
+- `travessia/carregamento.js` sem teste: um teste em Node com `texturas` e `gsap` falsos fixaria que a tela liberada volta à miniatura, que a imagem ampliada nunca é liberada e que uma textura tardia não é aplicada depois de `ativo() === false`.
 
 ## Depois da extensão às 58 páginas
 
@@ -69,6 +72,8 @@ Achados das revisões do Plano 1 e do Plano 2 (extensão às 58 páginas) que n�
 - Raycast a cada movimento do ponteiro.
 - Falha de carga em `main.js` sem teste nem conferência no navegador.
 - Roteiro: `tools/abrir-piloto.sh` não distingue outro programa na mesma porta e sai sem mensagem se o servidor morrer.
+- O trilho também vale durante uma viagem longa (desvio lateral de até 2,4 un. no meio do voo); avaliar com o retorno do Pedro.
+- A imagem da pág. 40 tem a borda direita em 3,9 un., cerca de 9 px sob a coluna da fileira em 1440×900.
 
 ## Publicação
 
@@ -78,6 +83,7 @@ Achados das revisões do Plano 1 e do Plano 2 (extensão às 58 páginas) que n�
 - `window.__site` e `?lento` continuam no código de produção.
 - `site/vendor/three.module.min.js` teve o import editado à mão (`./three.core.min.js`): registrar num README de vendor; o teste de vendor não pega `import("https://…")` nem confere os alvos do import map.
 - Falha de `fetch` de textura fica guardada em cache como rejeição.
+- Com as miniaturas, essa falha de `fetch` em cache deixa uma pintura borrada em foco até ela sair da janela; tratar antes de publicar.
 
 ## A conferir pelo Pedro (não verificado por agentes)
 

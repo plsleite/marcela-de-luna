@@ -13,17 +13,17 @@ Estas mudanças valem por cima do que os passos abaixo descrevem.
 - **Ímã.** Quando você para de rolar, a página desliza sozinha até o ponto ideal da parada mais próxima. Rolar de novo interrompe na hora.
 - **Tela seguinte quase branca.** A tela que vem depois aparece só como um vulto claro. Ao passar o mouse, ela ganha um pouco de cor; clicar leva até ela.
 - **Legenda ao lado da base da pintura**, como etiqueta de museu.
-- **Música.** Um botão discreto de som fica no canto superior direito, e a música entra no primeiro clique ou tecla. Enquanto o arquivo da música não estiver na pasta, o botão não aparece.
+- **Música.** Um botão discreto de som fica no canto superior direito, e a música entra no primeiro clique ou tecla.
 
 Perguntas novas: o ímã puxa no tempo certo, cedo demais ou tarde demais? O vulto está claro o bastante? A legenda ficou bem ao lado da base?
 
 ## O que entrou em 15/11/2026: as 58 páginas
 
-Abra o site como na seção 1. Para chegar depressa a uma parada, use a fileira de marcas na borda direita (passe o mouse para ver o título e clique) ou as setas do teclado, que andam uma parada por vez.
+Se o site ainda não está aberto, siga primeiro a seção 1, mais abaixo. Para chegar depressa a uma parada, use a fileira de marcas na borda direita (passe o mouse para ver o título e clique) ou as setas do teclado, que andam uma parada por vez.
 
 Algumas palavras deste trecho:
 
-- **Close**: uma página de "Detalhes" do PDF, com um pedaço de uma pintura visto de muito perto. No site, cada close é uma tela grande, quase do tamanho da janela, que alterna entre a esquerda e a direita.
+- **Close**: uma página de "Detalhes" do PDF, com um pedaço de uma pintura visto de muito perto. No site, cada close é uma tela grande, que alterna entre a esquerda e a direita. Parado, o close é mais alto que a janela e fica cortado em cima e embaixo; só ampliado (clicando nele) ele aparece inteiro.
 - **Travessia pela pintura**: no fim de cada série, a câmera desliza para o lado da última pintura e passa por dentro dela para entrar nos closes. Ao sair dos closes, ela atravessa o último close do mesmo jeito.
 - **Giro final**: o último close do segundo trecho se vira como uma tela de verdade e mostra o verso, com a assinatura.
 
@@ -45,7 +45,7 @@ Algumas palavras deste trecho:
 
 ### A saída do primeiro trecho para "Entre Nós"
 
-1. Na fileira, clique na marca "DETALHES" do primeiro trecho e desça com a seta para baixo até o último close (o 16º).
+1. Na fileira, clique na marca "DETALHES" do primeiro trecho. Ela leva ao primeiro close; aperte a seta para baixo 15 vezes para chegar ao último (o 16º).
 2. Role devagar para baixo. A câmera atravessa esse último close e encontra a abertura de "Entre Nós", com o título e o texto.
 3. Role para cima devagar. O último close deve reaparecer primeiro claro, quase branco, e depois em cor, sem salto.
 
@@ -65,6 +65,7 @@ Algumas palavras deste trecho:
 3. Aperte Home: a viagem volta à capa do mesmo jeito.
 4. Pela fileira, clique na marca do verso estando na capa, e depois numa obra do meio. A câmera deve parar sempre na parada escolhida.
 5. Recarregue a página, aperte End enquanto a capa ainda está surgindo e veja se a viagem acontece e se a capa volta com a pintura quando você retornar a ela.
+6. Durante as viagens, a câmera passa depressa pelos trechos em que atravessa uma pintura (a entrada e a saída dos closes). Repare se ali ela dá um solavanco para o lado. Se incomodar, avise.
 
 ### O que eu medi
 
@@ -78,7 +79,7 @@ Algumas palavras deste trecho:
 Para cada uma, responda "está bom", "mais" ou "menos", e, se puder, diga por quê.
 
 1. **Ritmo dos closes.** Os closes passam depressa demais, devagar demais ou na medida? Cada um fica tempo suficiente parado?
-2. **Tamanho dos closes.** Eles ocupam quase a janela inteira. Prefere maiores, menores ou assim?
+2. **Tamanho dos closes.** Parado, cada close é mais alto que a janela e fica cortado em cima e embaixo; só ampliado ele aparece inteiro. Prefere assim, ou o close inteiro dentro da janela, mesmo que fique menor?
 3. **A travessia pela pintura.** A câmera passar por dentro da última pintura para entrar nos closes funciona para você? Fica bonito, estranho ou confuso?
 4. **O giro final.** A velocidade do giro e o tamanho do verso estão bons? O verso deveria ficar mais tempo na tela?
 5. **A abertura de "Entre Nós".** No PDF, a imagem dessa página sai pelo alto da folha. No site ela ficou inteira, à direita do texto, sem sair pelo topo. Prefere assim ou mais parecida com o PDF?
@@ -128,7 +129,7 @@ Faça com calma. Se algo parecer estranho, anote o que você fez e o que viu.
 3. **Mexer o mouse.** Com uma obra em foco (por exemplo, A Dança é por Ela), mova o mouse devagar. Você deve ver duas coisas discretas: as camadas se deslocam um pouco (paralaxe) e uma luz acompanha o cursor, deixando o relevo das pinceladas aparecer. As cores da pintura não devem mudar. Com o mouse parado, nada deve tremer.
 4. **Pintar o fundo.** Passe o mouse no fundo branco. Deve surgir uma pincelada com textura de cerdas, que some aos poucos. A tinta sai num de quatro pigmentos da paleta da artista (azul, rosa, magenta e laranja), escolhido pela pintura mais próxima: não é a cor exata da pintura, é o pigmento da paleta que mais combina com ela. A tinta nunca deve cobrir uma pintura nem o texto.
 5. **Pintar os títulos.** Passe o mouse sobre um título grande, como "PESQUISA ARTÍSTICA" ou "A BAILARINA". As letras devem se encher de pintura.
-6. **Clicar numa tela.** Com uma obra em foco, clique nela. O "mergulho" é isso: a câmera chega bem perto até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse (ou a pinça no trackpad) para aproximar e arraste para mover a pintura. Só as obras abrem assim: clicar na pintura da capa ou nos recortes da Pesquisa Artística, quando estão em foco, não faz nada. Clicar numa tela que está ao longe leva até ela.
+6. **Clicar numa tela.** Com uma obra em foco, clique nela. O "mergulho" é isso: a câmera chega bem perto até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse (ou a pinça no trackpad) para aproximar e arraste para mover a pintura. A pintura da capa, os recortes da Pesquisa Artística e de A Bailarina, os closes e o verso também ampliam assim quando estão em foco; nesses casos não há legenda, só o botão "voltar". Clicar numa tela que está ao longe leva até ela.
 7. **Abrir um close.** Com uma obra ampliada, uma pequena marca sobre a pintura indica que há um close daquele trecho. Em A Dança é por Ela há uma. Clique na marca: abre o close em alta resolução. Aperte **Esc** uma vez para voltar à tela e **Esc** de novo para voltar à travessia, no mesmo ponto onde você estava. Cada Esc volta um nível: do close para a tela, da tela para a travessia; na travessia, o Esc não faz nada. Agora 18 obras têm marca; a lista de todas as ligações entre closes e telas está em `docs/closes.md`. Confira algumas além de A Dança é por Ela (por exemplo Tensão, Presença e Cartografia do Íntimo).
 8. **Sair do mergulho de outros jeitos.** Entre de novo numa tela e saia pelo botão "voltar", depois rolando a roda para baixo sem ter aproximado, depois com a seta para baixo do teclado. Esc e "voltar" devolvem ao mesmo ponto; a seta para baixo fecha o mergulho e já leva à parada seguinte. Em todos os casos você não deve ficar preso.
 9. **A fileira de pinceladas.** Na borda direita há uma fileira vertical de marcas, uma por parada. Passe o mouse: aparece o título. Clique: a câmera viaja até lá. A marca da parada atual fica mais comprida. Clique em marcas diferentes com a página parada e também logo depois de rolar rápido, e diga se a câmera sempre parou na obra escolhida.
