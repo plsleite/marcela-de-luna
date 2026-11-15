@@ -4,6 +4,7 @@
 // a atual sem tranco (a nova parte na velocidade em que a página já ia).
 // Tudo o que este módulo cria (elementos e ouvintes) sai em encerrar().
 import { focoDe, emFoco } from '../core/timeline.js';
+import { criarLente } from './lente.js';
 import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira, marcaAtual, passoDaFileira } from '../core/navegacao.js';
 
 const FOLGA = 250; // ms depois do fim previsto em que a viagem ainda conta como em andamento
@@ -98,7 +99,10 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   const titulo = criar('span', 'navegacao-titulo');
   titulo.setAttribute('aria-hidden', 'true'); // o nome já está no aria-label de cada marca
   const lista = criar('ol', 'navegacao-lista');
-  lista.dataset.barraTinta = ''; // nem sob a fileira
+  // nem sob a fileira: a barreira cobre a coluna com a lente aberta (--alem, lente.js)
+  const barreira = criar('span', 'navegacao-barreira');
+  barreira.setAttribute('aria-hidden', 'true');
+  barreira.dataset.barraTinta = '';
   const marcas = marcasDaFileira(stops, images);
   const botoes = [];
   for (const m of marcas) {
@@ -117,15 +121,21 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     lista.append(li);
     botoes.push(b);
   }
-  nav.append(titulo, lista);
+  nav.append(barreira, titulo, lista);
+  const lenteDaFileira = criarLente({ nav, lista, botoes });
   antes.before(...(topo ? [topo] : []), nav);
 
-  // Título ao lado da marca: um só elemento fora da lista.
+  // Título ao lado da marca: um só elemento fora da lista, na altura do desenho da marca (que a
+  // lente desloca; posicionarTitulo a cada quadro em que ela mexe).
+  let comTitulo = null;
+  function posicionarTitulo() {
+    if (!comTitulo) return;
+    titulo.style.top = `${(lista.offsetTop + lenteDaFileira.meio(botoes.indexOf(comTitulo))).toFixed(1)}px`;
+  }
   function mostrarTitulo(b) {
     titulo.textContent = b.dataset.titulo;
-    const r = b.getBoundingClientRect();
-    const n = nav.getBoundingClientRect();
-    titulo.style.top = `${(r.top + r.height / 2 - n.top).toFixed(1)}px`;
+    comTitulo = b;
+    posicionarTitulo();
     nav.classList.add('com-titulo');
   }
   function esconderTitulo() {
@@ -138,8 +148,9 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   lista.addEventListener('focusin', (e) => { const b = marcaDe(e.target); if (b?.matches(':focus-visible')) mostrarTitulo(b); });
   lista.addEventListener('focusout', (e) => { if (!marcaDe(e.relatedTarget)) nav.classList.remove('com-titulo'); });
 
-  // A fileira cabe inteira na janela, sem rolagem: a altura de cada marca sai da altura da janela.
-  function medir() { nav.style.setProperty('--passo', `${passoDaFileira(innerHeight, marcas.length).toFixed(2)}px`); }
+  // A fileira cabe inteira na janela, sem rolagem: o passo cheio sai da altura da janela; o de
+  // repouso (contraído) e a lente ficam com lente.js.
+  function medir() { lenteDaFileira.medir(passoDaFileira(innerHeight, marcas.length)); }
   medir();
   addEventListener('resize', medir);
 
@@ -167,6 +178,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
         marcaAnterior = i;
       }
     }
+    if (lenteDaFileira.quadro(dt, oculta)) posicionarTitulo();
     if (navVisivel !== !oculta) {
       navVisivel = !oculta;
       nav.classList.toggle('visivel', navVisivel);
@@ -183,6 +195,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     viagem = null;
     removeEventListener('keydown', aoTeclar);
     removeEventListener('resize', medir);
+    lenteDaFileira.encerrar();
     document.documentElement.classList.remove('fora-da-capa');
     nav.remove();
     topo?.remove();

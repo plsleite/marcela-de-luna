@@ -220,37 +220,52 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
   position: fixed; right: 0; top: 50%; translate: 0 -50%; z-index: 3;
   pointer-events: none; /* só as marcas recebem o ponteiro; o resto é o palco */
 }
-/* cabe inteira na janela, sem rolagem: cada marca mede --passo (navegacao.js) */
+/* cabe inteira na janela, sem rolagem: cada marca mede --passo (o de repouso, contraído; lente.js).
+   O leiaute é sempre o de repouso: a lente só desloca as marcas (--dy) e muda a área de clique
+   (--alto) e o desenho (--meio, --f), sem refluxo. */
 .navegacao-lista { position: relative; list-style: none; margin: 0; padding: 6px 0; }
-.navegacao li { margin: 0; }
-.navegacao li.novo-grupo { margin-top: 12px; }
-/* área de clique 64 × --passo px (12 a 24); o desenho fica rente à direita */
+.navegacao li { position: relative; margin: 0; width: calc(36px + var(--margem)); height: var(--passo, 24px); }
+.navegacao li.novo-grupo { margin-top: var(--sep, 12px); }
+/* a tinta não passa sob a coluna, nem com a lente aberta (--alem em cima e embaixo) */
+.navegacao-barreira {
+  position: absolute; right: 0; top: calc(-1 * var(--alem, 0px)); bottom: calc(-1 * var(--alem, 0px));
+  width: calc(36px + var(--margem)); pointer-events: none;
+}
+/* área de clique (36 px + margem) × --passo, ou a que a lente dá; o desenho fica rente à direita */
 .navegacao-marca {
-  pointer-events: auto; display: flex; align-items: center; justify-content: flex-end;
-  width: calc(36px + var(--margem)); height: var(--passo, 24px); padding: 0 var(--margem) 0 0; margin: 0;
+  --f: 1; /* 0 traço de repouso, 1 pincelada cheia */
+  pointer-events: auto; display: block; position: absolute; top: 0; right: 0;
+  width: calc(36px + var(--margem)); height: var(--alto, 100%); padding: 0; margin: 0;
+  transform: translateY(var(--dy, 0px));
   border: 0; border-radius: 3px; background: none; color: inherit; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+.navegacao.contraida .navegacao-marca { --f: 0; }
 .navegacao-marca:focus { outline: none; }
 .navegacao-marca:focus-visible { outline: 1.5px solid #305fa3; outline-offset: -4px; }
-/* pincelada: ponta de cerdas de um lado, arrasto do outro, levemente inclinada */
+/* pincelada: ponta de cerdas de um lado, arrasto do outro, levemente inclinada; de 8 × 1,5 px
+   (opacidade 0,45) em repouso a 14 × 4 px (0,5) cheia, pelo fator --f */
 .pincelada {
-  display: block; flex: none; width: 14px; height: 4px;
-  background: var(--cor, #111); opacity: 0.5;
+  display: block; position: absolute; right: var(--margem); top: var(--meio, 50%); translate: 0 -50%;
+  width: calc(8px + 6px * var(--f)); height: calc(1.5px + 2.5px * var(--f));
+  background: var(--cor, #111); opacity: calc(0.45 + 0.05 * var(--f));
   clip-path: polygon(0 38%, 9% 4%, 52% 14%, 94% 0, 100% 46%, 97% 92%, 46% 100%, 6% 88%);
   rotate: -4deg; transform-origin: 100% 50%;
-  transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.35s ease;
+  transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), height 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.35s ease;
 }
+/* com a lente em ação o desenho segue o fator a cada quadro, sem atraso */
+.navegacao.lente-ativa .pincelada { transition: none; }
 .navegacao li:nth-child(4n+2) .pincelada { rotate: 3deg; clip-path: polygon(3% 12%, 40% 0, 100% 10%, 96% 58%, 100% 100%, 55% 86%, 0 96%, 5% 50%); }
 .navegacao li:nth-child(4n+3) .pincelada { rotate: -2deg; clip-path: polygon(0 20%, 60% 0, 97% 16%, 100% 70%, 90% 100%, 30% 90%, 4% 100%, 2% 62%); }
 .navegacao li:nth-child(4n) .pincelada { rotate: 5deg; clip-path: polygon(6% 0, 70% 8%, 100% 0, 98% 52%, 92% 100%, 40% 92%, 0 100%, 3% 44%); }
-/* capa, textos e aberturas: traço fino de grafite, afinando para a esquerda */
+/* capa, textos e aberturas: traço fino de grafite, afinando para a esquerda (2 px cheio) */
 .navegacao-marca[data-forma="traco"] .pincelada {
-  height: 2px; background: #111;
+  height: calc(1.5px + 0.5px * var(--f)); background: #111;
   clip-path: polygon(0 55%, 12% 10%, 100% 0, 100% 100%, 12% 90%);
 }
-.navegacao-marca:hover .pincelada, .navegacao-marca:focus-visible .pincelada { opacity: 1; width: 18px; }
-.navegacao-marca[aria-current="true"] .pincelada { opacity: 1; width: 30px; }
+.navegacao-marca:hover .pincelada, .navegacao-marca:focus-visible .pincelada { opacity: 1; width: calc(8px + 10px * var(--f)); }
+/* a parada atual: mais comprida e na sua cor, também em repouso (17 px → 30 px cheia) */
+.navegacao-marca[aria-current="true"] .pincelada { opacity: 1; width: calc(17px + 13px * var(--f)); }
 /* título: um só, à esquerda da marca (top escrito em navegacao.js) */
 .navegacao-titulo {
   position: absolute; top: 0; right: calc(var(--margem) + 40px);
