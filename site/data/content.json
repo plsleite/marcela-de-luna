@@ -125,7 +125,14 @@
    "telas": [
     "p05-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p30-a",
+     "tela": 0,
+     "x": 0.735,
+     "y": 0.22
+    }
+   ]
   },
   {
    "id": "intervalo",
@@ -175,7 +182,14 @@
    "telas": [
     "p08-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p25-a",
+     "tela": 0,
+     "x": 0.604,
+     "y": 0.744
+    }
+   ]
   },
   {
    "id": "bastidores",
@@ -191,7 +205,14 @@
    "telas": [
     "p09-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p26-a",
+     "tela": 0,
+     "x": 0.69,
+     "y": 0.73
+    }
+   ]
   },
   {
    "id": "entre-gestos",
@@ -207,7 +228,14 @@
    "telas": [
     "p10-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p27-a",
+     "tela": 0,
+     "x": 0.84,
+     "y": 0.29
+    }
+   ]
   },
   {
    "id": "le-silence-du-corps",
@@ -223,7 +251,14 @@
    "telas": [
     "p11-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p24-a",
+     "tela": 0,
+     "x": 0.525,
+     "y": 0.55
+    }
+   ]
   },
   {
    "id": "entre-deux-temps",
@@ -290,7 +325,14 @@
     "p15-a",
     "p15-b"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p39-a",
+     "tela": 1,
+     "x": 0.616,
+     "y": 0.353
+    }
+   ]
   },
   {
    "id": "deux-figures",
@@ -323,7 +365,14 @@
    "telas": [
     "p17-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p31-a",
+     "tela": 0,
+     "x": 0.431,
+     "y": 0.238
+    }
+   ]
   },
   {
    "id": "plena",
@@ -339,7 +388,14 @@
    "telas": [
     "p18-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p34-a",
+     "tela": 0,
+     "x": 0.56,
+     "y": 0.652
+    }
+   ]
   },
   {
    "id": "abstrata",
@@ -355,7 +411,14 @@
    "telas": [
     "p19-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p35-a",
+     "tela": 0,
+     "x": 0.52,
+     "y": 0.27
+    }
+   ]
   },
   {
    "id": "solitude",
@@ -371,7 +434,14 @@
    "telas": [
     "p20-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p36-a",
+     "tela": 0,
+     "x": 0.7,
+     "y": 0.41
+    }
+   ]
   },
   {
    "id": "alcance",
@@ -387,7 +457,14 @@
    "telas": [
     "p21-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p37-a",
+     "tela": 0,
+     "x": 0.39,
+     "y": 0.48
+    }
+   ]
   },
   {
    "id": "a-espera",
@@ -403,7 +480,14 @@
    "telas": [
     "p22-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p32-a",
+     "tela": 0,
+     "x": 0.71,
+     "y": 0.633
+    }
+   ]
   },
   {
    "id": "duvidei",
@@ -608,7 +692,14 @@
    "telas": [
     "p42-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p51-a",
+     "tela": 0,
+     "x": 0.441,
+     "y": 0.365
+    }
+   ]
   },
   {
    "id": "o-peso",
@@ -640,7 +731,14 @@
    "telas": [
     "p44-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p52-a",
+     "tela": 0,
+     "x": 0.469,
+     "y": 0.243
+    }
+   ]
   },
   {
    "id": "l-inconnue",
@@ -656,7 +754,14 @@
    "telas": [
     "p45-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p50-a",
+     "tela": 0,
+     "x": 0.556,
+     "y": 0.372
+    }
+   ]
   },
   {
    "id": "anatomia",
@@ -688,7 +793,14 @@
    "telas": [
     "p47-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p53-a",
+     "tela": 0,
+     "x": 0.34,
+     "y": 0.275
+    }
+   ]
   },
   {
    "id": "a-outra-margem",
@@ -704,7 +816,14 @@
    "telas": [
     "p48-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p56-a",
+     "tela": 0,
+     "x": 0.778,
+     "y": 0.343
+    }
+   ]
   },
   {
    "id": "cartografia-do-intimo",
@@ -720,7 +839,14 @@
    "telas": [
     "p49-a"
    ],
-   "closes": []
+   "closes": [
+    {
+     "imagem": "p55-a",
+     "tela": 0,
+     "x": 0.825,
+     "y": 0.346
+    }
+   ]
   },
   {
    "id": "detalhes-2-01",

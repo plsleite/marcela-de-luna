@@ -51,3 +51,14 @@ test('toda imagem citada existe e nenhuma sobra', () => {
   for (const id of usadas) assert.ok(imgs[id], id);
   assert.equal(new Set(usadas).size, 65);
 });
+test('closes apontam para detalhes existentes, dentro da tela, sem repetição', () => {
+  const det = new Set(stops.filter(s => s.tipo === 'detalhe').flatMap(s => s.imagens));
+  const vistos = [];
+  for (const o of obras) for (const c of o.closes) {
+    assert.ok(det.has(c.imagem), c.imagem); assert.ok(c.tela < o.telas.length);
+    assert.ok(c.x >= 0 && c.x <= 1 && c.y >= 0 && c.y <= 1); vistos.push(c.imagem);
+  }
+  assert.equal(new Set(vistos).size, vistos.length);
+  assert.ok(vistos.length >= 8);
+  assert.ok(obras.find(o => o.id === 'a-danca-e-por-ela').closes.length >= 1);
+});
