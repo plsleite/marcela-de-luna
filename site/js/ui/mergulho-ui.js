@@ -1,6 +1,6 @@
 // Mergulho: clicar na tela da parada em foco leva a câmera para dentro dela (a tela cabe em 92%
 // da janela), com título, ficha e "voltar"; roda e pinça aproximam no cursor, arrasto move a
-// vista sem sair da pintura; marcas sobre os closes abrem o detalhe em alta resolução.
+// vista sem sair da pintura (no Safari do macOS, a pinça chega como gesturestart/change/end); marcas sobre os closes abrem o detalhe em alta resolução.
 // Sair (Esc, "voltar", rolar para baixo com zoom 1, rolar a página por outro meio, irPara)
 // devolve a câmera à posição do scroll, que não muda durante o mergulho.
 // Tudo o que o mergulho cria (elementos, ouvintes, tweens) sai em fechar() e em encerrar().
@@ -120,7 +120,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       mesh, ui, voltar, marcas, y0: scrollY, foco: document.activeElement,
       vista: { zoom: 1, cx: 0.5, cy: 0.5 }, ver: { zoom: 1, cx: 0.5, cy: 0.5 },
       t: { v: 0 }, fase: 'entrando', detalhe: null, saindo: new Set(),
-      arrasto: null, engolirClique: false, gesto: { ultimo: -Infinity, podeSair: false },
+      arrasto: null, engolirClique: false, gesto: { ultimo: -Infinity, podeSair: false }, pinca: null,
       opacidades: telas.filter((t) => t !== mesh).map((t) => t.material.uniforms.uOpacidade),
     };
     estado.mergulho = { stopId: stop.id, tela: indiceTela, close: null };
@@ -135,6 +135,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     addEventListener('pointerup', aoSoltar);
     addEventListener('pointercancel', aoSoltar);
     addEventListener('scroll', aoRolarPagina, { passive: true });
+    addEventListener('gesturestart', aoPincaInicio, { passive: false });
+    addEventListener('gesturechange', aoPinca, { passive: false });
+    addEventListener('gestureend', aoPincaFim, { passive: false });
     try {
       html.classList.remove('tela-clicavel');
       html.classList.add('mergulhando');
@@ -167,6 +170,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     removeEventListener('pointerup', aoSoltar);
     removeEventListener('pointercancel', aoSoltar);
     removeEventListener('scroll', aoRolarPagina, { passive: true });
+    removeEventListener('gesturestart', aoPincaInicio, { passive: false });
+    removeEventListener('gesturechange', aoPinca, { passive: false });
+    removeEventListener('gestureend', aoPincaFim, { passive: false });
     // Primeiro o que trava o visitante (scroll suavizado, pincel); um erro aí não impede o resto
     // da saída, e é relançado no fim.
     let falha = null;
@@ -256,6 +262,23 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     const fator = Math.exp(-dy * (e.ctrlKey ? PINCA : RODA));
     m.vista = aplicarZoom(m.vista, fator, uvSob(m.mesh, e.clientX, e.clientY), ext(m.mesh));
     if (m.vista.zoom !== ZOOM_MIN) g.podeSair = false;
+  }
+  // Pinça do Safari (macOS): e.scale é relativo ao gesturestart; a âncora é o último ponto do
+  // ponteiro. O preventDefault impede o Safari de ampliar a página. Não verificado (sem Safari).
+  function aoPincaInicio(e) {
+    e.preventDefault();
+    if (m) m.pinca = { zoom0: m.vista.zoom };
+  }
+  function aoPinca(e) {
+    e.preventDefault();
+    if (!m?.pinca || m.fase !== 'livre' || m.detalhe || !(e.scale > 0)) return;
+    const fator = (m.pinca.zoom0 * e.scale) / m.vista.zoom;
+    m.vista = aplicarZoom(m.vista, fator, uvSob(m.mesh, ponteiro.x, ponteiro.y), ext(m.mesh));
+    if (m.vista.zoom !== ZOOM_MIN) m.gesto.podeSair = false;
+  }
+  function aoPincaFim(e) {
+    e.preventDefault();
+    if (m) m.pinca = null;
   }
   function aoApertar(e) {
     if (m) m.engolirClique = false; // um arrasto anterior sem click não engole o próximo
@@ -371,7 +394,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     if (d === 'mergulho') abrir(mesh);
     else if (d === 'viagem') aoViajar(mesh);
   }
+  const ponteiro = { x: innerWidth / 2, y: innerHeight / 2 }; // último ponto (âncora da pinça do Safari)
   function aoPassar(e) {
+    ponteiro.x = e.clientX; ponteiro.y = e.clientY;
     if (m || saida || e.pointerType === 'touch') return;
     const mesh = palco.telaSob(e.clientX, e.clientY);
     html.classList.toggle('tela-clicavel', Boolean(mesh && destino(mesh)));
