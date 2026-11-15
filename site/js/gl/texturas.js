@@ -19,13 +19,15 @@ function blobDe(uri) {
 // opcoes.renderer: para enviar a textura à GPU na chegada; opcoes.atraso: ms extras por textura (depuração).
 export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
   const cache = new Map(); // id → { largura, promessa, textura }
+  let encerrado = false;
 
   async function carregar(id, largura, entrada) {
     if (atraso) await espera(atraso);
     const r = await fetch(`./assets/img/${id}-${largura}.webp`);
     if (!r.ok) throw new Error(`Falha ao carregar textura ${id}-${largura}: HTTP ${r.status}`);
     const bitmap = await createImageBitmap(await r.blob(), { imageOrientation: 'flipY', premultiplyAlpha: 'none' });
-    if (cache.get(id) !== entrada) { bitmap.close(); return null; } // liberada ou trocada no caminho
+    // liberada ou trocada no caminho, ou a travessia se desmontou: nada de textura nova
+    if (encerrado || cache.get(id) !== entrada) { bitmap.close(); return null; }
     const tex = new THREE.Texture(bitmap);
     tex.flipY = false;
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -71,7 +73,6 @@ export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
   // Uma textura por imagem a partir de images[id].mini (pedida uma vez; as chamadas seguintes
   // devolvem a mesma promessa). Sem mipmaps: 24 px ampliados, o borrado é o próprio filtro.
   let minis = null;
-  let encerrado = false;
   function miniaturas() {
     minis ??= Promise.all(Object.entries(images).map(async ([id, im]) => {
       if (!im.mini) return null;
@@ -89,9 +90,12 @@ export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
     return minis;
   }
 
-  // Desmontagem: descarta as miniaturas (as que ainda chegarem nem viram textura).
+  // Desmontagem: descarta as texturas definitivas e as miniaturas (as que ainda chegarem nem
+  // viram textura).
   function encerrar() {
     encerrado = true;
+    for (const entrada of cache.values()) descartar(entrada);
+    cache.clear();
     minis?.then((mapa) => { for (const tex of mapa.values()) fora(tex); }).catch(() => {});
   }
 

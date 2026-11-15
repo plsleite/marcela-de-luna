@@ -135,7 +135,7 @@ export function criarTela(plano, info) {
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(plano.largura, plano.altura), material);
   mesh.position.set(plano.x, plano.y, plano.z);
-  mesh.userData = { imagem: plano.imagem, stopId: info.stopId, indiceTela: info.indiceTela, perto: vis.surge[0], alcance: vis.some[1] };
+  mesh.userData = { imagem: plano.imagem, stopId: info.stopId, indiceTela: info.indiceTela, perto: vis.surge[0], surge: vis.surge, alcance: vis.some[1] };
   return mesh;
 }
 

@@ -15,8 +15,11 @@ export function criarTrilho(linha, stops, xDaTela) {
       const F = it.foco, xt = xDaTela(it.id);
       trechos.push([[F + 12, 0], [F + 50, xt], [F + 60, xt], [linha.itens[i + 1].foco, 0]]);
     } else if (it.tipo === 'detalhe' && prox.tipo !== 'detalhe' && prox.tipo !== 'verso') {
+      // A saída volta a 0 até F + 84, ou antes, no foco da parada seguinte, se ele vier antes
+      // (close seguido de obra): as chaves encolhem na mesma proporção e seguem em ordem.
       const F = it.foco, xt = xDaTela(it.id);
-      trechos.push([[F + 8, 0], [F + 48, xt], [F + 60, xt], [F + 84, 0]]);
+      const k = Math.min(84, linha.itens[i + 1].foco - F) / 84;
+      trechos.push([[F + 8 * k, 0], [F + 48 * k, xt], [F + 60 * k, xt], [F + 84 * k, 0]]);
     }
   });
 

@@ -257,7 +257,7 @@ async function iniciarTravessia(stops, images) {
 
     // Luz rasante e realce dos vultos (o realce não vale na abertura nem com uma tela ampliada).
     const luz = criarLuz({
-      palco, telas, linha, pontoNaTela,
+      palco, telas, pontoNaTela, emFoco: emFocoParaClique,
       vale: () => abertura?.estado === 'fim' && !estado.mergulho && !mergulho.saindo,
     });
     aoDesmontar(() => luz.encerrar());

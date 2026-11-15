@@ -206,11 +206,21 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       if (falha) throw falha;
       return;
     }
-    gsap.to(s.opacidades, { value: 1, duration: SAI, ease: 'power1.inOut' });
+    // Uma tela que, na pose do scroll, fica mais perto da câmera que o fim do seu surge (o close
+    // anterior, quando o ampliado é um close: a ampliação recua a câmera para trás dele) não sobe
+    // com as outras: subiria enquanto a câmera ainda está recuada e passaria translúcida pela
+    // janela. Fica em 0 até a volta terminar (ali o shader já lhe dá alfa 0) e só então vai a 1.
+    const zScroll = poseDoScroll().z;
+    const rentes = new Set(telas.filter((t) => t !== s.mesh && zScroll - t.position.z < t.userData.surge[1])
+      .map((t) => t.material.uniforms.uOpacidade));
+    gsap.to(s.opacidades.filter((o) => !rentes.has(o)), { value: 1, duration: SAI, ease: 'power1.inOut' });
     const t = { v: 1 };
     saida = {
       de: poseAtual(), t, opacidades: s.opacidades,
-      tween: gsap.to(t, { v: 0, duration: SAI, ease: 'power2.inOut', onComplete: () => { saida = null; } }),
+      tween: gsap.to(t, { v: 0, duration: SAI, ease: 'power2.inOut', onComplete: () => {
+        for (const o of rentes) o.value = 1;
+        saida = null;
+      } }),
     };
     if (falha) throw falha;
   }
