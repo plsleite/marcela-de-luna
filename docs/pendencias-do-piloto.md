@@ -83,6 +83,7 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Os testes de `zoomNaImagem` (`tests/mergulho.test.mjs`) usam `vistaDaImagem` do próprio módulo para conferir onde o ponto foi parar; falta um caso com valores calculados à mão.
 - `ui/detalhe.js` sem teste automático (depende de DOM e gsap): a conta é testada em `core/mergulho.js`, mas a convivência com os tweens de entrada e saída só foi conferida no navegador.
 - Pendente com a Marcela: se ela quer alguma alteração na lente da fileira.
+- Troca de densidade (`armarDensidade` em `gl/palco.js`, terceira rodada, C4): a mudança de monitor dispara um `resize` sintético, que chega a todos os ouvintes de `resize`; por isso ela também encerra a abertura e cancela uma viagem em curso, como um redimensionamento real (aceito). A consulta `(resolution: Ndppx)` depende de igualdade exata: com densidade fracionária (zoom do navegador) ela pode não rearmar, o que é inofensivo porque o zoom também dispara `resize` real (alternativa: `min-resolution` e `max-resolution` combinadas). `armarDensidade` roda sem guarda para `matchMedia` ausente.
 
 ## Conceito de celular
 
