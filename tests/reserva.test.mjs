@@ -168,6 +168,37 @@ test('reserva: fora da lista, pedir não guarda; antes do primeiro enfileirar, g
   assert.ok(r.tem('a') && r.tem('b'));
 });
 
+test('reserva: soltar uma entrada pronta (bytes que não decodificam) faz o próximo pedir baixar de novo', async () => {
+  const f = buscarFalso();
+  const r = criarReserva({ buscar: f.buscar });
+  r.enfileirar(['a', 'b']);
+  f.de('a')[0].entregar();
+  await tique();
+  assert.equal(r.tem('a'), true);
+  r.soltar('a');
+  assert.equal(r.tem('a'), false);
+  const pa = r.pedir('a');
+  assert.equal(f.de('a').length, 2);
+  f.de('a')[1].entregar();
+  assert.equal(await pa, 'blob:a');
+  assert.equal(r.tem('a'), true); // ainda na lista: guardado de novo
+  await tique();
+  assert.equal(f.de('a').length, 2); // e o fundo não o baixa outra vez
+});
+
+test('reserva: soltar uma entrada em curso ou inexistente não quebra nada', async () => {
+  const f = buscarFalso();
+  const r = criarReserva({ buscar: f.buscar });
+  r.soltar('nada');
+  const pa = r.pedir('a');
+  r.soltar('a'); // em curso: o download segue e entrega a quem pediu
+  assert.equal(f.de('a')[0].sinal.aborted, false);
+  f.de('a')[0].entregar();
+  assert.equal(await pa, 'blob:a');
+  r.encerrar();
+  r.soltar('a');
+});
+
 test('filaDeReserva: da parada atual até o fim, depois da atual para trás', () => {
   const stops = ['a', 'b', 'c', 'd', 'e'].map((id) => ({ id }));
   assert.deepEqual(filaDeReserva(stops, 2), [2, 3, 4, 1, 0]);

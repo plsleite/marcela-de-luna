@@ -61,6 +61,9 @@ export function criarReserva({ buscar, simultaneos = 2 }) {
   }
 
   const tem = (url) => Boolean(entradas.get(url)?.blob);
+  // Solta os bytes prontos de `url` (baixaram mas não decodificam): o próximo pedir baixa de novo.
+  // Um download em curso segue (entrega a quem pediu).
+  const soltar = (url) => { if (entradas.get(url)?.blob) entradas.delete(url); };
 
   function encerrar() {
     encerrado = true;
@@ -69,5 +72,5 @@ export function criarReserva({ buscar, simultaneos = 2 }) {
     entradas.clear();
   }
 
-  return { pedir, enfileirar, tem, encerrar };
+  return { pedir, enfileirar, tem, soltar, encerrar };
 }

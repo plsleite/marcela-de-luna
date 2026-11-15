@@ -33,9 +33,12 @@ export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
 
   async function carregar(id, largura, entrada) {
     if (atraso) await espera(atraso);
-    const blob = await reserva.pedir(urlDe(id, largura));
+    const url = urlDe(id, largura);
+    const blob = await reserva.pedir(url);
     if (encerrado || cache.get(id) !== entrada) return null;
-    const bitmap = await createImageBitmap(blob, { imageOrientation: 'flipY', premultiplyAlpha: 'none' });
+    // bytes que não decodificam (arquivo truncado): a reserva os solta e a próxima aproximação baixa de novo
+    const bitmap = await createImageBitmap(blob, { imageOrientation: 'flipY', premultiplyAlpha: 'none' })
+      .catch((erro) => { reserva.soltar(url); throw erro; });
     // liberada ou trocada no caminho, ou a travessia se desmontou: nada de textura nova
     if (encerrado || cache.get(id) !== entrada) { bitmap.close(); return null; }
     const tex = new THREE.Texture(bitmap);
@@ -58,8 +61,8 @@ export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
   }
 
   // Devolve uma promessa da textura (ou null, se ela foi liberada antes de chegar). Uma falha
-  // rejeita uma vez; a entrada fica (os pedidos seguintes dão null, sem nova tentativa)
-  // até sair da janela: a próxima aproximação tenta de novo (a reserva já a soltou).
+  // (download ou decodificação) rejeita uma vez; a entrada fica (os pedidos seguintes dão null,
+  // sem nova tentativa) até sair da janela: a próxima aproximação tenta de novo (a reserva já a soltou).
   function pedir(id, largura) {
     if (!images[id]) return Promise.reject(new Error(`Imagem ausente em images.json: ${id}`));
     const atual = cache.get(id);
