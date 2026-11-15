@@ -2,7 +2,7 @@
 
 Este roteiro é para você, Pedro. Ele diz como abrir o piloto, o que experimentar e o que você precisa me dizer para o trabalho continuar. Não precisa saber programar.
 
-Desde 15/11/2026 o site tem as 58 páginas do PDF, na ordem do PDF: a capa, a Pesquisa Artística, a abertura de A Bailarina e as suas 20 obras, o primeiro trecho de "Detalhes" (16 closes), a abertura de Entre Nós e as suas 9 obras, o segundo trecho de "Detalhes" (8 closes) e o verso da tela com a assinatura. Os passos das seções 1 a 6 foram escritos quando o piloto tinha só as seis primeiras páginas; eles continuam valendo, e a seção "O que entrou em 15/11/2026: as 58 páginas", logo abaixo, diz o que experimentar no resto. Os ajustes da segunda rodada, também de 15/11/2026, estão em "O que mudou na segunda rodada (15/11/2026)"; eles valem por cima de todas as seções.
+Desde 15/11/2026 o site tem as 58 páginas do PDF, na ordem do PDF: a capa, a Pesquisa Artística, a abertura de A Bailarina e as suas 20 obras, o primeiro trecho de "Detalhes" (16 closes), a abertura de Entre Nós e as suas 9 obras, o segundo trecho de "Detalhes" (8 closes) e o verso da tela com a assinatura. Os passos das seções 1 a 6 foram escritos quando o piloto tinha só as seis primeiras páginas; eles continuam valendo, e a seção "O que entrou em 15/11/2026: as 58 páginas", logo abaixo, diz o que experimentar no resto. Os ajustes da segunda rodada, também de 15/11/2026, estão em "O que mudou na segunda rodada (15/11/2026)"; eles valem por cima de todas as seções. Os da terceira rodada estão em "O que mudou na terceira rodada (15/11/2026)" e valem por cima de tudo, inclusive da segunda rodada.
 
 ## O que mudou em 15/11/2026 (ajustes que você pediu)
 
@@ -16,6 +16,55 @@ Estas mudanças valem por cima do que os passos abaixo descrevem.
 - **Música.** Um botão discreto de som fica no canto superior direito, e a música entra no primeiro clique ou tecla. (Mudou na segunda rodada: o botão passou para o canto esquerdo, ao lado do nome, com o convite "LIGAR O SOM".)
 
 Perguntas novas: o ímã puxa no tempo certo, cedo demais ou tarde demais? O vulto está claro o bastante? A legenda ficou bem ao lado da base?
+
+## O que mudou na terceira rodada (15/11/2026)
+
+São duas mudanças, vindas das suas respostas à segunda rodada. Elas valem por cima de todas as outras seções. Abra o site como na seção 1 e siga os passos na ordem.
+
+### Suas respostas à segunda rodada
+
+Registro aqui o que você respondeu, uma linha por pergunta.
+
+- **Limiar do ímã** (pergunta 1): está bom.
+- **Formato da lente** (pergunta 2): está bom; fica pendente perguntar à Marcela se ela quer alguma alteração.
+- **O convite do som** (pergunta 3): sem resposta registrada.
+- **A marca de destaque** (pergunta 4): está bom.
+- **A linha "DETALHES"** (pergunta 5): está bom.
+- **O lado dos closes** (pergunta 6): está bom.
+- **As legendas deslocadas** (pergunta 7): está bom.
+- **A viagem longa** (pergunta 8): fica como está, por ora.
+- **O fundo atrás do nome e do botão** (pergunta 9): fica bem, mas faltava no botão de som na capa (passo 2 abaixo).
+- **O que só você podia conferir:** o traço no monitor externo, a fluidez, o ímã com a roda, a lente, o pulso da marca e o Safari foram conferidos por você, sem problema; o convite do som e a música ficaram sem resposta registrada.
+
+### Os passos
+
+1. **O convite do som acima da pintura da capa.** No MacBook de 14", recarregue a página no topo e espere a abertura terminar. O texto "LIGAR O SOM" deve ficar inteiro sobre o branco, acima do canto superior esquerdo da pintura, sem encostar nela. A pintura ficou um pouco menor (2%) e um pouco mais baixa (cerca de 5 px). "PORTFÓLIO", o nome, o ano, o contato e o rodapé continuam alinhados com a pintura, e as pinceladas da abertura cobrem a pintura inteira.
+2. **O fundo do botão na capa.** Ainda na capa, olhe o botão de som. Ele tem agora o mesmo fundo branco translúcido que já tinha fora da capa; sobre o branco, o fundo não aparece. Se você deixar a janela bem baixa, a pintura sobe até o botão, e o fundo mantém o convite legível sobre ela.
+3. **O close abre como antes.** Amplie "A Dança é por Ela" e clique na marca de destaque. O close cresce a partir da marca e ocupa a janela, como antes; o cursor é a lupa com o sinal de menos.
+4. **Aproximar o close.** Com o close aberto, gire a roda para cima (ou faça a pinça no trackpad) com o ponteiro sobre um detalhe fora do centro. A imagem aproxima em torno do ponteiro: o detalhe sob ele não sai do lugar. O zoom vai até 6 vezes, como na tela ampliada, e o cursor vira a mãozinha.
+5. **Arrastar o close.** Com o close aproximado, arraste a imagem. Ela acompanha o ponteiro, e o cursor vira a mão fechada durante o arrasto. Arraste até o fim em cada direção: a borda da imagem para na borda da janela, sem mostrar branco além dela. Soltar depois de um arrasto não fecha o close.
+6. **Recolher pelo clique.** Com o close aproximado, clique sem arrastar. Ele volta à marca a partir do zoom e da posição em que estava, sem salto, e a tela ampliada continua aberta. Abra o close de novo: ele começa sem zoom.
+7. **Recolher pelo Esc.** Abra o close, aproxime e aperte Esc. O close recolhe e a tela ampliada continua aberta. Um segundo Esc fecha a tela ampliada.
+8. **Recolher pela roda.** Abra o close sem aproximar e role a roda para baixo. O close recolhe, a tela ampliada continua aberta e a página não rola. Se você tinha aproximado o close e afasta até o zoom 1 no mesmo gesto, ele não recolhe: é preciso parar e rolar para baixo de novo, como na tela ampliada.
+9. **Mudar o tamanho da janela.** Com o close aproximado, mude o tamanho da janela. A imagem continua cobrindo a janela, sem sair dela.
+10. **A tela ampliada não mudou.** Feche o close e confira na tela ampliada o zoom, o arrasto e as saídas de sempre (clique fora, "voltar", Esc e roda para baixo).
+
+### O que eu medi
+
+Medidas no painel de navegador do meu ambiente, com a abertura terminada. A "folga" é a distância entre a linha de base do texto "LIGAR O SOM" e o alto da pintura da capa; positiva quando o texto fica acima da pintura.
+
+- **1512×828 (o MacBook de 14"):** antes, −5,8 px (o texto ficava sobre a pintura); agora, 7,2 px. O pedido era pelo menos 10 px.
+- **1440×900:** antes, 7 px; agora, 21 px. O pedido era pelo menos 10 px.
+- **1280×700:** antes, −8 px; agora, 3 px. O pedido era pelo menos 5 px. Nessa janela o fundo do botão cobre cerca de 7 px do alto do canto da pintura.
+- **O close.** Com a imagem maior que a janela, o ponto sob o ponteiro ficou no mesmo lugar ao aproximar e afastar, pela roda e pela roda com Ctrl (a pinça do Chrome), com erro abaixo de 0,1 px. No zoom 6 o arrasto parou exatamente nas quatro bordas da janela. Enquanto a imagem ainda é mais estreita que a janela, ela fica centrada na horizontal, como a tela ampliada; aí só a altura acompanha o ponteiro.
+
+Os valores da capa foram aplicados como pedidos e não deram a folga exigida em 1512×828 nem em 1280×700. Não mudei os números por conta própria: diga se quer a pintura um pouco mais baixa ou menor.
+
+### O que só você pode conferir
+
+1. **O convite na capa do MacBook de 14".** Veja se o texto "LIGAR O SOM" fica bem acima da pintura, com a folga medida acima.
+2. **A pinça no Safari.** No Safari a pinça chega por outro caminho; eu não pude testá-la. Aproxime e afaste o close com a pinça do trackpad e veja se o detalhe sob o ponteiro fica no lugar.
+3. **O trackpad de verdade.** Eu usei roda e arrasto simulados. Veja se aproximar, arrastar e recolher o close pelo trackpad parecem naturais.
 
 ## O que mudou na segunda rodada (15/11/2026)
 
@@ -65,7 +114,7 @@ Estas decisões não estavam escritas no pedido. Se discordar de alguma, diga qu
 2. **Duas legendas descem um pouco para não cobrir o vulto.** A legenda de "Cartografia do Íntimo" cobriria o vulto do primeiro close; ela desce 33 px abaixo da base da pintura em 1440×900, 62 px em 1024×768 e 69 px em 900×900. A de "Dúvidei" desce 29 px em 1024×768 e 36 px em 900×900. As outras legendas continuam alinhadas pela base.
 3. **Na viagem longa, só a chegada fica nítida.** O pedido dizia "nenhuma tela borrada no caminho". Uma viagem com End cruza umas 24 paradas por segundo; deixar todas nítidas pelo caminho estouraria o limite de memória de vídeo que você aceitou manter, e decodificar uma a uma no voo provavelmente travaria a viagem. As telas do caminho passam borradas, como antes; a chegada é nítida. A alternativa possível é carregar numa largura menor a parada por onde se passa, durante a viagem; ela precisa de medida de fluidez fora do meu ambiente.
 4. **O primeiro trecho de closes trocou de lado.** Para que o vulto de "Entre Nós" aparecesse livre atrás do último close, o 16º close passou para a esquerda e, alternando a partir dele, o 1º close passou para a direita. Visto do foco de "Dúvidei", que também fica à direita, o vulto do 1º close aparece colado ao lado esquerdo da pintura e parcialmente atrás dela. O segundo trecho não mudou.
-5. **Um fundo claro atrás do nome e do botão de som.** Nos closes que ficam à esquerda, a pintura chega ao canto superior esquerdo e o nome, as barras do som e o convite ficavam escuros sobre escuro. O nome e o botão ganharam o mesmo fundo branco translúcido da ficha da obra ampliada: sobre a pintura o texto continua legível; sobre o branco o fundo não aparece. Nada mudou de lugar. Na capa o botão fica sem fundo, porque ali ele encosta no alto da pintura.
+5. **Um fundo claro atrás do nome e do botão de som.** Nos closes que ficam à esquerda, a pintura chega ao canto superior esquerdo e o nome, as barras do som e o convite ficavam escuros sobre escuro. O nome e o botão ganharam o mesmo fundo branco translúcido da ficha da obra ampliada: sobre a pintura o texto continua legível; sobre o branco o fundo não aparece. Nada mudou de lugar. Na capa o botão ficava sem fundo, porque ali ele encostava no alto da pintura; na terceira rodada ele ganhou o fundo também na capa (veja "O que mudou na terceira rodada").
 
 ### Perguntas da segunda rodada
 

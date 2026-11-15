@@ -1,8 +1,8 @@
 # Pendências deixadas pelo piloto
 
-Achados das revisões do Plano 1, do Plano 2 (extensão às 58 páginas) e das duas rodadas de ajustes de 15/11/2026 que não bloqueiam a validação do site. Cada um está no plano em que deve ser tratado. Itens resolvidos pelo Plano 2 saíram desta lista em 15/11/2026; os resolvidos pela segunda rodada de ajustes saíram em 15/11/2026, ao fim dela (o trilho e `textoVale`, a falha de `fetch` guardada em cache, a troca miniatura → nítida sem esmaecer e a divisão do cartão para `travessia/cartao.js`); os resolvidos pela correção final da rodada saíram em seguida (a barra de espaço depois de "DETALHES", o `:has()` do botão de som, o nome e o som ilegíveis sobre os closes da esquerda, `checkVisibility` com os nomes novos das opções, o arquivo que não decodifica preso na reserva, a leitura de `lista.offsetTop` a cada quadro, o cálculo repetido de `emFoco` na fileira e os comentários defasados), junto com o que a revisão final mostrou já estar resolvido (a guarda de `aoGesto` para alvo que não é um nó e o último trecho de tinta ao ampliar, que `aoAbrir` já rompe).
+Achados das revisões do Plano 1, do Plano 2 (extensão às 58 páginas) e das duas rodadas de ajustes de 15/11/2026 que não bloqueiam a validação do site. Cada um está no plano em que deve ser tratado. Itens resolvidos pelo Plano 2 saíram desta lista em 15/11/2026; os resolvidos pela segunda rodada de ajustes saíram em 15/11/2026, ao fim dela (o trilho e `textoVale`, a falha de `fetch` guardada em cache, a troca miniatura → nítida sem esmaecer e a divisão do cartão para `travessia/cartao.js`); os resolvidos pela correção final da rodada saíram em seguida (a barra de espaço depois de "DETALHES", o `:has()` do botão de som, o nome e o som ilegíveis sobre os closes da esquerda, `checkVisibility` com os nomes novos das opções, o arquivo que não decodifica preso na reserva, a leitura de `lista.offsetTop` a cada quadro, o cálculo repetido de `emFoco` na fileira e os comentários defasados), junto com o que a revisão final mostrou já estar resolvido (a guarda de `aoGesto` para alvo que não é um nó e o último trecho de tinta ao ampliar, que `aoAbrir` já rompe). Com as respostas do Pedro à segunda rodada e a terceira rodada (15/11/2026) saíram o fundo atrás do nome e do botão (aprovado, agora também na capa), as legendas deslocadas (aprovadas) e, da lista "A conferir pelo Pedro", o Safari, a fluidez, o traço no monitor externo, o ímã com roda e trackpad, a lente e o pulso da marca (conferidos por ele).
 
-Números de referência ao fim da segunda rodada: `site/js/main.js` com 387 linhas; 146 testes em `node --test tests/*.test.mjs` e 7 em `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"`, todos passando.
+Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 linhas; 150 testes em `node --test tests/*.test.mjs` e 7 em `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"`, todos passando.
 
 ## Arquitetura e testes
 
@@ -46,16 +46,14 @@ Números de referência ao fim da segunda rodada: `site/js/main.js` com 387 linh
 - A reserva não aborta os downloads de fundo que saíram da lista quando a fila é refeita: eles vão até o fim (no máximo dois) e os bytes são jogados fora, o que gasta banda do visitante. Um download pedido pela janela que reaproveita um download de fundo continua com prioridade baixa (`pedir` em `core/reserva.js`, que devolve a promessa em curso).
 - Falha de download ou de decodificação: o arquivo sai da reserva, mas no cache de texturas a entrada só sai quando a parada deixa a janela (uma tentativa por aproximação, sem laço). Enquanto isso a tela fica na miniatura.
 - Depois de um resize que muda a largura, a fila da reserva é refeita e um arquivo já baixado em outra largura pode ser baixado de novo se a janela voltar a ela.
-- Viagem longa (End a partir da capa): as telas do caminho passam na miniatura; só a chegada é nítida (decisão R4 da segunda rodada). Alternativa, se o Pedro pedir: carregar numa largura menor (640) a parada por onde se passa, com o que já está na reserva, e medir a fluidez fora do painel.
+- Viagem longa (End a partir da capa): as telas do caminho passam na miniatura; só a chegada é nítida (decisão R4 da segunda rodada; o Pedro disse que fica como está, por ora). Alternativa, se o Pedro pedir: carregar numa largura menor (640) a parada por onde se passa, com o que já está na reserva, e medir a fluidez fora do painel.
 - `criarLinha` com tipo desconhecido gera `NaN` em silêncio; `planosDoStop` devolve `[]` para tipo desconhecido sem dizer qual parada.
 - Giro final: `uRelevo` cai a 0 de uma vez ao entrar no giro; `luzNeutra` e `deCostas` não são reescritos com uma tela ampliada; o obstáculo do pincel é a caixa envolvente do trapézio (sobra uma cunha sem tinta fora da tela durante o giro).
 - Ampliação do verso com zoom alto: a tira da assinatura encosta na borda de baixo.
 - Cor de acento frágil: `p02-a` tem croma 0,157 contra limiar 0,15 (regenerar pode trocar a tinta de rosa para azul); limiar repetido em `extract.py` e `pincel.js`.
 - `docs/closes.md` linha 5 diz "só certeza visual", mas a ligação 53 → Dentro é "boa"; o teste dos closes não exige `tela` inteiro ≥ 0.
 - Composição, depois do retorno do Pedro: legenda da parada anterior aparece por instantes; primeira tela de "Intervalo" perto do cabeçalho (e a primeira tela das obras de duas telas passa sobre "MARCELA DE LUNA" por volta de foco + 15 vh); ficha do mergulho encosta na pintura em janela quadrada; abertura de "Entre Nós" com a imagem inteira à direita (no PDF ela sai pelo topo); "Impermanência" e "Íntima" mais perto do centro para caber na janela.
-- Fundo branco translúcido atrás do nome e do botão de som (decisão R5 da segunda rodada), para os closes da esquerda: reversível numa regra de `travessia.css` (`.topo-nome::before, .som::before`), se o Pedro preferir outra saída (pergunta 9 do roteiro).
 - Legendas das obras de duas telas podem cobrir a segunda tela em 1024×768 e 900×900 (regra antiga: "ficar na janela" prevalece): conferir no navegador.
-- Legendas que descem para não cobrir o vulto (decisão R3 da segunda rodada): "Cartografia do Íntimo" fica 33 px abaixo da base da pintura em 1440×900, 62 px em 1024×768 e 69 px em 900×900; "Dúvidei", 29 px em 1024×768 e 36 px em 900×900. Reversível em `core/legenda.js`, se o Pedro preferir outra solução (por exemplo afastar para o lado).
 
 ## Ajustes de 15/11/2026 (ímã, som, ampliação, fileira, marcas)
 
@@ -74,6 +72,16 @@ Números de referência ao fim da segunda rodada: `site/js/main.js` com 387 linh
 - Gravação de "O Cisne": confirmar os direitos antes de publicar.
 - Em janela muito baixa (cerca de 320 px de altura), a legenda não encolhe com a cena e volta a encostar no vulto da tela seguinte: a fonte da legenda deveria acompanhar a altura da janela.
 - A música tem grande variação de volume (trechos suaves bem mais baixos que os fortes); se os trechos suaves sumirem em caixas de notebook, aplicar uma compressão leve ao arquivo.
+
+## Terceira rodada (15/11/2026): capa e zoom no close
+
+- Capa: com os valores pedidos (`CAPA = { x: -2.0, y: -0.03, altura: 4.5 }`), a linha de base do convite "LIGAR O SOM" fica 7,2 px acima do alto da pintura em 1512×828 (pedido: 10 px) e 3 px em 1280×700 (pedido: 5 px); em 1440×900, 21 px. Os números não foram mudados sem o Pedro. Pela conta, y = −0,05 com a mesma altura daria cerca de 10 px em 1512×828 e 6 px em 1280×700 (não medido).
+- Capa em 1280×700: o fundo translúcido do botão de som cobre cerca de 7 px do alto do canto esquerdo da pintura.
+- Close: a entrada e o recolhimento (`abrirDetalhe` e `recolher` em `ui/mergulho-ui.js`) contam o centro por `innerWidth`, mas a caixa do close não inclui a barra de rolagem clássica (onde ela existe): a imagem nasce e volta cerca de 7 px à direita da marca. O zoom do close (`ui/detalhe.js`) já mede pela caixa. Anterior à rodada.
+- Close: rolar para baixo no zoom 1 recolhe o close e engole o resto do gesto por 400 ms, como a saída da tela ampliada; uma inércia de trackpad mais longa que isso, no mesmo gesto, afasta a tela ampliada que estiver aproximada (nunca a fecha).
+- Close: a regra do limite do arrasto no pedido diz "a borda da imagem chega ao centro da janela" e, ao mesmo tempo, "a mesma regra de folga da tela ampliada"; valeu a da tela ampliada (a borda da imagem para na borda da janela). Se o Pedro quiser que a imagem possa ir até o centro, é a função `arrastarImagem` (`core/mergulho.js`).
+- `ui/detalhe.js` sem teste automático (depende de DOM e gsap): a conta é testada em `core/mergulho.js`, mas a convivência com os tweens de entrada e saída só foi conferida no navegador.
+- Pendente com a Marcela: se ela quer alguma alteração na lente da fileira.
 
 ## Conceito de celular
 
@@ -112,11 +120,8 @@ Números de referência ao fim da segunda rodada: `site/js/main.js` com 387 linh
 ## A conferir pelo Pedro (não verificado por agentes)
 
 - Safari e Firefox reais: `event.timeStamp` comparado a `performance.now()` em `gl/tinta.js` e os tempos dos eventos agrupados dependem do navegador (não conferido).
-- O site em Safari, inclusive a pinça no mergulho (implementada por leitura; se o Safari também mandar roda com Ctrl, o zoom pode dobrar), a lente da fileira, o pulso da marca, o botão de som e a tinta junto aos controles.
-- Fluidez real num notebook, do topo ao fim, com a rolagem contínua pelos closes e pelo giro final.
-- O traço de tinta no monitor externo de 3440×1440: definição, curva, textura das cerdas e fluidez com tinta viva (a medida em bancada não prova fluidez).
-- O ímã com a roda e o trackpad de verdade, inclusive o limiar de 25% e os closes.
-- A entrada e a saída da lente e o pulso da marca de destaque vistos em movimento (medidos, não vistos).
+- A pinça do Safari no close aberto pela marca (terceira rodada; implementada por leitura, como a da tela ampliada) e o zoom, o arrasto e o recolhimento do close com o trackpad de verdade.
+- O convite na capa do MacBook de 14" com os valores novos da capa.
 - O convite "LIGAR O SOM", a primeira entrada da música e a música ao longo de todo o percurso, inclusive nas viagens longas.
 - Arrastar a barra de rolagem no meio de uma viagem longa.
 - A página simples com "Reduzir movimento" ligado.
