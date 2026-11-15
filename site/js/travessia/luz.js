@@ -6,6 +6,8 @@ import { suavizar } from '../core/paralaxe.js';
 
 // Luz rasante: em cada tela, a luz fica onde o raio do ponteiro cruza o seu plano; a tela
 // sob o cursor (a mais próxima atingida) recebe força 1, as demais 0,35, com transição suave.
+// Uma tela com userData.luzNeutra (o cartão final no meio do giro, que pontoNaTela não mede)
+// fica sem luz rasante: força 0 e fora da disputa pela tela sob o cursor.
 const FORCA_SOB = 1;
 const FORCA_DEMAIS = 0.35;
 // Realce dos vultos: com o ponteiro sobre uma tela que não é da parada em foco, o uRealce
@@ -25,7 +27,7 @@ export function criarLuz({ palco, telas, linha, pontoNaTela, vale }) {
 
   function aplicarLuz(dt) {
     const raio = palco.raioDoPonteiro();
-    const pontos = telas.map((m) => pontoNaTela(m, raio));
+    const pontos = telas.map((m) => (m.userData.luzNeutra ? null : pontoNaTela(m, raio)));
     let sob = -1;
     pontos.forEach((p, i) => {
       if (!p || p.t < 3 || p.u < 0 || p.u > 1 || p.v < 0 || p.v > 1) return;
@@ -33,6 +35,7 @@ export function criarLuz({ palco, telas, linha, pontoNaTela, vale }) {
     });
     telas.forEach((m, i) => {
       const u = m.material.uniforms;
+      if (m.userData.luzNeutra) { u.uRelevo.value = 0; return; }
       if (pontos[i]) u.uLuz.value.set(pontos[i].u, pontos[i].v);
       u.uRelevo.value = suavizar(u.uRelevo.value, i === sob ? FORCA_SOB : FORCA_DEMAIS, dt);
     });

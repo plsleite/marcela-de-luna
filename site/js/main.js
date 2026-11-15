@@ -1,11 +1,12 @@
-import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
+import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE, TRILHO_FOLGA_TEXTO } from './config.js';
 import { montarBase } from './ui/base.js';
-import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
+import { criarLinha, situar, emFoco, focoDe, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo } from './core/camera.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
-import { criarTrilho } from './core/trilho.js';
+import { criarTrilho, textoVale } from './core/trilho.js';
+import { cartaoFinal } from './core/final.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
 
@@ -145,6 +146,42 @@ async function iniciarTravessia(stops, images) {
     const trilho = criarTrilho(linha, stops,
       (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0).userData.plano.x);
 
+    // Final (core/final.js): se as duas últimas paradas são o último close e o verso, as duas telas
+    // formam um cartão que acompanha a câmera entre os dois focos, centraliza e gira meia volta.
+    // Face única (gl/tela.js): a tela do verso nasce de costas (giro − π) e não aparece nem
+    // responde ao ponteiro até o giro passar de π/2. No meio do giro a luz rasante dessas telas
+    // fica neutra (travessia/luz.js supõe tela sem rotação).
+    const cartao = (() => {
+      const [a, b] = stops.slice(-2);
+      if (!a || !b || a.tipo !== 'detalhe' || b.tipo !== 'verso') return null;
+      const tela = (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0);
+      const frente = tela(a.id), verso = tela(b.id);
+      const medidas = ({ x, y, altura }) => ({ x, y, altura });
+      return {
+        frente, verso, giro: 0,
+        p: { focoFrente: focoDe(linha, a.id), focoVerso: focoDe(linha, b.id),
+          frente: medidas(frente.userData.plano), verso: medidas(verso.userData.plano) },
+      };
+    })();
+    // Com uma tela ampliada, o cartão não se move.
+    function moverCartao(vh) {
+      if (!cartao || estado.mergulho) return;
+      const c = cartaoFinal(vh, cartao.p);
+      for (const [m, giro, altura] of [[cartao.frente, c.giro, cartao.p.frente.altura],
+        [cartao.verso, c.giro - Math.PI, cartao.p.verso.altura]]) {
+        m.position.set(c.x, c.y, c.z);
+        m.rotation.y = giro;
+        m.scale.setScalar(c.altura / altura);
+        m.userData.luzNeutra = c.giro > 0 && c.giro < Math.PI;
+        m.userData.deCostas = Math.cos(giro) < 0; // não é desenhada nem barra o pincel
+      }
+      cartao.giro = c.giro;
+    }
+    // Parada clicável como "em foco": não com o trilho fora da folga nem com o cartão no meio do
+    // giro (aí a tela da parada leva ao foco dela, em vez de ampliar).
+    const emFocoParaClique = (vh) => (textoVale(trilho(vh), TRILHO_FOLGA_TEXTO)
+      && !(cartao && cartao.giro > 0 && cartao.giro < Math.PI) ? emFoco(linha, vh) : null);
+
     const legendas = criarLegendas(raiz, linha, trilho);
     const posicionar = () => {
       const rets = new Map();
@@ -240,7 +277,7 @@ async function iniciarTravessia(stops, images) {
       palco, porId, images, telas, estado, poseDoScroll,
       destino: (mesh) => destinoDoClique({
         parada: porId.get(mesh.userData.stopId),
-        emFoco: emFoco(linha, vhDe(scrollY, innerHeight)),
+        emFoco: emFocoParaClique(vhDe(scrollY, innerHeight)),
         aberturaPronta: abertura?.estado === 'fim',
         mergulhoAberto: Boolean(estado.mergulho),
         viajando: navegacao.viajando,
@@ -283,6 +320,7 @@ async function iniciarTravessia(stops, images) {
       estado.id = s.id;
       estado.local = s.local;
       if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
+      moverCartao(vh); // antes da luz (luzNeutra) e do mesh.visible
       luz.quadro(dt, vh);
       legendas.atualizar(vh);
       // Cabeçalho e fileira só voltam depois da volta do mergulho: o 2º clique em "voltar" cairia no cabeçalho.
@@ -291,7 +329,7 @@ async function iniciarTravessia(stops, images) {
       if (s.indice !== indiceAtual) { indiceAtual = s.indice; if (!navegacao.viajando) carregarJanela(indiceAtual); }
       // mesh.visible por último: depois de toda tela que se move (o cartão final) e da câmera.
       const zc = palco.camera.position.z;
-      for (const m of telas) m.visible = naVista(zc - m.position.z, m.userData.alcance);
+      for (const m of telas) m.visible = naVista(zc - m.position.z, m.userData.alcance) && !m.userData.deCostas;
     });
 
     posicionar();
