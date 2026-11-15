@@ -65,6 +65,34 @@ test('dados reais: um só vulto à frente, inclusive nos closes', () => {
   }
 });
 
+// A regra "um só vulto à frente" vale também para o vulto do verso (travessia/cartao.js: o plano
+// do verso com VERSO.vulto, VISIBILIDADE): do foco de cada close anterior ao último ele não
+// aparece, por alfa (≤ 0,05) ou por ficar inteiro atrás das telas em foco. Janela 1440 × 900.
+test('dados reais: o vulto do verso não aparece do foco dos closes anteriores ao último', () => {
+  const { stops } = JSON.parse(readFileSync('site/data/content.json', 'utf8'));
+  const images = JSON.parse(readFileSync('site/data/images.json', 'utf8'));
+  const linha = criarLinha(stops);
+  const indices = indicesPorTipo(stops);
+  const lados = ladosDosDetalhes(stops, images, linha);
+  const planos = stops.map(s => planosDoStop(s, indices.get(s.id), images, linha, lados.get(s.id)));
+  const aspecto = 1440 / 900, fov = fovPara(aspecto);
+  const [ultimo, verso] = stops.slice(-2);
+  assert.equal(ultimo.tipo, 'detalhe'); assert.equal(verso.tipo, 'verso');
+  const vulto = { ...planos[stops.length - 1][0], ...VERSO.vulto };
+  const p = { focoFrente: focoDe(linha, ultimo.id) };
+  const dentro = (r) => ({ esq: Math.max(0, r.esq), dir: Math.min(1, r.dir), topo: Math.max(0, r.topo), base: Math.min(1, r.base) });
+  const closes = stops.slice(0, -2).map((s, k) => [s, k]).filter(([s]) => s.tipo === 'detalhe');
+  assert.equal(closes.length, 16 + 7);
+  for (const [s, k] of closes) {
+    const vh = focoDe(linha, s.id);
+    const zc = zDoStop(linha, s.id) + DIST_FOCO;
+    const ret = (pl) => retanguloNaTela(pl, zc, aspecto, fov);
+    const a = alfa(zc - vulto.z, VISIBILIDADE) * opacidadeDoVulto(vh, p);
+    const livre = fracaoVisivel(dentro(ret(vulto)), planos[k].map(ret));
+    assert.ok(a <= 0.05 || livre === 0, `${s.id}: d ${(zc - vulto.z).toFixed(2)}, alfa ${a.toFixed(2)}, livre ${(livre * 100).toFixed(0)}%`);
+  }
+});
+
 // O vulto do verso (travessia/cartao.js): do lado oposto ao do último close, inteiro e quase
 // branco no foco do close, sem nunca ganhar cor enquanto aparece; some antes de o verso entrar
 // em foco (o clique nele nunca amplia).
