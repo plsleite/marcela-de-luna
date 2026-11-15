@@ -38,7 +38,7 @@ Registro aqui o que você respondeu, uma linha por pergunta.
 
 ### Os passos
 
-1. **O convite do som acima da pintura da capa.** No MacBook de 14", recarregue a página no topo e espere a abertura terminar. O texto "LIGAR O SOM" deve ficar inteiro sobre o branco, acima do canto superior esquerdo da pintura, sem encostar nela. A pintura ficou um pouco menor (2%) e um pouco mais baixa (cerca de 5 px). "PORTFÓLIO", o nome, o ano, o contato e o rodapé continuam alinhados com a pintura, e as pinceladas da abertura cobrem a pintura inteira.
+1. **O convite do som acima da pintura da capa.** No MacBook de 14", recarregue a página no topo e espere a abertura terminar. O texto "LIGAR O SOM" deve ficar inteiro sobre o branco, acima do canto superior esquerdo da pintura, sem encostar nela. A pintura ficou um pouco menor (2%) e o alto dela desceu (cerca de 16 px nessa janela); a borda de baixo ficou onde estava. "PORTFÓLIO", o nome, o ano, o contato e o rodapé continuam alinhados com a pintura, e as pinceladas da abertura cobrem a pintura inteira.
 2. **O fundo do botão na capa.** Ainda na capa, olhe o botão de som. Ele tem agora o mesmo fundo branco translúcido que já tinha fora da capa; sobre o branco, o fundo não aparece. Se você deixar a janela bem baixa, a pintura sobe até o botão, e o fundo mantém o convite legível sobre ela.
 3. **O close abre como antes.** Amplie "A Dança é por Ela" e clique na marca de destaque. O close cresce a partir da marca e ocupa a janela, como antes; o cursor é a lupa com o sinal de menos.
 4. **Aproximar o close.** Com o close aberto, gire a roda para cima (ou faça a pinça no trackpad) com o ponteiro sobre um detalhe fora do centro. A imagem aproxima em torno do ponteiro: o detalhe sob ele não sai do lugar. O zoom vai até 6 vezes, como na tela ampliada, e o cursor vira a mãozinha.
@@ -53,12 +53,13 @@ Registro aqui o que você respondeu, uma linha por pergunta.
 
 Medidas no painel de navegador do meu ambiente, com a abertura terminada. A "folga" é a distância entre a linha de base do texto "LIGAR O SOM" e o alto da pintura da capa; positiva quando o texto fica acima da pintura.
 
-- **1512×828 (o MacBook de 14"):** antes, −5,8 px (o texto ficava sobre a pintura); agora, 7,2 px. O pedido era pelo menos 10 px.
-- **1440×900:** antes, 7 px; agora, 21 px. O pedido era pelo menos 10 px.
-- **1280×700:** antes, −8 px; agora, 3 px. O pedido era pelo menos 5 px. Nessa janela o fundo do botão cobre cerca de 7 px do alto do canto da pintura.
+- **1512×828 (o MacBook de 14"):** antes, −5,8 px (o texto ficava sobre a pintura); agora, 10 px. O pedido era pelo menos 10 px.
+- **1440×900:** antes, 7 px; agora, 24 px. O pedido era pelo menos 10 px.
+- **1280×700:** antes, −8 px; agora, 6 px. O pedido era pelo menos 5 px. Nessa janela o fundo do botão cobre cerca de 4 px do alto do canto da pintura.
+- **A borda de baixo da pintura e "PORTFÓLIO".** Ficaram no mesmo lugar de antes nas três janelas (791, 848 e 669 px).
 - **O close.** Com a imagem maior que a janela, o ponto sob o ponteiro ficou no mesmo lugar ao aproximar e afastar, pela roda e pela roda com Ctrl (a pinça do Chrome), com erro abaixo de 0,1 px. No zoom 6 o arrasto parou exatamente nas quatro bordas da janela. Enquanto a imagem ainda é mais estreita que a janela, ela fica centrada na horizontal, como a tela ampliada; aí só a altura acompanha o ponteiro.
 
-Os valores da capa foram aplicados como pedidos e não deram a folga exigida em 1512×828 nem em 1280×700. Não mudei os números por conta própria: diga se quer a pintura um pouco mais baixa ou menor.
+O pedido dizia y −0,03; com esse valor a folga ficou em 7,2 px em 1512×828 e 3 px em 1280×700, abaixo do exigido. Por isso a pintura ficou em y −0,05: a borda de baixo não se mexe e toda a folga se abre em cima.
 
 ### O que só você pode conferir
 

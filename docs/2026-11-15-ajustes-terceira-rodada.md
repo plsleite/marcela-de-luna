@@ -20,7 +20,7 @@ Duas mudanças no modo "Travessia", vindas das respostas do Pedro às perguntas 
 
 No MacBook de 14" (janela de cerca de 1512×828), o texto "LIGAR O SOM" fica sobre o canto superior esquerdo da pintura da capa: a linha do botão está a cerca de 40 px do alto da janela e a pintura começa a cerca de 37 px.
 
-- **Folga para a linha do botão.** A pintura da capa passa de altura 4,6 e y 0 para **altura 4,5 e y −0,03** (`planosDoStop`, `site/js/core/camera.js`): 2% menor e cerca de 5 px mais baixa. Os valores vão para `site/js/config.js` (`CAPA = { x: -2.0, y: -0.03, altura: 4.5 }`).
+- **Folga para a linha do botão.** A pintura da capa passa de altura 4,6 e y 0 para **altura 4,5 e y −0,05** (`planosDoStop`, `site/js/core/camera.js`): 2% menor, com a borda de baixo onde estava (2,25 + 0,05 = 2,30) e toda a folga aberta em cima. Os valores vão para `site/js/config.js` (`CAPA = { x: -2.0, y: -0.05, altura: 4.5 }`). (Corrigido na execução: o pedido dizia y −0,03, que não dava a folga exigida; ver "Decisões durante a execução".)
 - Resultado exigido, medido no navegador com a abertura terminada: a linha de base do texto do convite fica acima do topo da pintura da capa por pelo menos 10 px em 1512×828 e em 1440×900, e por pelo menos 5 px em 1280×700.
 - "PORTFÓLIO", o nome, o ano, o contato e o rodapé da capa continuam alinhados com a pintura como hoje (eles seguem o retângulo projetado da tela); a abertura (pinceladas que revelam a capa) continua cobrindo a pintura inteira; a página base não muda.
 - **Fundo também na capa.** O fundo branco translúcido do botão de som (`.som::before`, `site/css/travessia.css`) passa a valer também na capa. Com a folga acima ele fica sobre o branco e não aparece; numa janela baixa, em que o botão ainda toque a pintura, ele mantém o texto legível.
@@ -52,3 +52,9 @@ Antes de cada conferência: `sh tools/preview-sync.sh`; servidor `site` na porta
 Regressão: abertura; ampliar e fechar a capa e uma obra (clique, "voltar", Esc, clique fora, roda para baixo); zoom e arrasto na tela ampliada; close em "A Dança é por Ela" pela marca; botão de som na capa, fora da capa e com uma tela ampliada; nenhum erro no console.
 
 Testes: `node --test tests/*.test.mjs` e `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"`.
+
+## Decisões durante a execução
+
+- **y da capa em −0,05, não −0,03.** Com y −0,03 a folga medida foi de 7,2 px em 1512×828 e 3 px em 1280×700, abaixo do exigido (a conta deste documento estava errada). Com altura 4,5 e y −0,05, a borda de baixo da pintura fica exatamente onde estava com altura 4,6 e y 0, e a folga inteira se abre em cima. Medido com a abertura terminada (linha de base do convite → alto da pintura): 10 px em 1512×828, 24 px em 1440×900 e 6 px em 1280×700. A borda de baixo e a base de "PORTFÓLIO" ficaram no mesmo px de antes nas três janelas.
+- **Limite do arrasto do close.** Vale a regra da tela ampliada: no zoom 1 a imagem fica centrada; num eixo em que ela ainda cabe na janela, fica no meio; senão a borda da imagem para na borda da janela (não no centro).
+- **Saída pela roda no close.** Rolar para baixo no zoom 1, num gesto novo, recolhe o close e engole o resto do gesto por até 400 ms, como a saída da tela ampliada. Depois disso, uma inércia ainda no mesmo gesto pode afastar a tela ampliada que estiver aproximada; nunca a fecha.

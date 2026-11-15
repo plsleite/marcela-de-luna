@@ -75,11 +75,10 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 
 ## Terceira rodada (15/11/2026): capa e zoom no close
 
-- Capa: com os valores pedidos (`CAPA = { x: -2.0, y: -0.03, altura: 4.5 }`), a linha de base do convite "LIGAR O SOM" fica 7,2 px acima do alto da pintura em 1512×828 (pedido: 10 px) e 3 px em 1280×700 (pedido: 5 px); em 1440×900, 21 px. Os números não foram mudados sem o Pedro. Pela conta, y = −0,05 com a mesma altura daria cerca de 10 px em 1512×828 e 6 px em 1280×700 (não medido).
-- Capa em 1280×700: o fundo translúcido do botão de som cobre cerca de 7 px do alto do canto esquerdo da pintura.
+- Capa (`CAPA = { x: -2.0, y: -0.05, altura: 4.5 }`): a linha de base do convite fica 10 px acima do alto da pintura em 1512×828, no limite exigido (medida com `--tela-topo`, arredondado ao px; pela conta, cerca de 10,6 px); 24 px em 1440×900; 6 px em 1280×700. Em janelas mais baixas a folga diminui (não medido abaixo de 700 px de altura).
+- Capa em 1280×700: o fundo translúcido do botão de som cobre cerca de 4 px do alto do canto esquerdo da pintura.
 - Close: a entrada e o recolhimento (`abrirDetalhe` e `recolher` em `ui/mergulho-ui.js`) contam o centro por `innerWidth`, mas a caixa do close não inclui a barra de rolagem clássica (onde ela existe): a imagem nasce e volta cerca de 7 px à direita da marca. O zoom do close (`ui/detalhe.js`) já mede pela caixa. Anterior à rodada.
 - Close: rolar para baixo no zoom 1 recolhe o close e engole o resto do gesto por 400 ms, como a saída da tela ampliada; uma inércia de trackpad mais longa que isso, no mesmo gesto, afasta a tela ampliada que estiver aproximada (nunca a fecha).
-- Close: a regra do limite do arrasto no pedido diz "a borda da imagem chega ao centro da janela" e, ao mesmo tempo, "a mesma regra de folga da tela ampliada"; valeu a da tela ampliada (a borda da imagem para na borda da janela). Se o Pedro quiser que a imagem possa ir até o centro, é a função `arrastarImagem` (`core/mergulho.js`).
 - `ui/detalhe.js` sem teste automático (depende de DOM e gsap): a conta é testada em `core/mergulho.js`, mas a convivência com os tweens de entrada e saída só foi conferida no navegador.
 - Pendente com a Marcela: se ela quer alguma alteração na lente da fileira.
 
