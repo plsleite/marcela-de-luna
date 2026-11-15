@@ -1,6 +1,7 @@
 // Mergulho: clicar na tela da parada em foco leva a câmera para dentro dela (a tela cabe em 92%
 // da janela), com título, ficha e "voltar"; roda e pinça aproximam no cursor, arrasto move a
-// vista sem sair da pintura (no Safari do macOS, a pinça chega como gesturestart/change/end); marcas sobre os closes abrem o detalhe em alta resolução.
+// vista sem sair da pintura (no Safari do macOS, a pinça chega como gesturestart/change/end); marcas sobre os closes abrem o detalhe em alta resolução,
+// com os mesmos gestos (ui/detalhe.js).
 // Sair (Esc, "voltar", clicar fora da tela, rolar para baixo com zoom 1, rolar a página por outro meio, irPara)
 // devolve a câmera à posição do scroll, que não muda durante o mergulho.
 // Tudo o que o mergulho cria (elementos, ouvintes, tweens) sai em fechar() e em encerrar().
@@ -9,6 +10,7 @@ import { gsap } from 'gsap';
 import { fovPara } from '../core/camera.js';
 import { aplicarZoom, arrastar, distanciaDeEncaixe, extensaoVisivel, fovDoZoom, ZOOM_MIN } from '../core/mergulho.js';
 import { pontoNaTela } from '../gl/tela.js';
+import { criarVistaDoDetalhe } from './detalhe.js';
 
 const OCUPA = 0.92;     // fração da janela que a tela ocupa com zoom 1
 const ENTRA = 0.9;      // s
@@ -139,7 +141,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       mesh, ui, voltar, marcas, y0: scrollY, foco: document.activeElement,
       vista: { zoom: 1, cx: 0.5, cy: 0.5 }, ver: { zoom: 1, cx: 0.5, cy: 0.5 },
       t: { v: 0 }, fase: 'entrando', detalhe: null, saindo: new Set(),
-      arrasto: null, engolirClique: false, gesto: { ultimo: -Infinity, podeSair: false }, pinca: null,
+      arrasto: null, engolirClique: false, gesto: { ultimo: -Infinity, podeSair: false, engolirAte: 0 }, pinca: null,
       opacidades: telas.filter((t) => t !== mesh).map((t) => t.material.uniforms.uOpacidade),
     };
     estado.mergulho = { stopId: stop.id, tela: indiceTela, close: null };
@@ -277,32 +279,48 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   // A página está parada e a roda é o zoom: aqui o preventDefault é legítimo (sem ele, ctrl +
   // roda ampliaria a página). Rolar para baixo com zoom 1 sai, se o gesto já começou em zoom 1
   // (a inércia de um afastamento que chegou a 1 não fecha o mergulho).
+  // Com um close aberto, a mesma regra vale para ele: a roda o amplia, e rolar para baixo no zoom 1
+  // o recolhe. A ampliação da tela fica, e o resto do gesto (até 400 ms) é engolido aqui mesmo, com
+  // o gesto ainda contado (por engolirResto, a pausa aparente no fim daria um gesto novo, que a fecharia).
   function aoRodar(e) {
     e.preventDefault();
     if (!m) return;
     const agora = performance.now();
     const g = m.gesto;
-    if (agora - g.ultimo > GESTO) g.podeSair = m.fase === 'livre' && m.vista.zoom === ZOOM_MIN;
+    const d = m.detalhe;
+    const zoom = () => (d ? d.vista?.zoom : m.vista.zoom);
+    if (agora - g.ultimo > GESTO) { g.podeSair = m.fase === 'livre' && zoom() === ZOOM_MIN; g.engolirAte = 0; }
     g.ultimo = agora;
-    if (m.fase !== 'livre' || m.detalhe) return;
+    if (agora < g.engolirAte) return;
+    if (m.fase !== 'livre' || (d && !d.vista)) return; // o close ainda entrando
     const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
     if (!dy) return;
-    if (!e.ctrlKey && dy > 0 && m.vista.zoom === ZOOM_MIN && g.podeSair) { fechar(); engolirResto(); return; }
+    if (!e.ctrlKey && dy > 0 && zoom() === ZOOM_MIN && g.podeSair) {
+      if (d) { recolher(); g.podeSair = false; g.engolirAte = agora + TETO_ENGOLIR; } else { fechar(); engolirResto(); }
+      return;
+    }
     const fator = Math.exp(-dy * (e.ctrlKey ? PINCA : RODA));
-    m.vista = aplicarZoom(m.vista, fator, uvSob(m.mesh, e.clientX, e.clientY), ext(m.mesh));
-    if (m.vista.zoom !== ZOOM_MIN) g.podeSair = false;
+    if (d) d.vista.aproximar(fator, e.clientX, e.clientY);
+    else m.vista = aplicarZoom(m.vista, fator, uvSob(m.mesh, e.clientX, e.clientY), ext(m.mesh));
+    if (zoom() !== ZOOM_MIN) g.podeSair = false;
   }
   // Pinça do Safari (macOS): e.scale é relativo ao gesturestart; a âncora é o último ponto do
   // ponteiro. O preventDefault impede o Safari de ampliar a página. Não verificado (sem Safari).
   function aoPincaInicio(e) {
     e.preventDefault();
-    if (m) m.pinca = { zoom0: m.vista.zoom };
+    if (m) m.pinca = { detalhe: m.detalhe, zoom0: m.detalhe ? m.detalhe.vista?.zoom : m.vista.zoom };
   }
   function aoPinca(e) {
     e.preventDefault();
-    if (!m?.pinca || m.fase !== 'livre' || m.detalhe || !(e.scale > 0)) return;
-    const fator = (m.pinca.zoom0 * e.scale) / m.vista.zoom;
-    m.vista = aplicarZoom(m.vista, fator, uvSob(m.mesh, ponteiro.x, ponteiro.y), ext(m.mesh));
+    const p = m?.pinca;
+    if (!p || m.fase !== 'livre' || p.detalhe !== m.detalhe || !p.zoom0 || !(e.scale > 0)) return;
+    const d = m.detalhe;
+    if (d) {
+      d.vista.aproximar((p.zoom0 * e.scale) / d.vista.zoom, ponteiro.x, ponteiro.y);
+      if (d.vista.zoom !== ZOOM_MIN) m.gesto.podeSair = false;
+      return;
+    }
+    m.vista = aplicarZoom(m.vista, (p.zoom0 * e.scale) / m.vista.zoom, uvSob(m.mesh, ponteiro.x, ponteiro.y), ext(m.mesh));
     if (m.vista.zoom !== ZOOM_MIN) m.gesto.podeSair = false;
   }
   function aoPincaFim(e) {
@@ -311,9 +329,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   }
   function aoApertar(e) {
     if (m) m.engolirClique = false; // um arrasto anterior sem click não engole o próximo
-    if (!m || m.fase !== 'livre' || m.detalhe || e.button !== 0 || !e.isPrimary) return;
+    if (!m || m.fase !== 'livre' || (m.detalhe && !m.detalhe.vista) || e.button !== 0 || !e.isPrimary) return;
     if (e.target.closest?.('button, a')) return;
-    m.arrasto = { id: e.pointerId, x: e.clientX, y: e.clientY, total: 0 };
+    m.arrasto = { id: e.pointerId, x: e.clientX, y: e.clientY, total: 0, detalhe: m.detalhe };
   }
   function aoArrastar(e) {
     const a = m?.arrasto;
@@ -322,6 +340,12 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     a.x = e.clientX; a.y = e.clientY;
     a.total += Math.hypot(dx, dy);
     if (a.total < ARRASTO_MIN) return;
+    if (a.detalhe) { // o close: arrasto só com zoom (no zoom 1 a imagem fica centrada)
+      if (a.detalhe !== m.detalhe) return;
+      a.detalhe.vista.puxando(a.detalhe.vista.zoom > ZOOM_MIN);
+      a.detalhe.vista.mover(dx, dy);
+      return;
+    }
     html.classList.add('arrastando');
     const ex = ext(m.mesh), z = m.vista.zoom;
     // a janela mostra ex/z da tela em cada eixo: px → UV; arrastar para a direita leva a pintura junto
@@ -332,6 +356,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     if (!a || e.pointerId !== a.id) return;
     m.arrasto = null;
     html.classList.remove('arrastando');
+    a.detalhe?.vista?.puxando(false);
     if (a.total >= ARRASTO_MIN) m.engolirClique = true; // o click que segue o arrasto não conta
   }
 
@@ -374,19 +399,28 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     const img = document.createElement('img');
     img.alt = 'DETALHES';
     img.decoding = 'async';
+    img.draggable = false; // o arrasto move a imagem ampliada (sem o arrastar nativo do navegador)
     img.width = info.w; img.height = info.h;
     img.src = `./assets/img/${id}-${info.larguras.at(-1)}.webp`;
     caixa.append(img);
     m.ui.before(caixa);
     m.ui.classList.add('com-detalhe');
-    m.detalhe = { caixa, img, marca: mk.el, desde: performance.now() };
+    const d = { caixa, img, marca: mk.el, desde: performance.now(), vista: null };
+    m.detalhe = d;
     estado.mergulho.close = id;
     const r = mk.el.getBoundingClientRect();
     gsap.fromTo(caixa, { opacity: 0 }, { opacity: 1, duration: DETALHE * 0.6, ease: 'power1.out' });
+    // zoom e arrasto só com a entrada terminada (o recolher antes disso mata este tween)
     gsap.fromTo(img,
       { x: r.left + r.width / 2 - innerWidth / 2, y: r.top + r.height / 2 - innerHeight / 2, scale: 0.03 },
-      { x: 0, y: 0, scale: 1, duration: DETALHE, ease: 'power3.out' });
-    caixa.addEventListener('click', (ev) => { ev.stopPropagation(); if (!detalheRecente()) recolher(); });
+      { x: 0, y: 0, scale: 1, duration: DETALHE, ease: 'power3.out', onComplete: () => { d.vista = criarVistaDoDetalhe(caixa, img, info); } });
+    // um clique sem arrasto recolhe, em qualquer zoom
+    caixa.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const arrastou = arrastouDesde(ev);
+      descida = null;
+      if (!arrastou && !detalheRecente()) recolher();
+    });
   }
   const detalheRecente = () => Boolean(m?.detalhe) && performance.now() - m.detalhe.desde < DETALHE_FIRME;
   function recolher() {
@@ -398,12 +432,14 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     m.saindo.add(d);
     const s = m;
     const r = d.marca.getBoundingClientRect();
-    gsap.killTweensOf([d.caixa, d.img]);
+    d.vista?.encerrar();
+    gsap.killTweensOf([d.caixa, d.img]); // a volta parte do zoom e da posição em que a imagem está
     gsap.to(d.img, { x: r.left + r.width / 2 - innerWidth / 2, y: r.top + r.height / 2 - innerHeight / 2, scale: 0.03, duration: DETALHE * 0.75, ease: 'power3.in' });
     gsap.to(d.caixa, { opacity: 0, duration: DETALHE * 0.75, ease: 'power2.in', onComplete: () => { s.saindo.delete(d); tirarDetalhe(d); } });
     if (document.activeElement === document.body || !document.activeElement) s.voltar.focus({ preventScroll: true });
   }
   function tirarDetalhe(d) {
+    d.vista?.encerrar();
     gsap.killTweensOf([d.caixa, d.img]);
     d.img.removeAttribute('src');
     d.caixa.remove();
@@ -413,19 +449,19 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   // Onde o botão desceu: um clique que chega depois de arrastar (seleção, gesto) não viaja nem mergulha.
   let descida = null;
   function aoDescer(e) { descida = e.isPrimary ? { x: e.clientX, y: e.clientY } : descida; }
+  const arrastouDesde = (e) => Boolean(descida) && Math.hypot(e.clientX - descida.x, e.clientY - descida.y) > CLIQUE_MAX;
   // Com uma tela ampliada: um clique num controle (botão de som, "voltar") é só dele; com um
   // close aberto, o clique fora fecha só o close; sem ele, um clique
   // (não arrasto) fora da tela e fora dos controles fecha a ampliação. Este mesmo clique não
   // segue adiante (não viaja): a volta (saida) ainda segura os cliques seguintes.
   function aoClicar(e) {
     if (e.button !== 0) return;
-    const d0 = descida;
+    const arrastou = arrastouDesde(e);
     descida = null;
-    const arrastou = Boolean(d0) && Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > CLIQUE_MAX;
     if (m) {
       if (m.engolirClique) { m.engolirClique = false; return; }
       if (e.target.closest?.('a, button, input, select, textarea, label')) return; // controles (som, voltar…)
-      if (m.detalhe) { if (!detalheRecente()) recolher(); return; }
+      if (m.detalhe) { if (!arrastou && !detalheRecente()) recolher(); return; }
       if (arrastou) return;
       if (!sobATela(m.mesh, e.clientX, e.clientY)) fechar();
       return;

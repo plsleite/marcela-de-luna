@@ -222,8 +222,11 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
 .mergulho-marca:hover::before { background: rgb(255 255 255 / 0.35); }
 .mergulho.livre .mergulho-marca { opacity: 1; pointer-events: auto; }
 .mergulho.com-detalhe .mergulho-marca { opacity: 0; pointer-events: none; }
-/* o close cresce da marca até a janela (gsap no transform da imagem) */
-.mergulho-detalhe { position: fixed; inset: 0; z-index: 3; background: #fff; cursor: zoom-out; }
+/* o close cresce da marca até a janela (gsap no transform da imagem); com zoom (ui/detalhe.js),
+   o cursor é o do arrasto */
+.mergulho-detalhe { position: fixed; inset: 0; z-index: 3; background: #fff; cursor: zoom-out; user-select: none; -webkit-user-select: none; }
+.mergulho-detalhe.ampliado { cursor: grab; }
+.mergulho-detalhe.ampliado.puxando { cursor: grabbing; }
 .mergulho-detalhe img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 
 @media (prefers-reduced-motion: reduce) {
