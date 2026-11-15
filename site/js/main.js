@@ -1,6 +1,6 @@
 import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, FOV } from './config.js';
 import { montarBase } from './ui/base.js';
-import { criarLinha, situar, focoDe, emFoco, alturaDaPagina } from './core/timeline.js';
+import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop } from './core/camera.js';
 import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
@@ -51,11 +51,12 @@ async function iniciarTravessia(stops, images) {
   const canvas = document.getElementById('gl');
   const [
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
-    { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { default: Lenis }, { gsap },
+    { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { criarNavegacao },
+    { default: Lenis }, { gsap },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
-    import('./ui/mergulho-ui.js'), import('lenis'), import('gsap'),
+    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('lenis'), import('gsap'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -65,6 +66,7 @@ async function iniciarTravessia(stops, images) {
   let pincel = null; // { tinta, preenchimento, soltar }
   let abertura = null; // promessa de rodarAbertura, com .encerrar()
   let mergulho = null; // criarMergulho: abrir, fechar, quadro, encerrar
+  let navegacao = null; // criarNavegacao: fileira, teclado, cabeçalho e irPara
   let ativo = true;
   // Único caminho de desmontagem (contexto perdido, erro num quadro ou erro na montagem):
   // para o laço, solta o scroll e mostra a página base na parada em que se estava.
@@ -74,6 +76,7 @@ async function iniciarTravessia(stops, images) {
     if (erro) console.error(erro);
     palco.parar();
     try { mergulho?.encerrar(); } catch (e) { console.error(e); } // o resto da desmontagem roda sempre
+    try { navegacao?.encerrar(); } catch (e) { console.error(e); }
     lenis?.destroy();
     abertura?.encerrar();
     if (pincel) { pincel.soltar(); pincel.tinta.liberar(); pincel.preenchimento.desfazer(); pincel = null; }
@@ -170,12 +173,17 @@ async function iniciarTravessia(stops, images) {
       }
     }
 
-    lenis = new Lenis({ lerp: 0.09 });
+    const LERP = 0.09;
+    // virtualScroll só intervém com uma viagem em andamento (a roda herda a velocidade dela).
+    lenis = new Lenis({ lerp: LERP, virtualScroll: (dados) => { navegacao?.aoRolarVirtual(dados); } });
+    navegacao = criarNavegacao({
+      linha, stops, images, lenis, amortecimento: LERP * 60, antes: raiz,
+      fecharMergulho: () => mergulho?.fechar(), // toda navegação fecha o mergulho antes de agir
+    });
     window.__site = {
       linha, estado, telas, ponteiro: palco.ponteiro,
       get abertura() { return abertura?.estado ?? null; },
-      // Toda navegação fecha o mergulho antes de agir.
-      irPara(id) { mergulho?.fechar(); lenis.scrollTo((focoDe(linha, id) / 100) * innerHeight); },
+      irPara(id) { navegacao.irPara(id); },
       abrirMergulho(stopId, indiceTela = 0) {
         mergulho?.abrir(telas.find((m) => m.userData.stopId === stopId && m.userData.indiceTela === indiceTela));
       },
@@ -264,14 +272,21 @@ async function iniciarTravessia(stops, images) {
     }
     pincel = montarPincel();
 
-    // Mergulho: só a tela da parada em foco abre, e só depois da abertura. Dentro dele o scroll
-    // suavizado para, o pincel descansa e a pintura vem na maior largura.
+    // Clique numa tela (o único lugar que decide): só depois da abertura; a da parada em foco
+    // abre o mergulho, qualquer outra visível leva até a sua parada. Durante uma viagem, toda
+    // tela leva até a sua parada. Dentro do mergulho o scroll suavizado para, o pincel descansa
+    // e a pintura vem na maior largura.
     const porId = new Map(stops.map((s) => [s.id, s]));
     mergulho = criarMergulho({
       palco, porId, images, telas, estado, poseDoScroll,
-      podeAbrir: (mesh) => abertura?.estado === 'fim'
-        && mesh.userData.stopId === emFoco(linha, (scrollY / innerHeight) * 100),
+      destino(mesh) {
+        if (abertura?.estado !== 'fim') return null;
+        const emFocoAgora = emFoco(linha, (scrollY / innerHeight) * 100);
+        return !navegacao.viajando && mesh.userData.stopId === emFocoAgora ? 'mergulho' : 'viagem';
+      },
+      aoViajar: (mesh) => navegacao.irPara(mesh.userData.stopId),
       aoAbrir(mesh) {
+        navegacao.cancelar();
         lenis.stop();
         pincel.tinta.ativa = false;
         pincel.tinta.romper();
@@ -301,6 +316,7 @@ async function iniciarTravessia(stops, images) {
       if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
       aplicarLuz(dt);
       legendas.atualizar(vh);
+      navegacao.quadro(dt, { atual: s.id, oculta: abertura?.estado !== 'fim' || Boolean(estado.mergulho) });
       if (s.indice !== indiceAtual) { indiceAtual = s.indice; carregarJanela(indiceAtual); }
     });
 

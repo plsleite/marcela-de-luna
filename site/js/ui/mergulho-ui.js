@@ -27,9 +27,10 @@ const CHAVES = ['x', 'y', 'z', 'rx', 'ry', 'fov'];
 const misturar = (a, b, k) => Object.fromEntries(CHAVES.map((c) => [c, a[c] + (b[c] - a[c]) * k]));
 
 // opcoes: palco; porId (Map id → stop); images; telas (meshes); estado (estado.mergulho é escrito aqui);
-// poseDoScroll() → { x, y, z, rx, ry, fov } da câmera pela travessia; podeAbrir(mesh) → bool;
+// poseDoScroll() → { x, y, z, rx, ry, fov } da câmera pela travessia; destino(mesh) → 'mergulho'
+// (abre), 'viagem' (chama aoViajar(mesh)) ou null (o clique não faz nada): quem decide é main.js;
 // aoAbrir(mesh) e aoFechar(mesh): o resto do site entra e sai do modo mergulho.
-export function criarMergulho({ palco, porId, images, telas, estado, poseDoScroll, podeAbrir, aoAbrir, aoFechar }) {
+export function criarMergulho({ palco, porId, images, telas, estado, poseDoScroll, destino, aoViajar, aoAbrir, aoFechar }) {
   const cam = palco.camera;
   let m = null;      // sessão aberta
   let saida = null;  // volta animada depois de fechar: { de, t, tween, opacidades }
@@ -131,7 +132,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     addEventListener('pointercancel', aoSoltar);
     addEventListener('scroll', aoRolarPagina, { passive: true });
     try {
-      html.classList.remove('pode-mergulhar');
+      html.classList.remove('tela-clicavel');
       html.classList.add('mergulhando');
       document.body.append(ui);
       aoAbrir(mesh);
@@ -351,7 +352,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     d.caixa.remove();
   }
 
-  // ---------- sempre: clique que abre e cursor ----------
+  // ---------- sempre: clique numa tela e cursor ----------
   function aoClicar(e) {
     if (e.button !== 0) return;
     if (m) {
@@ -361,12 +362,14 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     }
     if (saida || e.target.closest?.('a, button, input, select, textarea, label')) return;
     const mesh = palco.telaSob(e.clientX, e.clientY);
-    if (mesh && podeAbrir(mesh)) abrir(mesh);
+    const d = mesh ? destino(mesh) : null;
+    if (d === 'mergulho') abrir(mesh);
+    else if (d === 'viagem') aoViajar(mesh);
   }
   function aoPassar(e) {
     if (m || saida || e.pointerType === 'touch') return;
     const mesh = palco.telaSob(e.clientX, e.clientY);
-    html.classList.toggle('pode-mergulhar', Boolean(mesh && podeAbrir(mesh)));
+    html.classList.toggle('tela-clicavel', Boolean(mesh && destino(mesh)));
   }
   addEventListener('click', aoClicar);
   addEventListener('pointermove', aoPassar, { passive: true });
@@ -380,7 +383,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       fechar({ imediato: true });
     } finally {
       pararSaida();
-      html.classList.remove('pode-mergulhar', 'mergulhando', 'arrastando');
+      html.classList.remove('tela-clicavel', 'mergulhando', 'arrastando');
       if (cam.fov !== FOV) { cam.fov = FOV; cam.updateProjectionMatrix(); }
     }
   }

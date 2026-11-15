@@ -127,7 +127,8 @@ html.travessia .parada--capa .nome.abertura-enche {
 /* ---------- mergulho (mergulho-ui.js) ----------
    Com html.mergulhando, os textos da travessia somem e a câmera está dentro de uma tela.
    A interface (título, ficha, "voltar" e as marcas dos closes) é DOM real sobre o palco. */
-html.travessia.pode-mergulhar { cursor: zoom-in; }
+/* qualquer tela clicável (a em foco mergulha, as outras levam até a sua parada) */
+html.travessia.tela-clicavel { cursor: pointer; }
 html.travessia.mergulhando { cursor: grab; }
 html.travessia.mergulhando.arrastando { cursor: grabbing; user-select: none; -webkit-user-select: none; }
 html.travessia.mergulhando .parada.em-foco { opacity: 0; transition-duration: 0.35s; }
@@ -180,3 +181,80 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .mergulho, .mergulho-marca::after { animation: none; }
 }
+
+/* ---------- navegação rápida e cabeçalho (navegacao.js) ----------
+   Uma fileira discreta de pinceladas na borda direita: quase apagada até ser procurada.
+   Ambos entram com a página pronta (depois da abertura) e somem durante o mergulho. */
+.navegacao, .topo-site {
+  opacity: 0; visibility: hidden;
+  transition: opacity 0.9s ease, visibility 0s linear 0.9s;
+}
+.navegacao.visivel, .topo-site.visivel {
+  opacity: 1; visibility: visible;
+  transition: opacity 0.9s ease 0.15s, visibility 0s;
+}
+.navegacao {
+  --margem: clamp(14px, 1.7vw, 28px); /* da pincelada até a borda da janela */
+  position: fixed; right: 0; top: 50%; translate: 0 -50%; z-index: 3;
+  pointer-events: none; /* só as marcas recebem o ponteiro; o resto é o palco */
+}
+.navegacao-lista {
+  position: relative; list-style: none; margin: 0; padding: 6px 0;
+  max-height: calc(100vh - 7rem); overflow: hidden auto; overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.navegacao-lista::-webkit-scrollbar { display: none; }
+.navegacao-lista.transborda {
+  -webkit-mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 28px), transparent);
+}
+.navegacao li { margin: 0; }
+.navegacao li.novo-grupo { margin-top: 12px; }
+/* área de clique 64 × 24 px; o desenho fica rente à direita */
+.navegacao-marca {
+  pointer-events: auto; display: flex; align-items: center; justify-content: flex-end;
+  width: calc(36px + var(--margem)); height: 24px; padding: 0 var(--margem) 0 0; margin: 0;
+  border: 0; border-radius: 3px; background: none; color: inherit; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.navegacao-marca:focus { outline: none; }
+.navegacao-marca:focus-visible { outline: 1.5px solid #305fa3; outline-offset: -4px; }
+/* pincelada: ponta de cerdas de um lado, arrasto do outro, levemente inclinada */
+.pincelada {
+  display: block; flex: none; width: 14px; height: 4px;
+  background: var(--cor, #111); opacity: 0.5;
+  clip-path: polygon(0 38%, 9% 4%, 52% 14%, 94% 0, 100% 46%, 97% 92%, 46% 100%, 6% 88%);
+  rotate: -4deg; transform-origin: 100% 50%;
+  transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.35s ease;
+}
+.navegacao li:nth-child(4n+2) .pincelada { rotate: 3deg; clip-path: polygon(3% 12%, 40% 0, 100% 10%, 96% 58%, 100% 100%, 55% 86%, 0 96%, 5% 50%); }
+.navegacao li:nth-child(4n+3) .pincelada { rotate: -2deg; clip-path: polygon(0 20%, 60% 0, 97% 16%, 100% 70%, 90% 100%, 30% 90%, 4% 100%, 2% 62%); }
+.navegacao li:nth-child(4n) .pincelada { rotate: 5deg; clip-path: polygon(6% 0, 70% 8%, 100% 0, 98% 52%, 92% 100%, 40% 92%, 0 100%, 3% 44%); }
+/* capa, textos e aberturas: traço fino de grafite, afinando para a esquerda */
+.navegacao-marca[data-forma="traco"] .pincelada {
+  height: 2px; background: #111;
+  clip-path: polygon(0 55%, 12% 10%, 100% 0, 100% 100%, 12% 90%);
+}
+.navegacao-marca:hover .pincelada, .navegacao-marca:focus-visible .pincelada { opacity: 1; width: 18px; }
+.navegacao-marca[aria-current="true"] .pincelada { opacity: 1; width: 30px; }
+/* título: um só, à esquerda da marca (top escrito em navegacao.js) */
+.navegacao-titulo {
+  position: absolute; top: 0; right: calc(var(--margem) + 40px);
+  translate: 6px -50%; opacity: 0;
+  font-size: 0.66rem; font-weight: 400; letter-spacing: 0.09em; line-height: 1; white-space: nowrap;
+  padding: 3px 6px; background: rgb(255 255 255 / 0.82);
+  pointer-events: none;
+  transition: opacity 0.25s ease, translate 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.navegacao.com-titulo .navegacao-titulo { opacity: 1; translate: 0 -50%; }
+
+/* cabeçalho: só o nome, pequeno, no canto (volta à capa; some com a capa em foco) */
+.topo-site { position: fixed; top: clamp(0.8rem, 3vh, 1.9rem); left: clamp(1rem, 2.4vw, 2.2rem); z-index: 3; }
+.topo-nome {
+  display: inline-block; padding: 6px 0;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.16em; line-height: 1;
+  color: #000; text-decoration: none; opacity: 0.78; transition: opacity 0.3s ease;
+}
+.topo-nome:hover, .topo-nome:focus-visible { opacity: 1; }
+.topo-nome:focus { outline: none; }
+.topo-nome:focus-visible { outline: 1.5px solid #305fa3; outline-offset: 4px; }
