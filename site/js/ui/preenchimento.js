@@ -72,7 +72,8 @@ export function criarPreenchimento(raiz) {
   }
 
   // Caixa do desenho da letra (não a da linha, que é bem mais alta): a altura sai das métricas
-  // da fonte no canvas; guardada por tamanho de fonte.
+  // da fonte no canvas; guardada por tamanho de fonte. O retângulo da letra inclui a folga
+  // (padding, travessia.css), descontada aqui.
   const regua = document.createElement('canvas').getContext('2d');
   function caixaDoGlifo(letra) {
     const r = letra.getBoundingClientRect();
@@ -80,10 +81,11 @@ export function criarPreenchimento(raiz) {
     if (letra._glifo?.fonte !== fonte) {
       regua.font = fonte;
       const m = regua.measureText(letra.textContent);
-      const topo = m.fontBoundingBoxAscent - m.actualBoundingBoxAscent;
-      const base = m.fontBoundingBoxAscent + m.actualBoundingBoxDescent;
+      const folga = parseFloat(getComputedStyle(letra).paddingTop) || 0;
+      const topo = folga + m.fontBoundingBoxAscent - m.actualBoundingBoxAscent;
+      const base = folga + m.fontBoundingBoxAscent + m.actualBoundingBoxDescent;
       // métricas indisponíveis: fica a caixa da linha
-      letra._glifo = Number.isFinite(topo + base) && base > topo ? { fonte, topo, base } : { fonte, topo: 0, base: r.height };
+      letra._glifo = Number.isFinite(topo + base) && base > topo ? { fonte, topo, base } : { fonte, topo: folga, base: r.height - folga };
     }
     return { esq: r.left, dir: r.right, topo: r.top + letra._glifo.topo, base: r.top + letra._glifo.base };
   }

@@ -95,12 +95,16 @@ html.travessia .parada--detalhe .titulo-secao {
 /* ---------- letras que se enchem de tinta (preenchimento.js) ----------
    Duas camadas recortadas no texto: por cima, uma pincelada preta (--pincelada-*, SVG gerado
    no JS) que começa cobrindo a letra; por baixo, a pintura, contínua no título (--bx, --by,
-   --tinta-larg). Ao ganhar .pintada, a pincelada desliza para fora no sentido do gesto. */
+   --tinta-larg). Ao ganhar .pintada, a pincelada desliza para fora no sentido do gesto.
+   Folga (--folga-letra) em cima e embaixo da caixa da letra, desfeita pela margem: o acento
+   (Ó, Í) passa do topo do título, e a pintura começa essa folga acima dele. */
 html.travessia .titulo-palavra { white-space: nowrap; }
 html.travessia .titulo-secao .letra {
+  --folga-letra: 0.25em;
+  padding: var(--folga-letra) 0; margin: calc(-1 * var(--folga-letra)) 0;
   background-image: var(--pincelada-dir), url('../assets/img/p01-a-640.webp');
   background-size: 300% 100%, var(--tinta-larg, 6em) auto;
-  background-position: 100% 0, var(--bx, 0px) var(--by, 0px);
+  background-position: 100% 0, var(--bx, 0px) calc(var(--by, 0px) - var(--folga-letra));
   background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
@@ -109,13 +113,13 @@ html.travessia .titulo-secao .letra {
 }
 html.travessia .titulo-secao .letra[data-dir="esq"] {
   background-image: var(--pincelada-esq), url('../assets/img/p01-a-640.webp');
-  background-position: 0% 0, var(--bx, 0px) var(--by, 0px);
+  background-position: 0% 0, var(--bx, 0px) calc(var(--by, 0px) - var(--folga-letra));
 }
 html.travessia .titulo-secao .letra.pintada {
-  background-position: 0% 0, var(--bx, 0px) var(--by, 0px);
+  background-position: 0% 0, var(--bx, 0px) calc(var(--by, 0px) - var(--folga-letra));
   transition: background-position 450ms cubic-bezier(0.3, 0.6, 0.25, 1);
 }
-html.travessia .titulo-secao .letra.pintada[data-dir="esq"] { background-position: 100% 0, var(--bx, 0px) var(--by, 0px); }
+html.travessia .titulo-secao .letra.pintada[data-dir="esq"] { background-position: 100% 0, var(--bx, 0px) calc(var(--by, 0px) - var(--folga-letra)); }
 
 /* ---------- abertura (abertura.js) ----------
    Traço de carregamento: linha fina no centro, puxada da esquerda (scaleX = fração carregada).
