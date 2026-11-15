@@ -125,9 +125,10 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   // Título ao lado da marca: um só elemento fora da lista, na altura do desenho da marca (que a
   // lente desloca; posicionarTitulo a cada quadro em que ela mexe).
   let comTitulo = null;
+  let topoDaLista = 0; // lista.offsetTop, lido em medir() (não a cada quadro)
   function posicionarTitulo() {
     if (!comTitulo) return;
-    titulo.style.top = `${(lista.offsetTop + lenteDaFileira.meio(botoes.indexOf(comTitulo))).toFixed(1)}px`;
+    titulo.style.top = `${(topoDaLista + lenteDaFileira.meio(botoes.indexOf(comTitulo))).toFixed(1)}px`;
   }
   function mostrarTitulo(b) {
     titulo.textContent = b.dataset.titulo;
@@ -147,7 +148,10 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
 
   // A fileira cabe inteira na janela, sem rolagem: o passo cheio sai da altura da janela; o de
   // repouso (contraído) e a lente ficam com lente.js.
-  function medir() { lenteDaFileira.medir(passoDaFileira(innerHeight, marcas.length)); }
+  function medir() {
+    lenteDaFileira.medir(passoDaFileira(innerHeight, marcas.length));
+    topoDaLista = lista.offsetTop;
+  }
   medir();
   addEventListener('resize', medir);
 
@@ -181,9 +185,9 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
       nav.classList.toggle('visivel', navVisivel);
       if (!navVisivel) nav.classList.remove('com-titulo');
     }
-    const t = !oculta && emFoco(linha, (y / innerHeight) * 100) !== capa?.id;
     // o botão de som lê isto: fora da capa ele desliza para a direita do nome
     const fora = emFoco(linha, (y / innerHeight) * 100) !== capa?.id;
+    const t = !oculta && fora;
     if (foraDaCapa !== fora) { foraDaCapa = fora; document.documentElement.classList.toggle('fora-da-capa', fora); }
     if (topo && topoVisivel !== t) { topoVisivel = t; topo.classList.toggle('visivel', t); }
   }
