@@ -319,7 +319,7 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
    Botão discreto no canto superior esquerdo, na linha do nome: três barrinhas finas que oscilam
    com a música tocando e ficam paradas e baixas com o som desligado. Enquanto a música não tocou
    (.convite), mostra à direita das barras "LIGAR O SOM" e as barras ondulam devagar e baixas.
-   Na capa fica na margem; fora dela (html.fora-da-capa) e com uma tela ampliada, 18 px à direita
+   Na capa fica na margem; fora dela (html.fora-da-capa) e com uma tela ampliada (html.mergulhando), 18 px à direita
    do nome (--nome-w, medida em som.js). Fica acima da tela ampliada, ao lado do "voltar". */
 .som {
   --margem-e: clamp(1rem, 2.4vw, 2.2rem);
@@ -331,7 +331,7 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
   opacity: 0; transition: opacity 0.9s ease, left 0.5s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.fora-da-capa .som, body:has(.mergulho) .som { left: calc(var(--margem-e) + var(--nome-w, 9rem) + 18px - 6px); }
+.fora-da-capa .som, .mergulhando .som { left: calc(var(--margem-e) + var(--nome-w, 9rem) + 18px - 6px); }
 .som.visivel { opacity: 0.72; }
 .som.visivel:hover, .som.visivel:focus-visible { opacity: 1; }
 .som:focus { outline: none; }
