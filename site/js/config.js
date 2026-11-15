@@ -23,8 +23,9 @@ export const VERSO = { altura: 4.6, vulto: { x: -2.2, y: 0 } };
 export const VISIBILIDADE_DETALHE = { ...VISIBILIDADE, surge: [2.0, 3.6], branco: [10, 14], some: [18.6, 20.4] };
 // Ímã do scroll: sem entrada há `espera` ms (e com a página parada), a câmera desliza até o foco
 // da parada mais próxima, em duracaoMin s até 20 vh de distância, crescendo até duracaoMax s em
-// 80 vh ou mais; a menos de `folga` vh do foco, não faz nada.
-export const IMA = { espera: 160, duracaoMin: 0.45, duracaoMax: 0.9, folga: 0.5 };
+// 80 vh ou mais; a menos de `folga` vh do foco, não faz nada. `limiar`: fração do caminho até a
+// parada vizinha, no sentido da rolagem, a partir da qual o ímã avança (senão volta).
+export const IMA = { espera: 160, duracaoMin: 0.45, duracaoMax: 0.9, folga: 0.5, limiar: 0.25 };
 // Música de fundo: volume-alvo, subida no primeiro gesto (s) e transição do botão (s). O arquivo
 // já é baixo (cerca de −25,6 LUFS) e no iOS o volume fica em 1; daí o alvo 0,6 em vez de ~0,22.
 export const SOM = { volume: 0.6, subida: 3, troca: 0.6 };

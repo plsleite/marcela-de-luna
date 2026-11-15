@@ -7,6 +7,9 @@
 // termina. Tab, Shift e as demais teclas não mexem no ímã. O ímã só age depois de uma entrada do visitante
 // (nunca sozinho na carga, depois de restaurar a posição, nem depois de corrigir o resize) e
 // nunca enquanto `bloqueado()` (abertura, tela ampliada ou a volta dela, viagem de navegação).
+// O ímã respeita o sentido do gesto: guarda a origem (vh em que a página parava quando o gesto
+// começou) e avança à parada vizinha já a partir de IMA.limiar do caminho; a origem se renova
+// a cada chegada e se apaga com o bloqueio, o resize e o encerramento.
 // Tudo o que este módulo cria (ouvintes) sai em encerrar().
 import { IMA } from '../config.js';
 import { alvoDoIma, duracaoDoIma, curvaDoIma, teclaDeRolagem } from '../core/ima.js';
@@ -26,6 +29,7 @@ export function criarIma({ linha, lenis, bloqueado }) {
   let yConhecido = scrollY;      // scrollY no último quadro (ou na última correção)
   let tAnterior = performance.now();
   let deslize = null;            // userData do deslize em curso (identidade)
+  let origem = null;             // vh em que a página estava parada quando o gesto começou (null: nenhum)
   const meu = () => deslize !== null && lenis.userData === deslize;
   const deslizando = () => meu() && lenis.isScrolling === 'smooth';
 
@@ -38,7 +42,9 @@ export function criarIma({ linha, lenis, bloqueado }) {
     return havia;
   }
   function entrada() {
-    interromper();
+    // A origem só se grava na primeira entrada depois de um repouso: com o gesto em curso
+    // (armado) ou o deslize cortado agora, ela segue sendo a do gesto.
+    if (!interromper() && !armado) origem = vhDe(yConhecido, innerHeight);
     armado = true;
     ultimaEntrada = performance.now();
   }
@@ -108,22 +114,22 @@ export function criarIma({ linha, lenis, bloqueado }) {
     const parada = (Math.abs(y - yConhecido) / dt) * 1000 < PARADA;
     yConhecido = y;
     tAnterior = agora;
-    if (bloqueado()) { deslize = null; armado = false; return; }
+    if (bloqueado()) { deslize = null; armado = false; origem = null; return; }
     if (deslizando()) return;
     deslize = null;
     if (!armado || emGesto() || !parada || agora - ultimaEntrada < IMA.espera) return;
     armado = false;
     const vh = vhDe(y, innerHeight);
-    const alvo = alvoDoIma(linha, vh, IMA.folga);
-    if (alvo === null) return;
+    const alvo = alvoDoIma(linha, vh, { folga: IMA.folga, origem, limiar: IMA.limiar });
+    if (alvo === null) { origem = vh; return; }
     const limite = Number.isFinite(lenis.limit) ? lenis.limit : Infinity;
     const px = Math.max(0, Math.min(limite, pxDe(alvo, innerHeight)));
-    if (Math.abs(px - y) < 1) return;
+    if (Math.abs(px - y) < 1) { origem = vh; return; }
     const marca = { ima: true };
     deslize = marca;
     lenis.scrollTo(px, {
       duration: duracaoDoIma(alvo - vh), easing: curvaDoIma, userData: marca,
-      onComplete: () => { if (deslize === marca) deslize = null; },
+      onComplete: () => { if (deslize === marca) { deslize = null; origem = alvo; } },
     });
     if (lenis.userData !== marca) deslize = null; // o Lenis recusou (parado) ou já estava lá
   }
@@ -132,12 +138,14 @@ export function criarIma({ linha, lenis, bloqueado }) {
   function desarmar() {
     interromper();
     armado = false;
+    origem = null;
     yConhecido = scrollY;
   }
 
   function encerrar() {
     interromper();
     armado = false;
+    origem = null;
     for (const [tipo, fn, op] of OUVINTES) removeEventListener(tipo, fn, op);
   }
 

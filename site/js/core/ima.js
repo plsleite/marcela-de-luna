@@ -9,9 +9,24 @@ export function paradaDoIma(linha, vh) {
 }
 
 // Foco (vh) até onde o ímã leva a página, ou null se ela já está a menos de `folga` vh dele.
-export function alvoDoIma(linha, vh, folga = IMA.folga) {
-  const { foco } = paradaDoIma(linha, vh);
-  return Math.abs(vh - foco) < folga ? null : foco;
+// `origem` é o vh em que a página estava parada quando o gesto começou. Entre dois focos a e b,
+// com f = fração já andada de a para b: descendo (vh > origem) avança para b a partir de
+// `limiar`; subindo (vh < origem) recua para a quando o que falta andar até a é ao menos `limiar`.
+// Sem origem, ou parado nela, vai ao foco mais próximo. Antes do primeiro foco e depois do
+// último, o extremo.
+export function alvoDoIma(linha, vh, { folga = IMA.folga, origem, limiar = IMA.limiar } = {}) {
+  const itens = linha.itens;
+  let alvo;
+  if (!Number.isFinite(origem) || vh === origem || vh <= itens[0].foco || vh >= itens.at(-1).foco) {
+    alvo = paradaDoIma(linha, vh).foco;
+  } else {
+    let i = 0;
+    while (i < itens.length - 2 && itens[i + 1].foco <= vh) i++;
+    const a = itens[i].foco, b = itens[i + 1].foco;
+    const f = (vh - a) / (b - a);
+    alvo = vh > origem ? (f >= limiar ? b : a) : (1 - f >= limiar ? a : b);
+  }
+  return Math.abs(vh - alvo) < folga ? null : alvo;
 }
 
 // Duração do deslize (s) pela distância (vh): duracaoMin até 20 vh, linear até duracaoMax em 80 vh.

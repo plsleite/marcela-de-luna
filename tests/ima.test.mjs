@@ -1,4 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { criarLinha } from '../site/js/core/timeline.js';
 import { IMA } from '../site/js/config.js';
 import { paradaDoIma, alvoDoIma, duracaoDoIma, curvaDoIma, teclaDeRolagem } from '../site/js/core/ima.js';
 
@@ -7,7 +9,7 @@ const linha = { itens: [0, 100, 200, 300].map((foco, i) => ({ id: `p${i}`, foco 
 const perto = (a, b) => Math.abs(a - b) < 1e-9;
 
 test('IMA: as constantes do roteiro', () => {
-  assert.deepEqual(IMA, { espera: 160, duracaoMin: 0.45, duracaoMax: 0.9, folga: 0.5 });
+  assert.deepEqual(IMA, { espera: 160, duracaoMin: 0.45, duracaoMax: 0.9, folga: 0.5, limiar: 0.25 });
 });
 
 test('paradaDoIma: o foco mais perto do vh; empate fica com a de menor índice', () => {
@@ -22,12 +24,59 @@ test('paradaDoIma: o foco mais perto do vh; empate fica com a de menor índice',
 });
 
 test('alvoDoIma: o foco a buscar, ou null dentro da folga', () => {
-  assert.equal(alvoDoIma(linha, 130, 0.5), 100);
-  assert.equal(alvoDoIma(linha, 170, 0.5), 200);
-  assert.equal(alvoDoIma(linha, 100.3, 0.5), null);
-  assert.equal(alvoDoIma(linha, 99.6, 0.5), null);
-  assert.equal(alvoDoIma(linha, 100.5, 0.5), 100); // a folga é estrita: 0,5 já desliza
-  assert.equal(alvoDoIma(linha, 100, 0.5), null);
+  assert.equal(alvoDoIma(linha, 130, { folga: 0.5 }), 100);
+  assert.equal(alvoDoIma(linha, 170, { folga: 0.5 }), 200);
+  assert.equal(alvoDoIma(linha, 100.3, { folga: 0.5 }), null);
+  assert.equal(alvoDoIma(linha, 99.6, { folga: 0.5 }), null);
+  assert.equal(alvoDoIma(linha, 100.5, { folga: 0.5 }), 100); // a folga é estrita: 0,5 já desliza
+  assert.equal(alvoDoIma(linha, 100, { folga: 0.5 }), null);
+});
+
+test('alvoDoIma: sem origem (ou parado na origem) vai à parada mais próxima, como antes', () => {
+  assert.equal(alvoDoIma(linha, 130, { folga: 0.5 }), 100);
+  assert.equal(alvoDoIma(linha, 170, { folga: 0.5, limiar: 0.25 }), 200);
+  assert.equal(alvoDoIma(linha, 130, { folga: 0.5, origem: 130, limiar: 0.25 }), 100);
+  assert.equal(alvoDoIma(linha, 170, { folga: 0.5, origem: 170, limiar: 0.25 }), 200);
+  assert.equal(alvoDoIma(linha, 130), 100); // padrões: IMA de config.js
+});
+
+test('alvoDoIma: descendo, avança a partir de 25% do caminho; subindo, o mesmo no sentido contrário', () => {
+  const o = { folga: 0.5, limiar: 0.25 };
+  assert.equal(alvoDoIma(linha, 120, { ...o, origem: 100 }), 100); // 20%: volta
+  assert.equal(alvoDoIma(linha, 126, { ...o, origem: 100 }), 200); // 26%: avança
+  assert.equal(alvoDoIma(linha, 125, { ...o, origem: 100 }), 200); // 25% já avança
+  assert.equal(alvoDoIma(linha, 180, { ...o, origem: 200 }), 200); // subiu 20%: volta
+  assert.equal(alvoDoIma(linha, 174, { ...o, origem: 200 }), 100); // subiu 26%: recua
+  assert.equal(alvoDoIma(linha, 175, { ...o, origem: 200 }), 100);
+  assert.equal(alvoDoIma(linha, 160, { ...o, origem: 100 }), 200); // desceu 60% e ficou
+  assert.equal(alvoDoIma(linha, 120, { ...o, origem: 160 }), 100); // desceu 60% e voltou a 20%
+  assert.equal(alvoDoIma(linha, 120, { ...o, origem: 100 }), 100);
+});
+
+test('alvoDoIma: antes do primeiro e depois do último foco, o extremo; dentro da folga, null', () => {
+  const o = { folga: 0.5, limiar: 0.25 };
+  assert.equal(alvoDoIma(linha, -30, { ...o, origem: 0 }), 0);
+  assert.equal(alvoDoIma(linha, 340, { ...o, origem: 300 }), 300);
+  assert.equal(alvoDoIma(linha, 120.3, { ...o, origem: 100 }), 100);
+  assert.equal(alvoDoIma(linha, 100.3, { ...o, origem: 130 }), null);
+  assert.equal(alvoDoIma(linha, 200.2, { ...o, origem: 180 }), null);
+});
+
+test('alvoDoIma com as paradas reais: Foyer, A Dança é por Ela e os closes', () => {
+  const { stops } = JSON.parse(readFileSync('site/data/content.json', 'utf8'));
+  const real = criarLinha(stops);
+  const foco = (id) => real.itens.find((i) => i.id === id).foco;
+  const foyer = foco('foyer-de-la-danse'), danca = foco('a-danca-e-por-ela');
+  const o = { folga: 0.5, limiar: 0.25 };
+  assert.equal(alvoDoIma(real, foyer + 20, { ...o, origem: foyer }), foyer);   // rolada curta: volta
+  assert.equal(alvoDoIma(real, foyer + 26, { ...o, origem: foyer }), danca);   // 26 vh: avança
+  assert.equal(alvoDoIma(real, danca - 26, { ...o, origem: danca }), foyer);   // para trás
+  assert.equal(alvoDoIma(real, danca - 20, { ...o, origem: danca }), danca);
+  const c1 = foco('detalhes-1-01'), c2 = foco('detalhes-1-02');               // closes, 45 vh
+  assert.equal(alvoDoIma(real, c1 + 12, { ...o, origem: c1 }), c2);
+  assert.equal(alvoDoIma(real, c1 + 10, { ...o, origem: c1 }), c1);
+  assert.equal(alvoDoIma(real, foyer + 60, { ...o, origem: foyer }) , danca);
+  assert.equal(alvoDoIma(real, foyer + 20, { ...o, origem: foyer + 60 }), foyer); // desceu 60 e voltou a 20
 });
 
 test('duracaoDoIma: mínima até 20 vh, linear até a máxima em 80 vh', () => {
