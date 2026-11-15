@@ -5,6 +5,7 @@ import { zDaCamera, zDoStop, planosDoStop } from './core/camera.js';
 import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { paralaxe, suavizar } from './core/paralaxe.js';
+import { corDaParada, distanciaAoRetangulo } from './core/pincel.js';
 
 const raiz = document.getElementById('paradas');
 const html = document.documentElement;
@@ -48,15 +49,19 @@ function suspenderImagens(suspender) {
 
 async function iniciarTravessia(stops, images) {
   const canvas = document.getElementById('gl');
-  const [{ criarPalco }, { criarTela, pontoNaTela }, { criarTexturas }, { criarLegendas }, { default: Lenis }, { gsap }] = await Promise.all([
-    import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'),
-    import('./ui/legendas.js'), import('lenis'), import('gsap'),
+  const [
+    { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
+    { criarLegendas }, { criarPreenchimento }, { default: Lenis }, { gsap },
+  ] = await Promise.all([
+    import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
+    import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('lenis'), import('gsap'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
 
   const estado = { id: stops[0].id, local: 0, mergulho: null };
   let lenis = null;
+  let pincel = null; // { tinta, preenchimento, soltar }
   let ativo = true;
   // Único caminho de desmontagem (contexto perdido, erro num quadro ou erro na montagem):
   // para o laço, solta o scroll e mostra a página base na parada em que se estava.
@@ -66,6 +71,7 @@ async function iniciarTravessia(stops, images) {
     if (erro) console.error(erro);
     palco.parar();
     lenis?.destroy();
+    if (pincel) { pincel.soltar(); pincel.tinta.liberar(); pincel.preenchimento.desfazer(); pincel = null; }
     for (const s of raiz.querySelectorAll('.em-foco')) s.classList.remove('em-foco');
     raiz.style.removeProperty('--paralaxe-x');
     raiz.style.removeProperty('--paralaxe-y');
@@ -190,8 +196,49 @@ async function iniciarTravessia(stops, images) {
       });
     }
 
+    // Pincel (só com mouse): tinta no fundo branco, na cor da tela da parada atual, e letras dos
+    // títulos que se enchem de pintura. Não deposita tinta sobre as telas nem sob os textos.
+    function montarPincel() {
+      const porId = new Map(stops.map((s) => [s.id, s]));
+      const TEXTOS = '.titulo-secao, .subtitulo, .corpo, .legenda, .capa-assinatura, .contato, .rodape';
+      const FOLGA_TEXTO = 23; // px: meia largura do pincel
+      const p = { obstaculos: null };
+      function obstaculos() {
+        const rets = [];
+        const cz = palco.camera.position.z;
+        for (const m of telas) {
+          const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
+          if (d > 1.5 && d < 28) rets.push({ r: retanguloProjetado(m, palco.camera), folga: 0 });
+        }
+        for (const el of raiz.querySelectorAll(`.em-foco :is(${TEXTOS})`)) {
+          const b = el.getBoundingClientRect();
+          rets.push({ r: { esq: b.left, dir: b.right, topo: b.top, base: b.bottom }, folga: FOLGA_TEXTO });
+        }
+        return rets;
+      }
+      const livre = (x, y) => (p.obstaculos ??= obstaculos())
+        .every(({ r, folga }) => distanciaAoRetangulo(x, y, r) > folga);
+      p.tinta = criarTinta(palco, { livre });
+      p.preenchimento = criarPreenchimento(raiz);
+      const aoMover = (e) => {
+        if (e.pointerType !== 'mouse') return;
+        p.tinta.pintar(e.clientX, e.clientY, corDaParada(porId.get(estado.id), images));
+        p.preenchimento.tocar(e.clientX, e.clientY);
+      };
+      const aoSair = (e) => { if (!e.relatedTarget) { p.tinta.romper(); p.preenchimento.romper(); } };
+      addEventListener('pointermove', aoMover, { passive: true });
+      document.addEventListener('mouseout', aoSair, { passive: true });
+      p.soltar = () => {
+        removeEventListener('pointermove', aoMover);
+        document.removeEventListener('mouseout', aoSair);
+      };
+      return p;
+    }
+    pincel = montarPincel();
+
     let indiceAtual = -1;
     palco.aoQuadro((t, dt) => {
+      pincel.obstaculos = null; // a câmera e os textos podem ter mudado
       lenis.raf(t);
       const vh = (scrollY / innerHeight) * 100;
       const s = situar(linha, vh);
@@ -213,6 +260,8 @@ async function iniciarTravessia(stops, images) {
       if (!ativo) return;
       try {
         palco.redimensionar();
+        pincel?.tinta.redimensionar();
+        pincel?.preenchimento.reposicionar();
         posicionar();
         if (indiceAtual >= 0) carregarJanela(indiceAtual);
       } catch (erro) { desmontar(erro); }

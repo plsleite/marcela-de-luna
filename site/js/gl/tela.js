@@ -61,7 +61,9 @@ void main() {
   float branco = smoothstep(14.0, 28.0, vDist);
   cor = mix(cor, vec3(1.0), branco);
   fator = mix(fator, 1.0, branco); // o branco da distância não ganha relevo
-  float alfa = uOpacidade * uRevela * smoothstep(1.5, 3.0, vDist);
+  // Quase toda branca, a tela também fica transparente: sobre o branco não muda nada, e não
+  // recorta um retângulo branco na tinta do pincel que está atrás.
+  float alfa = uOpacidade * uRevela * smoothstep(1.5, 3.0, vDist) * (1.0 - smoothstep(0.85, 1.0, branco));
   gl_FragColor = vec4(cor, alfa);
   #include <colorspace_fragment>
   // Depois da conversão para sRGB: o mesmo fator nos três canais da cor exibida mantém a
@@ -104,4 +106,20 @@ export function pontoNaTela(mesh, raio) {
     v: (o.y + d.y * t - mesh.position.y) / height + 0.5,
     t,
   };
+}
+
+// Retângulo da tela na janela (px, y para baixo) com a câmera do último quadro.
+const _canto = new THREE.Vector3();
+export function retanguloProjetado(mesh, camera) {
+  const { width, height } = mesh.geometry.parameters;
+  const r = { esq: Infinity, dir: -Infinity, topo: Infinity, base: -Infinity };
+  for (const sx of [-0.5, 0.5]) {
+    for (const sy of [-0.5, 0.5]) {
+      _canto.set(mesh.position.x + sx * width, mesh.position.y + sy * height, mesh.position.z).project(camera);
+      const x = ((_canto.x + 1) / 2) * innerWidth, y = ((1 - _canto.y) / 2) * innerHeight;
+      r.esq = Math.min(r.esq, x); r.dir = Math.max(r.dir, x);
+      r.topo = Math.min(r.topo, y); r.base = Math.max(r.base, y);
+    }
+  }
+  return r;
 }
