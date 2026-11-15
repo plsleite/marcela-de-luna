@@ -25,21 +25,20 @@ O site é um conceito. Pedro vai apresentá-lo à Marcela; se ela gostar, o trab
 - Divulgação do endereço e indexação em buscadores.
 - Versão em inglês.
 - Textos novos, preços, disponibilidade, formulário de contato, loja.
-- Som.
 - Cômodo modelado em 3D e modo de arrastar móveis, como no site de referência.
 - Painel de edição de conteúdo.
 
 **Seria um fracasso, mesmo funcionando**
 
 - Efeito que deforme, recolora ou esconda as pinturas de modo que a obra deixe de ser vista como é.
-- Scroll que prenda o visitante ou o impeça de avançar no próprio ritmo.
+- Scroll que prenda o visitante ou o impeça de avançar no próprio ritmo. (O ímã descrito em 5.3 é permitido porque qualquer gesto o interrompe na hora.)
 - Tela de carregamento longa antes do primeiro impacto.
 - Qualquer mudança de conteúdo ou de ordem em relação ao PDF.
 - Aparência de modelo pronto.
 
 ## 3. Restrições
 
-- **Conteúdo:** somente o que existe no PDF. A grafia "DÚVIDEI" é mantida.
+- **Conteúdo:** somente o que existe no PDF. A grafia "DÚVIDEI" é mantida. Exceção decidida pelo Pedro em 15/11/2026: música de fundo (ver 5.3).
 - **Idioma:** português.
 - **Fonte:** o PDF usa Geomanist (Light, Regular e Medium), que é comercial. O site usa **Outfit** (gratuita, licença OFL), nos pesos que mais se aproximarem de cada uso. A licença da Geomanist pode ser tratada depois com a Marcela.
 - **Pasta do projeto:** fica num OneDrive sincronizado. Ver a decisão sobre dependências na seção 6.
@@ -102,7 +101,7 @@ Os textos corridos saem do PDF por extração (`pdftotext`). Os três subtítulo
 
 - *Abertura:* tela branca; pinceladas varrem a tela e revelam a pintura da capa; "PORTFÓLIO" sobe letra a letra; "MARCELA DE LUNA" se enche de tinta. O carregamento inicial é curto e aparece como um traço de tinta sendo puxado.
 - *Textos:* entram linha a linha conforme a câmera chega; os negritos assentam por último.
-- *Obras:* cada tela está suspensa no espaço, alternando lado e profundidade. Surge pequena ao longe, cresce, fica em foco com a ficha ao lado e passa pela lateral. Nas páginas com duas telas, as duas ficam em profundidades diferentes, na diagonal do PDF.
+- *Obras:* cada tela está suspensa no espaço, alternando lado e profundidade. Ao longe é só um vulto quase branco; ganha cor ao se aproximar, fica em foco com a ficha colada ao seu lado e passa pela lateral. Nas páginas com duas telas, as duas ficam em profundidades diferentes, na diagonal do PDF.
 - *Entrada em "Detalhes":* a câmera não desvia da última tela da série; atravessa a superfície e sai num voo rasante sobre a tinta. Os closes passam grandes, sobrepostos, em ritmo mais rápido que o das obras.
 - *Saída de "Detalhes":* o último close se abre em branco e a série seguinte começa.
 - *Final:* a última imagem gira e mostra o verso da tela com a assinatura.
@@ -118,14 +117,18 @@ Os textos corridos saem do PDF por extração (`pdftotext`). Os três subtítulo
 - Nos títulos grandes, passar o pincel preenche as letras com pintura, como os subtítulos do PDF.
 - As pinturas nunca são pintadas por cima.
 
-**Clicar.**
+**Ímã do scroll** (ajuste de 15/11/2026). Quando o visitante para de rolar, a câmera desliza sozinha até o ponto ideal da parada mais próxima. Qualquer gesto (roda, toque, tecla, barra de rolagem) interrompe o deslize na hora.
 
-- *Tela em foco:* a câmera mergulha até a tela ocupar a janela. Aparecem título e ficha, zoom e arrasto livres. Se a tela tiver closes associados em "Detalhes", pequenas marcas indicam onde eles ficam; clicar leva ao close em alta resolução. Sair: tecla Esc, botão "voltar" ou continuar rolando.
-- *Tela ao longe:* a câmera viaja até ela.
+**Clicar.** (ajustes de 15/11/2026)
+
+- *Tela em foco (ampliar):* a câmera avança até a tela ocupar a janela, com zoom e arrasto livres. Vale para as obras e também para a pintura da capa e os recortes das páginas de texto. Nas obras aparecem título e ficha; na capa e nos recortes não há legenda, porque o PDF não traz. Se a tela tiver closes associados em "Detalhes", pequenas marcas indicam onde eles ficam; clicar leva ao close em alta resolução. Sair: tecla Esc, botão "voltar", clicar em qualquer ponto fora da tela ou continuar rolando.
+- *Tela ao longe (viajar):* a câmera viaja até ela. A tela ao longe é um vulto quase branco; ao passar o mouse ela ganha um esmaecido mais visível, que sinaliza o clique.
 
 **Navegação rápida.** Na borda direita, uma fileira vertical de pequenas pinceladas: uma por obra, na cor dominante da tela, agrupadas por série, mais uma marca por abertura de seção e por trecho de "Detalhes". A atual fica alongada. Passar o mouse mostra o título em letras pequenas; clicar leva a câmera até lá num movimento contínuo. Setas e barra de espaço andam de parada em parada.
 
 **Cabeçalho.** Só "MARCELA DE LUNA" pequeno no canto, que volta à capa.
+
+**Música** (ajuste de 15/11/2026). "O Cisne", de Saint-Saëns, em looping e volume baixo. O site abre em silêncio, porque os navegadores não tocam som antes de um clique ou tecla; a música entra suave no primeiro clique ou tecla. Um botão discreto liga e desliga o som, e a escolha fica lembrada.
 
 ### 5.4 Conceito para celular — "Folhas"
 
@@ -169,7 +172,7 @@ Decisões tomadas depois da leitura de um revisor independente:
 - **Scroll no celular:** contínuo, sem trava obrigatória folha a folha. Uma trava prenderia o visitante, o que a seção 2 trata como fracasso.
 - **Movimento reduzido:** a versão simples traz um botão visível "ver com movimento". Sem ele, um celular com essa opção ligada mostraria à Marcela só a página simples.
 - **Final:** a imagem anterior ao verso é um close em página inteira; é essa folha que gira para mostrar o verso assinado.
-- **Pintura da capa:** não tem página de obra nem ficha no PDF, então não abre em mergulho. O close dela aparece só em "Detalhes".
+- **Pintura da capa:** não tem página de obra nem ficha no PDF. Por decisão do Pedro em 15/11/2026, ela e os recortes das páginas de texto ampliam ao clique, sem legenda. O close dela aparece só em "Detalhes".
 - **Marcas dos closes:** o close da página 56 usa a mesma foto de A Outra Margem (página 48), então sua posição é calculada. Os demais são fotos separadas e são posicionados à mão.
 
 ## 7. Ordem do trabalho
