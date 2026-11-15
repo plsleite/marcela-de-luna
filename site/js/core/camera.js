@@ -1,4 +1,4 @@
-import { DIST_FOCO, UNIDADES_POR_VH, FOV, DETALHE, VERSO } from '../config.js';
+import { DIST_FOCO, UNIDADES_POR_VH, FOV, CAPA, DETALHE, VERSO } from '../config.js';
 import { focoDe } from './timeline.js';
 
 // Campo vertical efetivo (graus) para a proporção da janela. Acima de 1,65, o FOV de sempre;
@@ -58,7 +58,7 @@ export function planosDoStop(stop, indice, images, linha, lado) {
   };
   switch (stop.tipo) {
     case 'capa':
-      return [plano(stop.imagens[0], -2.0, 0, z0, 4.6)];
+      return [plano(stop.imagens[0], CAPA.x, CAPA.y, z0, CAPA.altura)];
     case 'obra': {
       const [a, b] = stop.telas;
       if (b === undefined) {

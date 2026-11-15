@@ -342,9 +342,9 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
 }
 .fora-da-capa .som, .mergulhando .som { left: calc(var(--margem-e) + var(--nome-w, 9rem) + 18px - 6px); }
 /* a caixa do botão começa 6,5 px acima da do nome e acaba 0,3 px abaixo (medido em 1440 × 900) */
-.som::before { inset: 4.5px -1px -1.7px; opacity: 0; transition: opacity 0.5s ease; }
-/* na capa o botão fica na margem, rente ao alto da pintura: sem fundo */
-.fora-da-capa .som::before, .mergulhando .som::before { opacity: 1; }
+/* também na capa: ali o botão fica na margem, acima da pintura, e o fundo some no branco; numa
+   janela baixa, em que ele ainda toca a pintura, mantém o convite legível */
+.som::before { inset: 4.5px -1px -1.7px; }
 .som.visivel { opacity: 0.72; }
 .som.visivel:hover, .som.visivel:focus-visible { opacity: 1; }
 .som:focus { outline: none; }
