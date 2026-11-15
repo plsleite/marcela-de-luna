@@ -1,5 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
-import { carimbosEntre, corDaParada, gesto, distanciaAoRetangulo, forcaSobreTexto } from '../site/js/core/pincel.js';
+import { carimbosEntre, corDaParada, gesto, distanciaAoRetangulo, forcaSobreTexto, pigmentoPara } from '../site/js/core/pincel.js';
+import { PIGMENTOS } from '../site/js/config.js';
 
 test('carimbosEntre: passo, último carimbo e ângulo do gesto', () => {
   const c = carimbosEntre({ x: 0, y: 0 }, { x: 10, y: 0 }, 2.5);
@@ -16,15 +17,26 @@ test('carimbosEntre: espaçamento regular e sobra para o próximo trecho', () =>
   assert.ok(Math.abs(Math.abs(d[0].ang) - Math.PI) < 1e-9);
 });
 
-test('corDaParada: acento da primeira imagem da parada, conforme o tipo (cor como reserva)', () => {
-  const images = { a: { cor: '#111111' }, b: { cor: '#222222', acento: '#ff3c8c' }, c: { cor: '#333333' } };
-  assert.equal(corDaParada({ tipo: 'obra', telas: ['b', 'a'] }, images), '#ff3c8c');
-  assert.equal(corDaParada({ tipo: 'obra', telas: ['a', 'b'] }, images), '#111111');
-  assert.equal(corDaParada({ tipo: 'capa', imagens: ['c'] }, images), '#333333');
-  assert.equal(corDaParada({ tipo: 'texto', planos: [{ imagem: 'a' }, { imagem: 'b' }] }, images), '#111111');
+test('corDaParada: pigmento da paleta pelo acento da primeira imagem (cor como reserva)', () => {
+  const images = { a: { cor: '#414152' }, b: { cor: '#222222', acento: '#d6959d' }, c: { cor: '#2f3b6c' }, d: { cor: '#111111', acento: '#f0a050' } };
+  assert.equal(corDaParada({ tipo: 'obra', telas: ['b', 'a'] }, images), '#e91b6a');
+  assert.equal(corDaParada({ tipo: 'obra', telas: ['a', 'b'] }, images), '#305fa3');
+  assert.equal(corDaParada({ tipo: 'capa', imagens: ['d'] }, images), '#f3953e');
+  assert.equal(corDaParada({ tipo: 'texto', planos: [{ imagem: 'c' }, { imagem: 'b' }] }, images), '#305fa3');
   assert.equal(corDaParada({ tipo: 'texto' }, images), null);
   assert.equal(corDaParada(undefined, images), null);
   assert.equal(corDaParada({ tipo: 'obra', telas: ['x'] }, images), null);
+});
+
+test('pigmentoPara: croma baixa vai ao padrão; senão o pigmento de matiz mais próximo', () => {
+  const P = PIGMENTOS;
+  assert.deepEqual(P, ['#305fa3', '#e91b6a', '#d15ca1', '#f3953e']);
+  assert.equal(pigmentoPara('#414152', P), '#305fa3');
+  assert.equal(pigmentoPara('#e6bec0', P), '#e91b6a');
+  assert.equal(pigmentoPara('#2f3b6c', P), '#305fa3');
+  assert.equal(pigmentoPara('#d6959d', P), '#e91b6a');
+  assert.equal(pigmentoPara('#f0a050', P), '#f3953e');
+  assert.equal(pigmentoPara('#ff0000', P), '#e91b6a'); // 0° fica a 23° do rosa (circular) e 29° do laranja
 });
 
 test('gesto: devagar é largo e carregado; rápido é fino e seco', () => {

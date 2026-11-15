@@ -1,4 +1,5 @@
-// Pincel: geometria do gesto, sem DOM nem three. Coordenadas em px de janela (y para baixo).
+// Pincel: geometria do gesto e cor da tinta, sem DOM nem three. Coordenadas em px de janela (y para baixo).
+import { PIGMENTOS } from '../config.js';
 
 // Carimbos a cada `passo` px no segmento a→b, sem o ponto de partida; o último cai em b só se
 // a distância for múltipla do passo (quem chama continua o traço a partir do último carimbo).
@@ -17,12 +18,36 @@ export function carimbosEntre(a, b, passo) {
   return c;
 }
 
-// Cor da tinta: o acento (cor mais viva) da primeira imagem da parada (telas, imagens ou
-// planos); a cor dominante fica de reserva.
+const rgbDe = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+function matiz([r, g, b]) {
+  const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
+  if (d === 0) return 0;
+  const h = max === r ? (g - b) / d : max === g ? 2 + (b - r) / d : 4 + (r - g) / d;
+  return ((h * 60) % 360 + 360) % 360;
+}
+
+// Pigmento da paleta para uma cor: com croma < 0,15 (cor apagada), o padrão (pigmentos[0]);
+// senão o de matiz HSV mais próximo (distância circular).
+export function pigmentoPara(hex, pigmentos) {
+  const rgb = rgbDe(hex);
+  if ((Math.max(...rgb) - Math.min(...rgb)) / 255 < 0.15) return pigmentos[0];
+  const h = matiz(rgb);
+  let melhor = pigmentos[0], menor = Infinity;
+  for (const p of pigmentos) {
+    const d = Math.abs(matiz(rgbDe(p)) - h);
+    const circ = Math.min(d, 360 - d);
+    if (circ < menor) { menor = circ; melhor = p; }
+  }
+  return melhor;
+}
+
+// Cor da tinta: o pigmento da paleta escolhido pelo acento (ou, sem ele, pela cor dominante)
+// da primeira imagem da parada (telas, imagens ou planos).
 export function corDaParada(stop, images) {
   if (!stop) return null;
   const id = stop.telas?.[0] ?? stop.imagens?.[0] ?? stop.planos?.[0]?.imagem;
-  return images[id]?.acento ?? images[id]?.cor ?? null;
+  const base = images[id]?.acento ?? images[id]?.cor;
+  return base ? pigmentoPara(base, PIGMENTOS) : null;
 }
 
 // Gesto pela velocidade (px/ms): devagar o pincel deita inteiro e carregado; rápido fica mais
