@@ -16,6 +16,7 @@ const SAI = 0.7;        // s
 const DETALHE = 0.6;    // s: o close cresce da marca até a janela
 const SEGUE = 0.22;     // lerp por quadro de 60 Hz da vista exibida rumo à pedida (zoom e arrasto suaves)
 const GESTO = 200;      // ms sem roda: começa outro gesto
+const TETO_ENGOLIR = 400; // ms: depois de sair pela roda, ela só é contida até aqui, no máximo
 const ARRASTO_MIN = 4;  // px: abaixo disto foi clique, não arrasto
 const RODA = 0.002;     // ganho do zoom por px de roda
 const PINCA = 0.01;     // ganho da pinça do trackpad (ctrl + roda: deltas pequenos)
@@ -118,17 +119,8 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       opacidades: telas.filter((t) => t !== mesh).map((t) => t.material.uniforms.uOpacidade),
     };
     estado.mergulho = { stopId: stop.id, tela: indiceTela, close: null };
-    html.classList.remove('pode-mergulhar');
-    html.classList.add('mergulhando');
-    document.body.append(ui);
-    aoAbrir(mesh);
-
-    gsap.to(m.opacidades, { value: 0, duration: 0.6, ease: 'power1.out', overwrite: true });
-    const s = m;
-    gsap.to(m.t, {
-      v: 1, duration: ENTRA, ease: 'power3.inOut',
-      onComplete: () => { s.fase = 'livre'; s.ui.classList.add('livre'); },
-    });
+    // As saídas (Esc, "voltar", roda, scroll) existem antes de qualquer coisa que trave o
+    // visitante; se algo lançar no meio da entrada, o mergulho fecha na hora e nada fica preso.
     voltar.addEventListener('click', aoVoltar);
     for (const mk of marcas) mk.el.addEventListener('click', aoMarca);
     addEventListener('keydown', aoTeclar);
@@ -138,7 +130,22 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     addEventListener('pointerup', aoSoltar);
     addEventListener('pointercancel', aoSoltar);
     addEventListener('scroll', aoRolarPagina, { passive: true });
-    voltar.focus({ preventScroll: true });
+    try {
+      html.classList.remove('pode-mergulhar');
+      html.classList.add('mergulhando');
+      document.body.append(ui);
+      aoAbrir(mesh);
+      gsap.to(m.opacidades, { value: 0, duration: 0.6, ease: 'power1.out', overwrite: true });
+      const s = m;
+      gsap.to(m.t, {
+        v: 1, duration: ENTRA, ease: 'power3.inOut',
+        onComplete: () => { s.fase = 'livre'; s.ui.classList.add('livre'); },
+      });
+      voltar.focus({ preventScroll: true });
+    } catch (erro) {
+      fechar({ imediato: true });
+      throw erro;
+    }
   }
 
   // ---------- fechar ----------
@@ -155,19 +162,23 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     removeEventListener('pointerup', aoSoltar);
     removeEventListener('pointercancel', aoSoltar);
     removeEventListener('scroll', aoRolarPagina, { passive: true });
+    // Primeiro o que trava o visitante (scroll suavizado, pincel); um erro aí não impede o resto
+    // da saída, e é relançado no fim.
+    let falha = null;
+    try { aoFechar(s.mesh); } catch (erro) { falha = erro; }
+    html.classList.remove('mergulhando', 'arrastando');
+    s.ui.remove();
     gsap.killTweensOf(s.t);
     for (const d of [s.detalhe, ...s.saindo]) if (d) tirarDetalhe(d);
-    s.ui.remove();
-    html.classList.remove('mergulhando', 'arrastando');
     if (s.foco?.isConnected && s.foco !== document.body) s.foco.focus({ preventScroll: true });
     else document.activeElement?.blur?.();
-    aoFechar(s.mesh);
 
     gsap.killTweensOf(s.opacidades);
     if (imediato) {
       for (const o of s.opacidades) o.value = 1;
       pararSaida();
       porNaCamera(poseDoScroll());
+      if (falha) throw falha;
       return;
     }
     gsap.to(s.opacidades, { value: 1, duration: SAI, ease: 'power1.inOut' });
@@ -176,6 +187,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       de: poseAtual(), t, opacidades: s.opacidades,
       tween: gsap.to(t, { v: 0, duration: SAI, ease: 'power2.inOut', onComplete: () => { saida = null; } }),
     };
+    if (falha) throw falha;
   }
   function pararSaida() {
     if (!saida) return;
@@ -266,21 +278,26 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     if (a.total >= ARRASTO_MIN) m.engolirClique = true; // o click que segue o arrasto não conta
   }
 
-  // O resto do gesto que fechou (inércia do trackpad, roda ainda girando) não rola a página:
-  // a volta termina no mesmo ponto. Um gesto novo (pausa de 200 ms) já rola normalmente.
+  // O resto do gesto que fechou (inércia do trackpad, roda ainda girando) não rola a página
+  // logo de cara: a volta começa no mesmo ponto. Teto absoluto de 400 ms após a saída, seja
+  // qual for o intervalo entre eventos; antes disso, uma pausa de 200 ms (gesto novo) já solta.
+  let prazoEngolir = 0;
   function engolirResto() {
     soltarEngolir();
-    let ultimo = performance.now();
+    const inicio = performance.now();
+    let ultimo = inicio;
     engolir = (e) => {
       const agora = performance.now();
-      if (agora - ultimo > GESTO) { soltarEngolir(); return; }
+      if (agora - inicio > TETO_ENGOLIR || agora - ultimo > GESTO) { soltarEngolir(); return; }
       ultimo = agora;
       e.preventDefault();
       e.stopPropagation(); // na captura da janela: o Lenis (na janela, sem captura) não recebe
     };
     addEventListener('wheel', engolir, { capture: true, passive: false });
+    prazoEngolir = setTimeout(soltarEngolir, TETO_ENGOLIR);
   }
   function soltarEngolir() {
+    clearTimeout(prazoEngolir);
     if (engolir) removeEventListener('wheel', engolir, { capture: true, passive: false });
     engolir = null;
   }
@@ -354,14 +371,18 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   addEventListener('click', aoClicar);
   addEventListener('pointermove', aoPassar, { passive: true });
 
+  // Desmontagem: os ouvintes saem sempre, mesmo se fechar lançar (o erro segue para quem chamou).
   function encerrar() {
-    fechar({ imediato: true });
-    pararSaida();
     soltarEngolir();
     removeEventListener('click', aoClicar);
     removeEventListener('pointermove', aoPassar, { passive: true });
-    html.classList.remove('pode-mergulhar', 'mergulhando', 'arrastando');
-    if (cam.fov !== FOV) { cam.fov = FOV; cam.updateProjectionMatrix(); }
+    try {
+      fechar({ imediato: true });
+    } finally {
+      pararSaida();
+      html.classList.remove('pode-mergulhar', 'mergulhando', 'arrastando');
+      if (cam.fov !== FOV) { cam.fov = FOV; cam.updateProjectionMatrix(); }
+    }
   }
 
   return { abrir, fechar, quadro, encerrar, get aberto() { return m !== null; } };

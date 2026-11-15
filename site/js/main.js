@@ -73,7 +73,7 @@ async function iniciarTravessia(stops, images) {
     ativo = false;
     if (erro) console.error(erro);
     palco.parar();
-    mergulho?.encerrar();
+    try { mergulho?.encerrar(); } catch (e) { console.error(e); } // o resto da desmontagem roda sempre
     lenis?.destroy();
     abertura?.encerrar();
     if (pincel) { pincel.soltar(); pincel.tinta.liberar(); pincel.preenchimento.desfazer(); pincel = null; }
@@ -157,7 +157,7 @@ async function iniciarTravessia(stops, images) {
         const r = retanguloNoFoco(m);
         const largura = id === imagemDoMergulho ? larguraMaxima(id) : larguraPara(r.dir - r.esq, dpr, images[id].larguras);
         texturas.pedir(id, largura)
-          .then((tex) => { if (tex) aplicar(id, tex); })
+          .then((tex) => { if (tex && ativo) aplicar(id, tex); })
           .catch((erro) => console.error(erro));
       }
       for (const id of texturas.liberarForaDe(conjunto)) {
@@ -283,10 +283,10 @@ async function iniciarTravessia(stops, images) {
           .catch((erro) => console.error(erro));
       },
       aoFechar() {
-        lenis.start();
-        pincel.tinta.ativa = true;
+        lenis?.start();
+        if (pincel) pincel.tinta.ativa = true;
         imagemDoMergulho = null;
-        if (indiceAtual >= 0) carregarJanela(indiceAtual); // volta à largura da janela
+        if (ativo && indiceAtual >= 0) carregarJanela(indiceAtual); // volta à largura da janela (não na desmontagem)
       },
     });
 
