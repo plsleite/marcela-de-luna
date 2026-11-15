@@ -54,10 +54,11 @@ Seis mudanças no modo "Travessia" do site, decididas depois da primeira sessão
 
 ## A5. Legenda colada à pintura
 
-- Em `site/js/ui/legendas.js`: a legenda de cada obra fica imediatamente ao lado da sua tela, do lado de dentro da janela, centralizada na vertical em relação à tela. Distância entre a borda da tela e a legenda: 3,5% da largura da janela, com mínimo de 32 px.
+- A legenda de cada obra fica imediatamente ao lado da sua tela, do lado de dentro da janela, **alinhada pela base**: a borda inferior da legenda coincide com a borda inferior da tela, como uma etiqueta de museu. Distância horizontal entre a borda da tela e a legenda: 3,5% da largura da janela, com mínimo de 32 px. (Revisto em 15/11/2026: centralizada na vertical, a legenda sobrepunha o vulto da tela seguinte, que fica na faixa central da altura.)
 - Tela à esquerda → legenda à direita dela. Tela à direita → legenda à esquerda dela.
-- Obras de duas telas: legenda à direita da tela mais à direita, com a mesma distância, centralizada na vertical em relação ao conjunto.
-- A legenda nunca cobre uma tela da própria parada nem sai da janela; em janela estreita, prevalece ficar dentro da janela.
+- Obras de duas telas: legenda à direita da tela mais à direita, com a mesma distância, alinhada pela base do conjunto.
+- A legenda nunca cobre uma tela da própria parada nem sai da janela; se sair por baixo ou em janela estreita, prevalece ficar dentro da janela.
+- A conta é uma função pura em `site/js/core/legenda.js` (retângulos das telas, janela e tamanho da legenda → x, y), com teste em `tests/legenda.test.mjs`; `site/js/ui/legendas.js` só a aplica.
 
 ## A6. Música de fundo
 
