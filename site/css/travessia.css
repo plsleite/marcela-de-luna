@@ -1,0 +1,78 @@
+/* Modo imersivo ("Travessia"). Tudo sob html.travessia: sem a classe, vale só a página base.
+   As variáveis --tela-* (px) são o retângulo das telas da parada projetadas no foco (legendas.js). */
+
+html.travessia #gl { display: block; position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; }
+html.travessia #paradas { position: relative; z-index: 1; height: var(--altura, 100vh); }
+
+html.travessia .parada {
+  position: fixed; inset: 0; margin: 0; padding: 0; max-width: none;
+  display: block; opacity: 0; pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+html.travessia .parada.em-foco { opacity: 1; transition-duration: 0.7s; }
+html.travessia .parada.em-foco a { pointer-events: auto; }
+
+/* As <img> continuam no DOM para leitores de tela; quem desenha as pinturas é o palco. */
+html.travessia .capa-pintura,
+html.travessia .planos,
+html.travessia .telas {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---------- capa ---------- */
+html.travessia .capa-titulo {
+  position: absolute; margin: 0; padding: 0;
+  left: max(var(--tela-esq), 3vw);
+  bottom: max(6vh, calc(100vh - var(--tela-base) + 6vh));
+  /* "PORTFÓLIO" mede ~5,64 em: ocupa quase toda a largura visível da pintura */
+  font-size: calc((var(--tela-dir) - max(var(--tela-esq), 3vw)) * 0.168);
+  line-height: 0.8;
+}
+/* nome, ano e contato numa coluna à direita da pintura, assentados embaixo */
+html.travessia .parada--capa.parada {
+  display: grid;
+  grid-template-columns: calc(var(--tela-dir) + clamp(3rem, 9vw, 10rem)) 1fr;
+  grid-template-rows: 1fr auto auto 9vh;
+}
+html.travessia .capa-assinatura { grid-column: 2; grid-row: 2; margin: 0; }
+html.travessia .contato { grid-column: 2; grid-row: 3; margin: 2rem 0 0 clamp(2.6rem, 4.4vw, 4.6rem); }
+html.travessia .parada--capa .nome { font-size: clamp(2.4rem, 5.6vw, 5.4rem); }
+html.travessia .parada--capa .rodape { margin: 0; padding: 0; position: absolute; right: 4vw; bottom: 4.5vh; }
+
+/* ---------- textos (texto e abertura) ---------- */
+html.travessia .cabecalho { position: absolute; top: 8vh; left: 6vw; margin: 0; }
+/* duas linhas, a segunda recuada, como no PDF */
+html.travessia .parada--texto .titulo-secao { font-size: min(7.4vw, 13vh); max-width: 6em; padding-left: 0.9em; text-indent: -0.9em; }
+html.travessia .parada--texto .subtitulo { max-width: 11em; }
+html.travessia .parada--abertura .titulo-secao { font-size: min(7vw, 13vh); }
+html.travessia .corpo {
+  position: absolute; margin: 0;
+  font-size: clamp(0.8rem, 0.5rem + 0.5vw, 1.06rem);
+}
+html.travessia .parada--texto .corpo { right: 6vw; bottom: 8vh; width: min(30rem, 31vw); }
+html.travessia .parada--abertura .corpo { left: 6vw; top: calc(8vh + min(7vw, 13vh) * 0.9 + 4.5rem); width: min(28rem, 30vw); }
+html.travessia .corpo p:last-child { margin-bottom: 0; }
+
+/* Entrada linha a linha (atrasos por palavra em --atraso, calculados em legendas.js). */
+html.travessia .corpo .palavra {
+  display: inline-block; opacity: 0; transform: translateY(0.65em);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+html.travessia .em-foco .corpo .palavra {
+  opacity: 1; transform: none;
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms),
+              transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) var(--atraso, 0ms);
+}
+
+/* ---------- obras ---------- */
+html.travessia .parada--obra .legenda {
+  position: absolute; margin: 0;
+  left: var(--leg-x, 60vw); top: var(--leg-y, 45vh);
+  width: clamp(13rem, 17vw, 18rem);
+}
+html.travessia .obra-titulo { text-wrap: balance; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.travessia .parada, html.travessia .corpo .palavra { transition: none; }
+}
