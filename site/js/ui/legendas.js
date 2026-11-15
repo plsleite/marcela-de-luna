@@ -3,6 +3,7 @@
 import { emFoco } from '../core/timeline.js';
 import { atrasosDasPalavras } from '../core/projecao.js';
 import { posicaoDaLegenda, telaDoDestaque } from '../core/legenda.js';
+import { soltarFocoDoPonteiro } from './foco.js';
 
 // Envolve cada palavra de .corpo num <span class="palavra"> (os espaços ficam como texto).
 function separarPalavras(corpo) {
@@ -62,7 +63,8 @@ function criarLinhasDeDetalhes(raiz, stops, images, ampliar) {
     b.setAttribute('aria-label', `Detalhes de ${stop.titulo}`);
     b.setAttribute('data-barra-tinta', '');
     b.innerHTML = '<span class="legenda-anel" aria-hidden="true"></span>DETALHES';
-    const clique = () => ampliar(stop.id, tela);
+    // solta o foco antes de ampliar: a ampliação guarda o foco de agora e o devolve ao fechar
+    const clique = (e) => { soltarFocoDoPonteiro(e); ampliar(stop.id, tela); };
     b.addEventListener('click', clique);
     leg.append(b);
     linhas.push({ b, clique });

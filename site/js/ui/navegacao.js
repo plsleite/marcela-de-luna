@@ -5,6 +5,7 @@
 // Tudo o que este módulo cria (elementos e ouvintes) sai em encerrar().
 import { focoDe, emFoco } from '../core/timeline.js';
 import { criarLente } from './lente.js';
+import { soltarFocoDoPonteiro } from './foco.js';
 import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira, marcaAtual, passoDaFileira } from '../core/navegacao.js';
 
 const FOLGA = 250; // ms depois do fim previsto em que a viagem ainda conta como em andamento
@@ -76,10 +77,6 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     irPara(id);
   }
   addEventListener('keydown', aoTeclar);
-
-  // Clicado com o ponteiro (detail > 0; Enter e espaço dão 0), o controle não guarda o foco: senão
-  // a próxima tecla o tornaria :focus-visible e o contorno e o título ficariam presos nele.
-  function soltarFocoDoPonteiro(e) { if (e.detail > 0) e.currentTarget.blur(); }
 
   // ---------- cabeçalho ----------
   let topo = null;

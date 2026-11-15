@@ -11,6 +11,7 @@
 import { gsap } from 'gsap';
 import { SOM } from '../config.js';
 import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom, convite } from '../core/som.js';
+import { soltarFocoDoPonteiro } from './foco.js';
 
 const ARQUIVO = './assets/audio/o-cisne.mp3';
 const CHAVE = 'som';
@@ -105,7 +106,7 @@ export function criarSom() {
     texto.textContent = 'LIGAR O SOM';
     botao.append(texto);
     botao.addEventListener('click', (e) => {
-      if (e.detail > 0) botao.blur(); // clicado com o ponteiro, não guarda o foco (como a fileira)
+      soltarFocoDoPonteiro(e);
       preferencia = cliqueNoBotao({ preferencia, tocando: tocando() });
       gravarPreferencia(preferencia);
       gesto = true; // o clique é um gesto: se for para ligar, já toca
