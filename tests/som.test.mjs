@@ -4,8 +4,8 @@ import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom } from '../site
 
 const base = { carregado: true, gesto: true, preferencia: null, oculta: false };
 
-test('SOM: volume 0,22, entrada em 3 s, troca em 0,6 s', () => {
-  assert.deepEqual(SOM, { volume: 0.22, entrada: 3, troca: 0.6 });
+test('SOM: volume 0,6 (arquivo atenuado em 9 dB), subida em 3 s, troca em 0,6 s', () => {
+  assert.deepEqual(SOM, { volume: 0.6, subida: 3, troca: 0.6 });
 });
 
 test('preferenciaLida: só "ligado" ou "desligado"; o resto é nenhuma', () => {
@@ -18,8 +18,8 @@ test('preferenciaLida: só "ligado" ou "desligado"; o resto é nenhuma', () => {
 
 test('estadoDoSom: abre em silêncio e toca depois do primeiro gesto', () => {
   assert.deepEqual(estadoDoSom({ ...base, gesto: false }), { tocar: false, volume: 0 });
-  assert.deepEqual(estadoDoSom(base), { tocar: true, volume: 0.22 });
-  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'ligado' }), { tocar: true, volume: 0.22 });
+  assert.deepEqual(estadoDoSom(base), { tocar: true, volume: 0.6 });
+  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'ligado' }), { tocar: true, volume: 0.6 });
 });
 
 test('estadoDoSom: desligado não começa sozinho', () => {

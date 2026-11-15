@@ -2,7 +2,7 @@
 // Crédito da gravação: a informar pelo coordenador quando o arquivo for escolhido.
 //
 // O site abre em silêncio (os navegadores não tocam som antes de um gesto): no primeiro
-// pointerdown ou keydown do visitante a música sobe de 0 a SOM.volume em SOM.entrada s. O arquivo
+// pointerdown ou keydown do visitante a música sobe de 0 a SOM.volume em SOM.subida s. O arquivo
 // só é pedido quando main.js chama carregar() (depois da abertura); se não carregar, não há botão
 // e nada mais muda. O botão no canto superior direito liga e desliga (SOM.troca s) e a escolha
 // fica em localStorage ('som'); a aba oculta pausa, e a volta retoma. Quem decide o estado é
@@ -76,7 +76,7 @@ export function criarSom() {
   function aoGesto(e) {
     if (gesto || (botao && botao.contains(e.target))) return;
     gesto = true;
-    aplicar(SOM.entrada);
+    aplicar(SOM.subida);
   }
   addEventListener('pointerdown', aoGesto, { capture: true, passive: true });
   addEventListener('keydown', aoGesto, { capture: true });
@@ -109,7 +109,7 @@ export function criarSom() {
     if (encerrado || carregado) return;
     carregado = true;
     criarBotao();
-    aplicar(SOM.entrada);
+    aplicar(SOM.subida);
   };
   const aoTrocarReproducao = () => atualizarBotao();
 

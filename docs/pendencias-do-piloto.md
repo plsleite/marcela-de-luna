@@ -31,6 +31,7 @@ Achados das revisões do Plano 1 que não bloqueiam a validação do piloto. Cad
 - "PORTFÓLIO" cortado na página base do celular.
 - `ImageBitmap` mantido na memória depois do envio à GPU.
 - Abrir o mergulho só é possível com mouse; falta teclado e toque.
+- Música no iPad e no iPhone: `HTMLMediaElement.volume` é somente leitura (fica em 1), então não há a subida gradual de 3 s nem a transição de 0,6 s do botão; a música entra e sai de uma vez. O arquivo vem atenuado em 9 dB para soar como fundo mesmo em volume 1. Resolver exige `AudioContext` com `GainNode`.
 
 ## Acabamento
 
