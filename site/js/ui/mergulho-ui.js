@@ -341,9 +341,11 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     a.total += Math.hypot(dx, dy);
     if (a.total < ARRASTO_MIN) return;
     if (a.detalhe) { // o close: arrasto só com zoom (no zoom 1 a imagem fica centrada)
-      if (a.detalhe !== m.detalhe) return;
-      a.detalhe.vista.puxando(a.detalhe.vista.zoom > ZOOM_MIN);
-      a.detalhe.vista.mover(dx, dy);
+      const v = a.detalhe.vista;
+      if (a.detalhe !== m.detalhe || v.zoom === ZOOM_MIN) return;
+      v.puxando(true);
+      v.mover(dx, dy);
+      a.moveu = true;
       return;
     }
     html.classList.add('arrastando');
@@ -357,7 +359,8 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     m.arrasto = null;
     html.classList.remove('arrastando');
     a.detalhe?.vista?.puxando(false);
-    if (a.total >= ARRASTO_MIN) m.engolirClique = true; // o click que segue o arrasto não conta
+    // o click que segue o arrasto não conta (no close, só se a imagem andou)
+    if (a.detalhe ? a.moveu : a.total >= ARRASTO_MIN) m.engolirClique = true;
   }
 
   // O resto do gesto que fechou (inércia do trackpad, roda ainda girando) não rola a página
@@ -414,11 +417,13 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     gsap.fromTo(img,
       { x: r.left + r.width / 2 - innerWidth / 2, y: r.top + r.height / 2 - innerHeight / 2, scale: 0.03 },
       { x: 0, y: 0, scale: 1, duration: DETALHE, ease: 'power3.out', onComplete: () => { d.vista = criarVistaDoDetalhe(caixa, img, info); } });
-    // um clique sem arrasto recolhe, em qualquer zoom
+    // um clique sem arrasto recolhe, em qualquer zoom; o que encerra um arrasto que moveu a
+    // imagem, não (mesmo curto, ou de ida e volta)
     caixa.addEventListener('click', (ev) => {
       ev.stopPropagation();
       const arrastou = arrastouDesde(ev);
       descida = null;
+      if (m?.engolirClique) { m.engolirClique = false; return; }
       if (!arrastou && !detalheRecente()) recolher();
     });
   }
