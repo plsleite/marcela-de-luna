@@ -321,10 +321,10 @@ async function iniciarTravessia(stops, images) {
       .catch((erro) => console.error(erro));
     // No fim da abertura, a capa (se a definitiva não chegou) passa à miniatura.
     abertura.then(() => { if (ativo) carregamento.mostrarMiniaturas(); }).catch(desmontar);
-    // Música de fundo: o arquivo só é pedido depois da abertura (sem ele, não há botão).
+    // Música de fundo e reserva das pinturas: só pedidas depois da abertura (sem música, não há botão).
     const som = criarSom();
     aoDesmontar(() => som.encerrar());
-    abertura.then(() => { if (ativo) som.carregar(); }).catch(desmontar);
+    abertura.then(() => { if (ativo) { som.carregar(); carregamento.iniciarReserva(indiceAtual); } }).catch(desmontar);
     if (capa) {
       Promise.race([capa, abertura]).catch(() => {}) // erro da capa já registrado acima
         .then(() => { if (ativo && !navegacao.viajando) carregarJanela(indiceAtual); }) // numa viagem, aoChegar carrega

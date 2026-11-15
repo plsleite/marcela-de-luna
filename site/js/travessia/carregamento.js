@@ -4,8 +4,9 @@
 // Recebe tudo por parâmetro (sem estado global): linha, stops, images; telas (meshes);
 // texturas (gl/texturas.js); gsap; retanguloNoFoco(mesh) → retângulo em px; ativo() → false
 // depois da desmontagem (uma textura que chega tarde não é aplicada); semMiniatura(mesh) → true
-// enquanto essa tela não deve mostrar a miniatura.
-import { texturasNecessarias, larguraPara } from '../core/janela.js';
+// enquanto essa tela não deve mostrar a miniatura. Depois da abertura (iniciarReserva), baixa em
+// segundo plano os arquivos de todas as telas, na largura que cada uma pede (core/reserva.js).
+import { texturasNecessarias, larguraPara, filaDeReserva } from '../core/janela.js';
 
 export function criarCarregamento({ linha, stops, images, telas, texturas, gsap, retanguloNoFoco, ativo, semMiniatura = () => false }) {
   const telasDe = (id) => telas.filter((m) => m.userData.imagem === id);
@@ -65,16 +66,20 @@ export function criarCarregamento({ linha, stops, images, telas, texturas, gsap,
       .then((tex) => { if (tex && ativo()) aplicar(id, tex); })
       .catch((erro) => console.error(erro));
   }
+  // Largura que a tela pede: a que cobre o retângulo dela no foco (null: imagem sem tela).
+  function larguraDe(id) {
+    const m = telasDe(id)[0];
+    if (!m) return null;
+    const r = retanguloNoFoco(m);
+    return larguraPara(r.dir - r.esq, Math.min(devicePixelRatio, 2), images[id].larguras);
+  }
   // Pede as texturas de `ids` e libera as demais (a da tela ampliada nunca: fica na maior largura).
   function carregarConjunto(ids) {
     const conjunto = new Set(ids);
     if (imagemDoMergulho !== null) conjunto.add(imagemDoMergulho);
-    const dpr = Math.min(devicePixelRatio, 2);
     for (const id of conjunto) {
-      const m = telasDe(id)[0];
-      if (!m) continue;
-      const r = retanguloNoFoco(m);
-      const largura = id === imagemDoMergulho ? larguraMaxima(id) : larguraPara(r.dir - r.esq, dpr, images[id].larguras);
+      const largura = id === imagemDoMergulho ? larguraMaxima(id) : larguraDe(id);
+      if (largura === null) continue;
       texturas.pedir(id, largura)
         .then((tex) => { if (tex && ativo()) aplicar(id, tex); })
         .catch((erro) => console.error(erro));
@@ -83,11 +88,36 @@ export function criarCarregamento({ linha, stops, images, telas, texturas, gsap,
       for (const m of telasDe(id)) mostrarMiniatura(m);
     }
   }
-  const carregarJanela = (indice) => carregarConjunto(texturasNecessarias(linha, stops, indice));
+  // Reserva: as telas de cada parada na ordem de filaDeReserva, na largura de carregarConjunto;
+  // as da parada `indice` e da seguinte também na maior largura (a ampliação). Refeita a cada
+  // carregarJanela: acompanha a parada e, depois de redimensionar, as larguras novas.
+  let reservando = false;
+  function reservar(indice) {
+    const pares = [];
+    for (const i of filaDeReserva(stops, indice)) {
+      for (const m of telas) {
+        if (m.userData.stopId !== stops[i].id) continue;
+        const id = m.userData.imagem;
+        pares.push([id, larguraDe(id)]);
+        if (i === indice || i === indice + 1) pares.push([id, larguraMaxima(id)]);
+      }
+    }
+    texturas.reservar(pares);
+  }
+  // Uma vez, depois da abertura; nunca com economia de dados (a janela segue pedindo o que usa).
+  function iniciarReserva(indice) {
+    if (navigator.connection?.saveData === true) return;
+    reservando = true;
+    reservar(indice);
+  }
+  function carregarJanela(indice) {
+    carregarConjunto(texturasNecessarias(linha, stops, indice));
+    if (reservando) reservar(indice);
+  }
   // Telas com textura definitiva (nem miniatura nem cor chapada).
   const definitivas = () => telas.filter((m) => {
     const t = m.material.uniforms.uMapa.value;
     return t !== null && !ehMini.has(t);
   }).length;
-  return { aplicar, carregarJanela, carregarConjunto, fixarMaxima, usarMiniaturas, mostrarMiniaturas, definitivas };
+  return { aplicar, carregarJanela, carregarConjunto, fixarMaxima, usarMiniaturas, mostrarMiniaturas, definitivas, iniciarReserva };
 }
