@@ -130,6 +130,8 @@ html.travessia .parada--capa .nome.abertura-enche {
 /* qualquer tela clicável (a em foco mergulha, as outras levam até a sua parada) */
 html.travessia.tela-clicavel { cursor: pointer; }
 html.travessia.mergulhando { cursor: grab; }
+/* fora da tela ampliada, um clique fecha */
+html.travessia.mergulhando.fora-da-tela { cursor: zoom-out; }
 html.travessia.mergulhando.arrastando { cursor: grabbing; user-select: none; -webkit-user-select: none; }
 html.travessia.mergulhando .parada.em-foco { opacity: 0; transition-duration: 0.35s; }
 html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }

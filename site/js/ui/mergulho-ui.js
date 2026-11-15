@@ -1,7 +1,7 @@
 // Mergulho: clicar na tela da parada em foco leva a câmera para dentro dela (a tela cabe em 92%
 // da janela), com título, ficha e "voltar"; roda e pinça aproximam no cursor, arrasto move a
 // vista sem sair da pintura (no Safari do macOS, a pinça chega como gesturestart/change/end); marcas sobre os closes abrem o detalhe em alta resolução.
-// Sair (Esc, "voltar", rolar para baixo com zoom 1, rolar a página por outro meio, irPara)
+// Sair (Esc, "voltar", clicar fora da tela, rolar para baixo com zoom 1, rolar a página por outro meio, irPara)
 // devolve a câmera à posição do scroll, que não muda durante o mergulho.
 // Tudo o que o mergulho cria (elementos, ouvintes, tweens) sai em fechar() e em encerrar().
 import * as THREE from 'three';
@@ -64,6 +64,13 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     const p = pontoNaTela(mesh, lancador.ray);
     if (!p) return { x: 0.5, y: 0.5 };
     return { x: Math.min(1, Math.max(0, p.u)), y: Math.min(1, Math.max(0, p.v)) };
+  }
+  // (x, y) px da janela cai sobre a tela ampliada? (com a câmera do último quadro)
+  function sobATela(mesh, x, y) {
+    cam.updateMatrixWorld();
+    lancador.setFromCamera(ndc.set((x / innerWidth) * 2 - 1, 1 - (y / innerHeight) * 2), cam);
+    const p = pontoNaTela(mesh, lancador.ray);
+    return Boolean(p) && p.u >= 0 && p.u <= 1 && p.v >= 0 && p.v <= 1;
   }
 
   // ---------- interface ----------
@@ -184,7 +191,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     // da saída, e é relançado no fim.
     let falha = null;
     try { aoFechar(s.mesh); } catch (erro) { falha = erro; }
-    html.classList.remove('mergulhando', 'arrastando');
+    html.classList.remove('mergulhando', 'arrastando', 'fora-da-tela');
     s.ui.remove();
     gsap.killTweensOf(s.t);
     for (const d of [s.detalhe, ...s.saindo]) if (d) tirarDetalhe(d);
@@ -391,17 +398,23 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   // Onde o botão desceu: um clique que chega depois de arrastar (seleção, gesto) não viaja nem mergulha.
   let descida = null;
   function aoDescer(e) { descida = e.isPrimary ? { x: e.clientX, y: e.clientY } : descida; }
+  // Com uma tela ampliada: com um close aberto, o clique fecha só o close; sem ele, um clique
+  // (não arrasto) fora da tela e fora dos controles fecha a ampliação. Este mesmo clique não
+  // segue adiante (não viaja): a volta (saida) ainda segura os cliques seguintes.
   function aoClicar(e) {
     if (e.button !== 0) return;
+    const d0 = descida;
+    descida = null;
+    const arrastou = Boolean(d0) && Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > CLIQUE_MAX;
     if (m) {
       if (m.engolirClique) { m.engolirClique = false; return; }
-      if (m.detalhe && !detalheRecente()) recolher();
+      if (m.detalhe) { if (!detalheRecente()) recolher(); return; }
+      if (arrastou || e.target.closest?.('a, button, input, select, textarea, label')) return;
+      if (!sobATela(m.mesh, e.clientX, e.clientY)) fechar();
       return;
     }
     if (saida || e.target.closest?.('a, button, input, select, textarea, label')) return;
-    const d0 = descida;
-    descida = null;
-    if (d0 && Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > CLIQUE_MAX) return;
+    if (arrastou) return;
     const mesh = palco.telaSob(e.clientX, e.clientY);
     const d = mesh ? destino(mesh) : null;
     if (d === 'mergulho') abrir(mesh);
@@ -410,7 +423,11 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   const ponteiro = { x: innerWidth / 2, y: innerHeight / 2 }; // último ponto (âncora da pinça do Safari)
   function aoPassar(e) {
     ponteiro.x = e.clientX; ponteiro.y = e.clientY;
-    if (m || saida || e.pointerType === 'touch') return;
+    if (m) { // fora da tela ampliada o cursor avisa que o clique fecha
+      if (e.pointerType !== 'touch' && !m.arrasto) html.classList.toggle('fora-da-tela', !sobATela(m.mesh, e.clientX, e.clientY));
+      return;
+    }
+    if (saida || e.pointerType === 'touch') return;
     const mesh = palco.telaSob(e.clientX, e.clientY);
     html.classList.toggle('tela-clicavel', Boolean(mesh && destino(mesh)));
   }
@@ -428,7 +445,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       fechar({ imediato: true });
     } finally {
       pararSaida();
-      html.classList.remove('tela-clicavel', 'mergulhando', 'arrastando');
+      html.classList.remove('tela-clicavel', 'mergulhando', 'arrastando', 'fora-da-tela');
       const fov = fovPara(aspecto());
       if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
     }
