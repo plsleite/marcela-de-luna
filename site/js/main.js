@@ -57,11 +57,11 @@ async function iniciarTravessia(stops, images) {
   const [
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
     { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { criarNavegacao },
-    { default: Lenis }, { gsap },
+    { criarIma }, { default: Lenis }, { gsap },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
-    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('lenis'), import('gsap'),
+    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('lenis'), import('gsap'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -330,10 +330,20 @@ async function iniciarTravessia(stops, images) {
     });
     aoDesmontar(() => mergulho.encerrar()); // fecha o mergulho com o scroll e o pincel ainda vivos
 
+    // Ímã do scroll: parado o visitante, a página desliza até o foco mais próximo. Nunca na
+    // abertura, com uma tela ampliada (ou na volta dela) nem durante uma viagem.
+    const ima = criarIma({
+      linha, lenis,
+      bloqueado: () => abertura?.estado !== 'fim' || Boolean(estado.mergulho) || mergulho.saindo
+        || navegacao.viajando || lenis.isStopped,
+    });
+    aoDesmontar(() => ima.encerrar());
+
     let indiceAtual = -1;
     palco.aoQuadro((t, dt) => {
       pincel.obstaculos = null; // a câmera e os textos podem ter mudado
       lenis.raf(t);
+      ima.quadro();
       const vh = vhDe(scrollY, innerHeight);
       if (innerHeight === alturaMedida) vhDaTravessia = vh;
       const s = situar(linha, vh);
@@ -392,6 +402,7 @@ async function iniciarTravessia(stops, images) {
         lenis.resize();
         navegacao.cancelar();
         lenis.scrollTo(pxDe(vh, innerHeight), { immediate: true, force: true });
+        ima.desarmar(); // a correção não é entrada do visitante
         vhDaTravessia = vh;
         mergulho.reancorar();
         palco.redimensionar();
