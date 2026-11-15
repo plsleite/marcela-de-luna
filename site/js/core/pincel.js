@@ -51,10 +51,11 @@ export function carimbosNaCurva(a, controle, b, passo) {
   return cs;
 }
 
-// Tamanho do alvo da tinta (px): um ponto de tinta por ponto de tela até a densidade 2, mais
-// acima disso; se a área passar do teto, os dois lados encolhem na mesma proporção.
+// Tamanho do alvo da tinta (px): um ponto de tinta por pixel do canvas (densidade limitada a 2,
+// como no renderer; nunca menos de um por ponto de tela); se a área passar do teto, os dois
+// lados encolhem na mesma proporção.
 export function tamanhoDoAlvo(larguraCss, alturaCss, razaoDePixels, teto = 8_300_000) {
-  const k = Math.max(1, razaoDePixels / 2);
+  const k = Math.max(1, Math.min(razaoDePixels, 2));
   let w = Math.max(1, Math.round(larguraCss * k)), h = Math.max(1, Math.round(alturaCss * k));
   if (w * h > teto) {
     const f = Math.sqrt(teto / (w * h));

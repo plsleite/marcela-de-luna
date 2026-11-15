@@ -79,17 +79,21 @@ test('forcaSobreTexto: 30% dentro do bloco, sobe até 100% em 40 px', () => {
   assert.equal(forcaSobreTexto({ x: 335, y: 150 }, dois), 0.3);
 });
 
-test('tamanhoDoAlvo: um ponto de tinta por ponto de tela até densidade 2, com teto de área', () => {
-  assert.deepEqual(tamanhoDoAlvo(1440, 900, 2), { w: 1440, h: 900 });
+test('tamanhoDoAlvo: um ponto de tinta por pixel do canvas (densidade até 2), com teto de área', () => {
+  assert.deepEqual(tamanhoDoAlvo(1440, 900, 2), { w: 2880, h: 1800 });
+  assert.deepEqual(tamanhoDoAlvo(1512, 860, 2), { w: 3024, h: 1720 });
   assert.deepEqual(tamanhoDoAlvo(3440, 1440, 1), { w: 3440, h: 1440 });
   assert.deepEqual(tamanhoDoAlvo(1280, 720, 1), { w: 1280, h: 720 });
-  assert.deepEqual(tamanhoDoAlvo(1280, 720, 1.5), { w: 1280, h: 720 });
-  assert.deepEqual(tamanhoDoAlvo(1000, 500, 3), { w: 1500, h: 750 });
+  assert.deepEqual(tamanhoDoAlvo(1440, 900, 3), { w: 2880, h: 1800 }); // o renderer limita a 2
+  assert.deepEqual(tamanhoDoAlvo(1440, 900, 1.5), { w: 2160, h: 1350 });
+  assert.deepEqual(tamanhoDoAlvo(1440, 900, 0.5), { w: 1440, h: 900 }); // nunca menos de um
+  const r = tamanhoDoAlvo(2560, 1440, 2);
+  assert.ok(r.w * r.h <= 8_300_000 && r.w * r.h > 8_200_000);
+  assert.ok(Math.abs(r.w / r.h - 2560 / 1440) < 0.002);
   const g = tamanhoDoAlvo(5120, 2880, 1);
   assert.ok(g.w * g.h <= 8_300_000 && g.w * g.h > 8_200_000);
   assert.ok(Math.abs(g.w / g.h - 5120 / 2880) < 0.002);
-  const t = tamanhoDoAlvo(100, 100, 1, 2500);
-  assert.deepEqual(t, { w: 50, h: 50 });
+  assert.deepEqual(tamanhoDoAlvo(100, 100, 1, 2500), { w: 50, h: 50 });
   assert.deepEqual(tamanhoDoAlvo(0, 0, 1), { w: 1, h: 1 });
 });
 
