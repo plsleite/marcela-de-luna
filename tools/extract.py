@@ -86,20 +86,20 @@ def cor_dominante(im, limiar=245):
     return '#%02x%02x%02x' % media
 
 
-def cor_de_acento(im, limiar=245, minimo=0.03, saturacao_minima=0.25):
+def cor_de_acento(im, limiar=245, minimo=0.03, croma_minimo=0.15):
     """Cor mais viva (#rrggbb): entre as 8 cores quantizadas (sem o quase branco e sem as que
-    ocupam menos de 3% da imagem), a de maior saturação HSV × raiz da fração ocupada. Sem
-    nenhuma com saturação ≥ 0,25, devolve a cor dominante."""
+    ocupam menos de 3% da imagem), a de maior croma × raiz da fração ocupada, com
+    croma = (max − min) / 255 do RGB (a saturação HSV favorecia cores quase pretas). Sem
+    nenhuma com croma ≥ 0,15, devolve a cor dominante."""
     grupos, total = _grupos(im)
     melhor = None
     for n, media in grupos:
         if min(media) > limiar or n / total < minimo:
             continue
-        alto, baixo = max(media), min(media)
-        sat = (alto - baixo) / alto if alto else 0
-        if sat < saturacao_minima:
+        croma = (max(media) - min(media)) / 255
+        if croma < croma_minimo:
             continue
-        nota = sat * (n / total) ** 0.5
+        nota = croma * (n / total) ** 0.5
         if melhor is None or nota > melhor[0]:
             melhor = (nota, media)
     if melhor is None:

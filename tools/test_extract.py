@@ -27,3 +27,10 @@ class T(unittest.TestCase):
         im = Image.new('RGB', (64, 64), (120, 120, 124))
         im.paste((90, 90, 92), (0, 0, 64, 20))
         self.assertEqual(cor_de_acento(im), cor_dominante(im))
+    def test_acento_viva_vence_escura_saturada(self):
+        im = Image.new('RGB', (100, 100), (20, 20, 60))
+        im.paste((230, 90, 140), (0, 0, 100, 40))
+        c = cor_de_acento(im)
+        rgb = tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
+        for v, alvo in zip(rgb, (230, 90, 140)):
+            self.assertLessEqual(abs(v - alvo), 6, c)
