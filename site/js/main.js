@@ -7,6 +7,7 @@ import { retanguloNaTela } from './core/projecao.js';
 import { paralaxe, suavizar } from './core/paralaxe.js';
 import { corDaParada, distanciaAoRetangulo, forcaSobreTexto } from './core/pincel.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
+import { destinoDoClique } from './core/clique.js';
 
 const raiz = document.getElementById('paradas');
 const html = document.documentElement;
@@ -282,18 +283,20 @@ async function iniciarTravessia(stops, images) {
     }
     pincel = montarPincel();
 
-    // Clique numa tela (o único lugar que decide): só depois da abertura; a da parada em foco
-    // abre o mergulho, qualquer outra visível leva até a sua parada. Durante uma viagem, toda
-    // tela leva até a sua parada. Dentro do mergulho o scroll suavizado para, o pincel descansa
+    // Clique numa tela (quem decide é core/clique.js): só depois da abertura; a da obra em foco
+    // abre o mergulho (capa e recortes de texto em foco não fazem nada), qualquer outra visível
+    // leva até a sua parada. Durante uma viagem, toda tela leva até a sua parada. Dentro do mergulho o scroll suavizado para, o pincel descansa
     // e a pintura vem na maior largura.
     const porId = new Map(stops.map((s) => [s.id, s]));
     mergulho = criarMergulho({
       palco, porId, images, telas, estado, poseDoScroll,
-      destino(mesh) {
-        if (abertura?.estado !== 'fim') return null;
-        const emFocoAgora = emFoco(linha, (scrollY / innerHeight) * 100);
-        return !navegacao.viajando && mesh.userData.stopId === emFocoAgora ? 'mergulho' : 'viagem';
-      },
+      destino: (mesh) => destinoDoClique({
+        parada: porId.get(mesh.userData.stopId),
+        emFoco: emFoco(linha, vhDe(scrollY, innerHeight)),
+        aberturaPronta: abertura?.estado === 'fim',
+        mergulhoAberto: Boolean(estado.mergulho),
+        viajando: navegacao.viajando,
+      }),
       aoViajar: (mesh) => navegacao.irPara(mesh.userData.stopId),
       aoAbrir(mesh) {
         navegacao.cancelar();
