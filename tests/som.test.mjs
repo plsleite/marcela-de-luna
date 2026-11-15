@@ -1,6 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { SOM } from '../site/js/config.js';
-import { estadoDoSom, preferenciaLida, alternada } from '../site/js/core/som.js';
+import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom } from '../site/js/core/som.js';
 
 const base = { carregado: true, gesto: true, preferencia: null, oculta: false };
 
@@ -17,23 +17,30 @@ test('preferenciaLida: só "ligado" ou "desligado"; o resto é nenhuma', () => {
 });
 
 test('estadoDoSom: abre em silêncio e toca depois do primeiro gesto', () => {
-  assert.deepEqual(estadoDoSom({ ...base, gesto: false }), { ligado: true, tocar: false, volume: 0 });
-  assert.deepEqual(estadoDoSom(base), { ligado: true, tocar: true, volume: 0.22 });
-  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'ligado' }), { ligado: true, tocar: true, volume: 0.22 });
+  assert.deepEqual(estadoDoSom({ ...base, gesto: false }), { tocar: false, volume: 0 });
+  assert.deepEqual(estadoDoSom(base), { tocar: true, volume: 0.22 });
+  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'ligado' }), { tocar: true, volume: 0.22 });
 });
 
 test('estadoDoSom: desligado não começa sozinho', () => {
-  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'desligado' }), { ligado: false, tocar: false, volume: 0 });
-  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'desligado', gesto: false }), { ligado: false, tocar: false, volume: 0 });
+  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'desligado' }), { tocar: false, volume: 0 });
+  assert.deepEqual(estadoDoSom({ ...base, preferencia: 'desligado', gesto: false }), { tocar: false, volume: 0 });
 });
 
 test('estadoDoSom: sem o arquivo ou com a aba oculta, não toca', () => {
-  assert.deepEqual(estadoDoSom({ ...base, carregado: false }), { ligado: true, tocar: false, volume: 0 });
-  assert.deepEqual(estadoDoSom({ ...base, oculta: true }), { ligado: true, tocar: false, volume: 0 });
+  assert.deepEqual(estadoDoSom({ ...base, carregado: false }), { tocar: false, volume: 0 });
+  assert.deepEqual(estadoDoSom({ ...base, oculta: true }), { tocar: false, volume: 0 });
 });
 
-test('alternada: ligado (ou sem escolha) → desligado; desligado → ligado', () => {
-  assert.equal(alternada(null), 'desligado');
-  assert.equal(alternada('ligado'), 'desligado');
-  assert.equal(alternada('desligado'), 'ligado');
+test('cliqueNoBotao: tocando, desliga; sem tocar, o clique é o gesto que liga (nunca grava desligado)', () => {
+  assert.equal(cliqueNoBotao({ preferencia: null, tocando: false }), 'ligado'); // só rolou com a roda: ainda não tocou
+  assert.equal(cliqueNoBotao({ preferencia: 'ligado', tocando: false }), 'ligado'); // NotAllowedError ou arquivo atrasado
+  assert.equal(cliqueNoBotao({ preferencia: 'desligado', tocando: false }), 'ligado');
+  assert.equal(cliqueNoBotao({ preferencia: 'ligado', tocando: true }), 'desligado');
+  assert.equal(cliqueNoBotao({ preferencia: null, tocando: true }), 'desligado');
+});
+
+test('botaoDoSom: rótulo, aria-pressed e barras derivam de "está tocando"', () => {
+  assert.deepEqual(botaoDoSom(true), { rotulo: 'Desligar o som', pressionado: true, barras: 'tocando' });
+  assert.deepEqual(botaoDoSom(false), { rotulo: 'Ligar o som', pressionado: false, barras: 'paradas' });
 });

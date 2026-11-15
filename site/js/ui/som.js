@@ -9,7 +9,7 @@
 // core/som.js. Tudo o que este módulo cria (áudio, botão, ouvintes, tweens) sai em encerrar().
 import { gsap } from 'gsap';
 import { SOM } from '../config.js';
-import { estadoDoSom, preferenciaLida, alternada } from '../core/som.js';
+import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom } from '../core/som.js';
 
 const ARQUIVO = './assets/audio/o-cisne.mp3';
 const CHAVE = 'som';
@@ -32,12 +32,14 @@ export function criarSom() {
 
   const estado = () => estadoDoSom({ carregado, gesto, preferencia, oculta: document.hidden });
 
+  // Está tocando: deve tocar e o áudio de fato toca (não pausado). É o que o botão mostra.
+  const tocando = () => estado().tocar && Boolean(audio) && !audio.paused;
   function atualizarBotao() {
     if (!botao) return;
-    const { ligado } = estado();
-    botao.setAttribute('aria-pressed', String(ligado));
-    botao.setAttribute('aria-label', ligado ? 'Desligar o som' : 'Ligar o som');
-    botao.classList.toggle('tocando', ligado && Boolean(audio) && !audio.paused);
+    const b = botaoDoSom(tocando());
+    botao.setAttribute('aria-pressed', String(b.pressionado));
+    botao.setAttribute('aria-label', b.rotulo);
+    botao.classList.toggle('tocando', b.barras === 'tocando');
   }
 
   function tocar() {
@@ -93,9 +95,9 @@ export function criarSom() {
     }
     botao.addEventListener('click', (e) => {
       if (e.detail > 0) botao.blur(); // clicado com o ponteiro, não guarda o foco (como a fileira)
-      preferencia = alternada(estado().ligado ? 'ligado' : 'desligado');
+      preferencia = cliqueNoBotao({ preferencia, tocando: tocando() });
       gravarPreferencia(preferencia);
-      gesto = true; // o clique é um gesto: ligar já toca
+      gesto = true; // o clique é um gesto: se for para ligar, já toca
       aplicar(SOM.troca);
     });
     document.body.append(botao);
