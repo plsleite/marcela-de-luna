@@ -66,7 +66,7 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Fileira contraída em notebook com tela de toque: com `hover: hover` a lente ignora o toque e o dedo encontra alvos de 7 a 11 px. Decidir: abrir a lente no toque, ou o formato cheio com `any-pointer: coarse`.
 - Som: erros do `play()` que não sejam recusa de autoplay são engolidos sem registro; ao ligar pelo botão a música entra em 0,6 s (a subida de 3 s vale só para o primeiro gesto); rótulo de ação junto com `aria-pressed` pode soar como estado duplo em leitor de tela.
 - Som: sem `.topo-nome` no momento de `criarBotao`, vale a largura de reserva de 9rem; a transição de 0,5 s de `left` também anima as mudanças de largura do nome no resize.
-- Pincel: nas quinas dos controles a barreira usa o retângulo alargado, mais contido que a distância euclidiana (lado conservador: um pouco menos de tinta nos cantos). Em `redimensionar` (`gl/tinta.js`), `uTexel` fica menor que um texel quando o teto de pixels corta o alvo (usar `max(escala, 1) / w`).
+- Pincel: nas quinas dos controles a barreira usa o retângulo alargado, mais contido que a distância euclidiana (lado conservador: um pouco menos de tinta nos cantos). Em `redimensionar` (`gl/tinta.js`), `uTexel` fica menor que um texel quando o teto de pixels corta o alvo abaixo de um ponto de tinta por ponto de tela, o que só acontece em densidade 1 acima de 8,3 milhões de pontos (usar `max(escala, 1) / w`).
 - Pincel: telas com opacidade 0 não barram mais a tinta (mudança da segunda rodada); durante a abertura, as telas ainda ocultas do fundo deixam de ser obstáculo. A revisão confirmou que nenhuma pintura visível fica desprotegida.
 - Realce do vulto: um raio e um `filter` novo a cada quadro, mesmo com o mouse parado.
 - Gravação de "O Cisne": confirmar os direitos antes de publicar.
@@ -104,6 +104,8 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Depois de cair na página base (perda do contexto WebGL), recarregar volta à capa com a abertura: a posição salva no modo base é descartada (`posicaoRestaurada` exige o mesmo modo). Visto de novo na conferência da segunda rodada.
 - Pincel: ritmo de sumiço linear (8 s numa passada, 10 s sobreposta); tinta visível através de tela translúcida na faixa de 1,5 a 3 de distância; halo da luz elíptico. Aguardam as respostas do Pedro no roteiro.
 - Pincel: o relevo da tinta num monitor de densidade 1 passa a ser medido a 1 px (antes 2 px), como já era na tela retina; o Pedro confere no monitor dele.
+- Pincel: a resolução da tinta (e a do palco) só é recalculada no `resize`. Levar a janela a um monitor de outra densidade sem mudar o tamanho dela depende de o navegador disparar `resize`; não conferido (o painel de conferência não tem dois monitores).
+- Pincel: na tela retina os dois alvos de meia precisão passaram de cerca de 21 MB para 83 MB (1512×860); no teto de 8,3 milhões de pontos chegam a 133 MB. No celular isso precisa de outra conta.
 - Pincelada da fileira: em repouso, opacidade 0,45; aberta, 0,5. A rosa fica clara.
 - Raycast a cada movimento do ponteiro.
 - Falha de carga em `main.js` sem teste nem conferência no navegador.
@@ -123,6 +125,7 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Safari e Firefox reais: `event.timeStamp` comparado a `performance.now()` em `gl/tinta.js` e os tempos dos eventos agrupados dependem do navegador (não conferido).
 - A pinça do Safari no close aberto pela marca (terceira rodada; implementada por leitura, como a da tela ampliada) e o zoom, o arrasto e o recolhimento do close com o trackpad de verdade.
 - O convite na capa do MacBook de 14" com os valores novos da capa.
+- O traço na tela retina do MacBook (terceira rodada, C4): nitidez das cerdas, mesma largura e mesmo desenho de antes, e a fluidez com tinta viva. A densidade 2 foi só emulada na conferência.
 - O convite "LIGAR O SOM", a primeira entrada da música e a música ao longo de todo o percurso, inclusive nas viagens longas.
 - Arrastar a barra de rolagem no meio de uma viagem longa.
 - A página simples com "Reduzir movimento" ligado.

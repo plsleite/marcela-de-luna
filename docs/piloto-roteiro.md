@@ -19,7 +19,7 @@ Perguntas novas: o ímã puxa no tempo certo, cedo demais ou tarde demais? O vul
 
 ## O que mudou na terceira rodada (15/11/2026)
 
-São duas mudanças, vindas das suas respostas à segunda rodada. Elas valem por cima de todas as outras seções. Abra o site como na seção 1 e siga os passos na ordem.
+São duas mudanças vindas das suas respostas à segunda rodada e uma pedida por você em seguida (o traço na tela retina, passo 11). Elas valem por cima de todas as outras seções. Abra o site como na seção 1 e siga os passos na ordem.
 
 ### Suas respostas à segunda rodada
 
@@ -48,6 +48,7 @@ Registro aqui o que você respondeu, uma linha por pergunta.
 8. **Recolher pela roda.** Abra o close sem aproximar e role a roda para baixo. O close recolhe, a tela ampliada continua aberta e a página não rola. Se você tinha aproximado o close e afasta até o zoom 1 no mesmo gesto, ele não recolhe: é preciso parar e rolar para baixo de novo, como na tela ampliada.
 9. **Mudar o tamanho da janela.** Com o close aproximado, mude o tamanho da janela. A imagem não sai da janela: onde ela é maior que a janela, a borda continua na borda da janela; onde é mais estreita, ela fica centrada, com branco dos lados.
 10. **A tela ampliada não mudou.** Feche o close e confira na tela ampliada o zoom, o arrasto e as saídas de sempre (clique fora, "voltar", Esc e roda para baixo).
+11. **O traço na tela do MacBook.** Na tela do próprio notebook (não no monitor externo), passe o mouse devagar e depois rápido no fundo branco, de perto. As bordas das cerdas devem estar mais nítidas que antes; a largura do traço e o desenho das cerdas (as listras claras e escuras, as falhas, as bordas ralas) são os mesmos. Pinte bastante e role pelo site com a tinta ainda viva: a rolagem e o movimento das telas devem continuar fluidos. No monitor externo nada muda.
 
 ### O que eu medi
 
@@ -58,6 +59,8 @@ Medidas no painel de navegador do meu ambiente, com a abertura terminada. A "fol
 - **1280×700:** antes, −8 px; agora, 6 px. O pedido era pelo menos 5 px. Nessa janela o fundo do botão cobre cerca de 4 px do alto do canto da pintura.
 - **A borda de baixo da pintura e "PORTFÓLIO".** Ficaram no mesmo lugar de antes nas três janelas (791, 848 e 669 px).
 - **O close.** Com a imagem maior que a janela, o ponto sob o ponteiro ficou no mesmo lugar ao aproximar e afastar, pela roda e pela roda com Ctrl (a pinça do Chrome), com erro abaixo de 0,1 px. No zoom 6 o arrasto parou exatamente nas quatro bordas da janela. Enquanto a imagem ainda é mais estreita que a janela, ela fica centrada na horizontal, como a tela ampliada; aí só a altura acompanha o ponteiro.
+- **O traço na tela retina.** Com densidade 2 emulada numa janela de 1512×860, o alvo da tinta passou de 1512×860 para 3024×1720 pontos, e a textura das cerdas de 64×40 para 128×80. No mesmo trajeto simulado, a largura do traço ficou igual (diferenças de até 1,5 px, dentro do borrão que a resolução de antes deixava nas bordas), a quantidade de tinta também (diferença abaixo de 0,5%), e a energia das bordas, que mede a nitidez, ficou cerca de 3,3 vezes maior. A textura nova, reduzida de volta a 64×40, é idêntica à de antes. Em densidade 1 o alvo, a textura e o relevo são os mesmos de antes, e a imagem do mesmo trajeto diferiu no máximo em 1/255 (a perda de opacidade entre um quadro e outro). Tinta só no branco, nunca sobre pintura; nenhum erro no console.
+- **O custo da tinta na tela retina.** Numa bancada separada, que só reproduz as duas passadas de tela cheia da tinta (perda e exibição) em meia precisão, num canvas de 3024×1720, a mediana foi de 1,27 ms por quadro com o alvo de antes (1512×860) e de 1,82 ms com o novo (3024×1720): cerca de 0,55 ms a mais, num quadro de 16,7 ms. A memória dos dois alvos passou de cerca de 21 MB para 83 MB. Isso não prova fluidez: a bancada não inclui os carimbos nem o resto da cena, mede a placa do meu ambiente e não a do seu MacBook, e a densidade 2 foi só emulada. Quem decide é o passo 11.
 
 O pedido dizia y −0,03; com esse valor a folga ficou em 7,2 px em 1512×828 e 3 px em 1280×700, abaixo do exigido. Por isso a pintura ficou em y −0,05: a borda de baixo não se mexe e toda a folga se abre em cima.
 
@@ -66,6 +69,7 @@ O pedido dizia y −0,03; com esse valor a folga ficou em 7,2 px em 1512×828 e 
 1. **O convite na capa do MacBook de 14".** Veja se o texto "LIGAR O SOM" fica bem acima da pintura, com a folga medida acima.
 2. **A pinça no Safari.** No Safari a pinça chega por outro caminho; eu não pude testá-la. Aproxime e afaste o close com a pinça do trackpad e veja se o detalhe sob o ponteiro fica no lugar.
 3. **O trackpad de verdade.** Eu usei roda e arrasto simulados. Veja se aproximar, arrastar e recolher o close pelo trackpad parecem naturais.
+4. **O traço na tela do MacBook** (passo 11). Eu só emulei a densidade 2. Veja se as cerdas ficaram mais nítidas sem mudar de desenho e se a rolagem continua fluida com tinta viva.
 
 ## O que mudou na segunda rodada (15/11/2026)
 
