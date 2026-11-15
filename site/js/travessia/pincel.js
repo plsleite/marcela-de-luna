@@ -39,10 +39,11 @@ export function montarPincel({ palco, raiz, telas, porId, images, estado, criarT
     const cs = getComputedStyle(el);
     return cs.visibility === 'visible' && cs.display !== 'none' && Number(cs.opacity) > 0;
   }
-  const forca = (x, y) => {
+  // meia: meia largura do carimbo (px de janela); só os controles a usam
+  const forca = (x, y, meia = 0) => {
     const o = (p.obstaculos ??= obstaculos());
     if (o.telasNaJanela.some((r) => distanciaAoRetangulo(x, y, r) === 0)) return 0;
-    const c = o.controles.length ? forcaJuntoAosControles({ x, y }, o.controles) : 1;
+    const c = o.controles.length ? forcaJuntoAosControles({ x, y }, o.controles, { meiaLargura: meia }) : 1;
     return c > 0 ? Math.min(c, forcaSobreTexto({ x, y }, o.paragrafos, { dentro: 0.3, faixa: 40 })) : 0;
   };
   const tinta = criarTinta(palco, { forca });

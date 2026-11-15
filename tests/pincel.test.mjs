@@ -132,7 +132,7 @@ test('carimbosNaCurva: sobre a curva, espaçados pelo passo e tangentes a ela', 
   assert.ok(Math.hypot(b.x - cs.at(-1).x, b.y - cs.at(-1).y) < 6); // a sobra fica para o próximo trecho
 });
 
-test('forcaJuntoAosControles: zero até 10 px do controle, cheia a 24 px dessa margem', () => {
+test('forcaJuntoAosControles: sem meia largura, zero até 10 px do controle e cheia a 24 px dessa margem', () => {
   const r = [{ esq: 100, dir: 200, topo: 100, base: 130 }];
   assert.equal(forcaJuntoAosControles({ x: 150, y: 115 }, r), 0);
   assert.equal(forcaJuntoAosControles({ x: 210, y: 115 }, r), 0); // na margem
@@ -146,4 +146,23 @@ test('forcaJuntoAosControles: zero até 10 px do controle, cheia a 24 px dessa m
   // o controle mais próximo manda
   const dois = [...r, { esq: 300, dir: 320, topo: 100, base: 130 }];
   assert.equal(forcaJuntoAosControles({ x: 295, y: 115 }, dois), 0);
+});
+
+test('forcaJuntoAosControles: margem e rampa contadas da borda do carimbo (meia largura)', () => {
+  const r = [{ esq: 100, dir: 200, topo: 100, base: 130 }];
+  const op = { meiaLargura: 23 };
+  assert.equal(forcaJuntoAosControles({ x: 150, y: 115 }, r, op), 0);
+  assert.equal(forcaJuntoAosControles({ x: 233, y: 115 }, r, op), 0); // borda a 10 px
+  assert.ok(forcaJuntoAosControles({ x: 234, y: 115 }, r, op) > 0);
+  assert.ok(Math.abs(forcaJuntoAosControles({ x: 245, y: 115 }, r, op) - 0.5) < 1e-9);
+  assert.equal(forcaJuntoAosControles({ x: 257, y: 115 }, r, op), 1);
+  assert.equal(forcaJuntoAosControles({ x: 300, y: 115 }, r, op), 1);
+  assert.equal(forcaJuntoAosControles({ x: 150, y: 67 }, r, op), 0); // por cima também
+  // pincel fino (escala 0,6 do gesto): meia largura 13,8
+  const fino = { meiaLargura: 23 * 0.6 };
+  assert.equal(forcaJuntoAosControles({ x: 223.8, y: 115 }, r, fino), 0);
+  assert.ok(Math.abs(forcaJuntoAosControles({ x: 235.8, y: 115 }, r, fino) - 0.5) < 1e-9);
+  assert.equal(forcaJuntoAosControles({ x: 247.8, y: 115 }, r, fino), 1);
+  // a rampa de antes (meia largura 0) só vale quando não se passa a largura
+  assert.ok(forcaJuntoAosControles({ x: 222, y: 115 }, r, op) === 0);
 });

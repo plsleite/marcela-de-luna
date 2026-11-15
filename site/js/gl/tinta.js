@@ -141,8 +141,8 @@ const preMultiplicado = (m) => {
   return m;
 };
 
-// opcoes.forca(x, y): 0..1, quanto da tinta o pincel deposita ali (0 sobre as telas, menos
-// sobre os parágrafos).
+// opcoes.forca(x, y, meiaLargura): 0..1, quanto da tinta o pincel deposita ali (0 sobre as telas,
+// menos sobre os parágrafos); meiaLargura é a do carimbo em px de janela.
 export function criarTinta(palco, { forca = () => 1 } = {}) {
   const { renderer, cena } = palco;
   const flutuante = renderer.extensions.has('EXT_color_buffer_float')
@@ -256,7 +256,7 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
     const g = gesto(velocidade, percurso);
     for (const p of cs) {
       distancia = (distancia + PASSO) % 30000; // limitado: precisão do ruído na GPU
-      const f = forca(p.x, p.y);
+      const f = forca(p.x, p.y, (LARGURA / 2) * g.escala);
       if (f > 0) enfileirar(p, cor, g, f);
     }
     const fim = cs.at(-1);
