@@ -51,10 +51,11 @@ async function iniciarTravessia(stops, images) {
   const canvas = document.getElementById('gl');
   const [
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
-    { criarLegendas }, { criarPreenchimento }, { default: Lenis }, { gsap },
+    { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { default: Lenis }, { gsap },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
-    import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('lenis'), import('gsap'),
+    import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
+    import('lenis'), import('gsap'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -62,6 +63,7 @@ async function iniciarTravessia(stops, images) {
   const estado = { id: stops[0].id, local: 0, mergulho: null };
   let lenis = null;
   let pincel = null; // { tinta, preenchimento, soltar }
+  let abertura = null; // promessa de rodarAbertura, com .encerrar()
   let ativo = true;
   // Único caminho de desmontagem (contexto perdido, erro num quadro ou erro na montagem):
   // para o laço, solta o scroll e mostra a página base na parada em que se estava.
@@ -71,6 +73,7 @@ async function iniciarTravessia(stops, images) {
     if (erro) console.error(erro);
     palco.parar();
     lenis?.destroy();
+    abertura?.encerrar();
     if (pincel) { pincel.soltar(); pincel.tinta.liberar(); pincel.preenchimento.desfazer(); pincel = null; }
     for (const s of raiz.querySelectorAll('.em-foco')) s.classList.remove('em-foco');
     raiz.style.removeProperty('--paralaxe-x');
@@ -126,13 +129,17 @@ async function iniciarTravessia(stops, images) {
     const lento = new URLSearchParams(location.search).get('lento') === '1';
     const texturas = criarTexturas(images, { renderer: palco.renderer, atraso: lento ? 1500 : 0 });
     const telasDe = (id) => telas.filter((m) => m.userData.imagem === id);
-    function aplicar(id, tex) {
+    // esmaecer: a primeira textura entra sobre a cor dominante em 0,6 s (a capa, na abertura,
+    // entra direto: quem a mostra são as pinceladas).
+    function aplicar(id, tex, esmaecer = true) {
       for (const m of telasDe(id)) {
         const u = m.material.uniforms;
         if (u.uMapa.value === tex) continue;
         const jaTinha = u.uMapa.value !== null;
         u.uMapa.value = tex;
-        if (!jaTinha) gsap.fromTo(u.uTemMapa, { value: 0 }, { value: 1, duration: 0.6, ease: 'power1.out' });
+        if (jaTinha) continue;
+        if (esmaecer) gsap.fromTo(u.uTemMapa, { value: 0 }, { value: 1, duration: 0.6, ease: 'power1.out' });
+        else u.uTemMapa.value = 1;
       }
     }
     function carregarJanela(indice) {
@@ -159,6 +166,7 @@ async function iniciarTravessia(stops, images) {
     lenis = new Lenis({ lerp: 0.09 });
     window.__site = {
       linha, estado, telas, ponteiro: palco.ponteiro,
+      get abertura() { return abertura?.estado ?? null; },
       irPara(id) { lenis.scrollTo((focoDe(linha, id) / 100) * innerHeight); },
     };
 
@@ -253,11 +261,31 @@ async function iniciarTravessia(stops, images) {
     });
 
     posicionar();
-    // Já pede as texturas da parada inicial, sem esperar o primeiro quadro.
     const inicio = situar(linha, (scrollY / innerHeight) * 100);
     indiceAtual = inicio.indice;
     estado.id = inicio.id;
-    carregarJanela(indiceAtual);
+
+    // Abertura: só a fonte e a capa (em 1280) bloqueiam; content.json e images.json já chegaram.
+    // Do topo, a capa vem antes de tudo (o resto da janela espera por ela para não disputar a
+    // rede); recarregada no meio da página, a janela carrega já e a abertura só espera a fonte.
+    const fonte = document.fonts ? document.fonts.load('1em Outfit') : Promise.resolve();
+    const telaDaCapa = stops[0].tipo === 'capa' ? telas.find((m) => m.userData.stopId === stops[0].id) : null;
+    const etapas = [Promise.resolve(), Promise.resolve(), fonte];
+    if (telaDaCapa && scrollY <= 0) {
+      const id = telaDaCapa.userData.imagem;
+      const larguras = images[id].larguras;
+      const largura = larguras.includes(ABERTURA.larguraDaCapa) ? ABERTURA.larguraDaCapa : larguras[0];
+      const capa = texturas.pedir(id, largura).then((tex) => {
+        if (tex && ativo) aplicar(id, tex, abertura?.estado !== 'carregando');
+      });
+      capa.catch((erro) => console.error(erro))
+        .finally(() => { if (ativo) carregarJanela(indiceAtual); });
+      etapas.push(capa);
+    } else {
+      carregarJanela(indiceAtual); // já pede as texturas da parada inicial, sem esperar o primeiro quadro
+    }
+    const fundo = telas.filter((m) => m !== telaDaCapa);
+    abertura = rodarAbertura({ telaDaCapa, pronto: Promise.all(etapas), etapas, fundo });
     addEventListener('resize', () => {
       if (!ativo) return;
       try {

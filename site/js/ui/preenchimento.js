@@ -11,7 +11,7 @@ const SELETOR = '.parada--texto .titulo-secao, .parada--abertura .titulo-secao, 
 
 // Pincelada (SVG embutido, 300×100, estica sobre a letra): tinta preta de um lado, borda de
 // cerdas irregular, transparente do outro. Deslizada sobre a letra, revela a pintura de baixo.
-function pincelada(paraDireita) {
+export function pincelada(paraDireita) {
   let s = 11;
   const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
   let rects = '<rect x="140" y="0" width="160" height="100"/>';
@@ -24,7 +24,7 @@ function pincelada(paraDireita) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
-function grafemas(palavra) {
+export function grafemas(palavra) {
   if (typeof Intl !== 'undefined' && Intl.Segmenter) {
     return [...new Intl.Segmenter('pt', { granularity: 'grapheme' }).segment(palavra)].map((x) => x.segment);
   }

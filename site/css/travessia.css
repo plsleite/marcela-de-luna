@@ -101,6 +101,25 @@ html.travessia .titulo-secao .letra.pintada {
 }
 html.travessia .titulo-secao .letra.pintada[data-dir="esq"] { background-position: 100% 0, var(--bx, 0px) var(--by, 0px); }
 
+/* ---------- abertura (abertura.js) ----------
+   Traço de carregamento: linha fina no centro, puxada da esquerda (scaleX = fração carregada).
+   "MARCELA DE LUNA" se enche por uma pincelada (a mesma do preenchimento) usada como máscara,
+   que entra pela esquerda (--enche de 100% a 0%). Tudo isso sai da página quando a abertura termina. */
+.abertura-traco {
+  position: fixed; left: 50%; top: 50%; z-index: 2;
+  width: min(34vw, 380px); height: 2px; border-radius: 1px;
+  background: linear-gradient(90deg, rgb(48 95 163 / 0.35), #305fa3 14%, #305fa3 90%, rgb(48 95 163 / 0.6));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+html.travessia .capa-titulo .abertura-letra { display: inline-block; }
+html.travessia .parada--capa .nome.abertura-enche {
+  -webkit-mask-image: var(--abertura-pincelada); mask-image: var(--abertura-pincelada);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: var(--enche, 0%) 0; mask-position: var(--enche, 0%) 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.travessia .parada, html.travessia .corpo .palavra { transition: none; }
 }

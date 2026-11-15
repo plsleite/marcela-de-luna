@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { RELEVO } from '../config.js';
 import { ALTURA_LUZ, RAIO_LUZ, GANHO, PASSO_TEXELS } from '../core/luz.js';
+import { PINCELADA as PC } from '../core/abertura.js';
 
 const f = (v) => v.toFixed(4); // constante JS → literal GLSL
 
@@ -17,7 +18,8 @@ void main() {
   gl_Position = projectionMatrix * mv;
 }`;
 
-// uRevela fica neutro nesta etapa (a abertura vem depois).
+// Abertura: uRevela (0..1) revela a pintura por pinceladas diagonais com ponta de cerdas;
+// em 1 a tela é exatamente a de sempre. Mesma função de revelacao em core/abertura.js.
 // Luz rasante: relevo pelo gradiente de luminância da textura (4 vizinhos), luz em uLuz (UV),
 // força em uRelevo (0..1). Mesma fórmula de fatorDeLuz em core/luz.js.
 const fragment = /* glsl */`
@@ -33,6 +35,7 @@ uniform float uRevela;
 uniform vec2 uLuz;
 uniform float uRelevo;
 uniform float uOpacidade;
+uniform float uProporcao;
 varying vec2 vUv;
 varying float vDist;
 
@@ -43,6 +46,35 @@ float fatorDeLuz(float gx, float gy, vec2 d, float forca) {
   float difusa = (-gx * d.x - gy * d.y + ALTURA_LUZ) / (length(vec3(gx, gy, 1.0)) * ll);
   float k = (difusa - ALTURA_LUZ / ll) * exp(-dot(d, d) / (RAIO_LUZ * RAIO_LUZ)) * forca * GANHO;
   return 1.0 + clamp(k, -RELEVO, RELEVO);
+}
+
+float hash(float n) {
+  float p = fract(n * 0.1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+
+float revelacao(vec2 uv, float r) {
+  if (r >= 1.0) return 1.0;
+  if (r <= 0.0) return 0.0;
+  vec2 d = vec2(cos(${f(PC.ANGULO)}), sin(${f(PC.ANGULO)}));
+  vec2 q = vec2(uv.x * uProporcao, uv.y);
+  float sMax = uProporcao * d.x + d.y;
+  float tMin = -uProporcao * d.y;
+  float sn = dot(q, d) / sMax;
+  float tn = (-q.x * d.y + q.y * d.x - tMin) / (d.x - tMin);
+  tn += ${f(PC.ONDA)} * sin(sn * 9.0) + ${f(PC.ONDA * 0.4)} * sin(sn * 23.0 + 1.3);
+  tn = clamp(tn, 0.0, 0.9999);
+  float k = floor(tn * ${f(PC.FAIXAS)});
+  float atraso = hash(k + 1.0) * ${f(PC.ESPALHA)};
+  float p = clamp((r - atraso) / ${f(1 - PC.ESPALHA)}, 0.0, 1.0);
+  if (mod(k, 2.0) > 0.5) sn = 1.0 - sn;
+  float cerda = 0.65 * hash(floor(tn * ${f(PC.FAIXAS * PC.FIOS)}) + 37.0)
+              + 0.35 * hash(floor(tn * ${f(PC.FAIXAS * PC.FIOS * 2.7)}) + 11.0);
+  float m = ${f(PC.CERDA + PC.BORDA)};
+  float ponta = -m + (1.0 + 2.0 * m) * p + ${f(PC.CERDA)} * (2.0 * cerda - 1.0);
+  return 1.0 - smoothstep(ponta - ${f(PC.BORDA)}, ponta, sn);
 }
 
 void main() {
@@ -63,7 +95,7 @@ void main() {
   fator = mix(fator, 1.0, branco); // o branco da distância não ganha relevo
   // Quase toda branca, a tela também fica transparente: sobre o branco não muda nada, e não
   // recorta um retângulo branco na tinta do pincel que está atrás.
-  float alfa = uOpacidade * uRevela * smoothstep(1.5, 3.0, vDist) * (1.0 - smoothstep(0.85, 1.0, branco));
+  float alfa = uOpacidade * revelacao(vUv, uRevela) * smoothstep(1.5, 3.0, vDist) * (1.0 - smoothstep(0.85, 1.0, branco));
   gl_FragColor = vec4(cor, alfa);
   #include <colorspace_fragment>
   // Depois da conversão para sRGB: o mesmo fator nos três canais da cor exibida mantém a
@@ -85,6 +117,7 @@ export function criarTela(plano, info) {
       uLuz: { value: new THREE.Vector2(0.5, 0.5) },
       uRelevo: { value: 0 },
       uOpacidade: { value: 1 },
+      uProporcao: { value: plano.largura / plano.altura },
     },
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(plano.largura, plano.altura), material);
