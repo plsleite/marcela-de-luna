@@ -5,6 +5,7 @@ import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo } from './cor
 import { retanguloNaTela } from './core/projecao.js';
 import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
+import { criarTrilho } from './core/trilho.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
 
@@ -190,11 +191,16 @@ async function iniciarTravessia(stops, images) {
       fecharMergulho() { mergulho?.fechar(); },
     };
 
-    // Paralaxe: a câmera fica no z do scroll e ganha por cima o deslocamento do ponteiro;
-    // os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
+    // Trilho (core/trilho.js): o x da câmera atravessa a última pintura de cada série e o último
+    // close do trecho. x de uma parada = o do seu primeiro plano.
+    const trilho = criarTrilho(linha, stops,
+      (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0).userData.plano.x);
+
+    // Paralaxe: a câmera fica no z do scroll (e no x do trilho) e ganha por cima o deslocamento
+    // do ponteiro; os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
     let textoAnterior = '';
     function poseDoScroll(vh = vhDe(scrollY, innerHeight), p = paralaxe(palco.ponteiro)) {
-      return { x: p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: fovPara(innerWidth / innerHeight) };
+      return { x: trilho(vh) + p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: fovPara(innerWidth / innerHeight) };
     }
     function aplicarParalaxe(vh) {
       const p = paralaxe(palco.ponteiro);
