@@ -297,8 +297,8 @@ async function iniciarTravessia(stops, images) {
 
     // Clique numa tela (quem decide é core/clique.js): só depois da abertura; a da obra em foco
     // abre o mergulho (capa e recortes de texto em foco não fazem nada), qualquer outra visível
-    // leva até a sua parada. Durante uma viagem, toda tela leva até a sua parada. Dentro do mergulho o scroll suavizado para, o pincel descansa
-    // e a pintura vem na maior largura.
+    // leva até a sua parada. Durante uma viagem, toda tela leva até a sua parada. Dentro do
+    // mergulho o scroll suavizado para, o pincel descansa e a pintura vem na maior largura.
     mergulho = criarMergulho({
       palco, porId, images, telas, estado, poseDoScroll,
       destino: (mesh) => destinoDoClique({
