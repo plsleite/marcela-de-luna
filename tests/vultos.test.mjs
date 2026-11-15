@@ -1,11 +1,11 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { criarLinha, focoDe } from '../site/js/core/timeline.js';
-import { cartaoFinal } from '../site/js/core/final.js';
+import { criarLinha, focoDe, emFoco } from '../site/js/core/timeline.js';
+import { cartaoFinal, deCostas, opacidadeDoVulto } from '../site/js/core/final.js';
 import { zDoStop, planosDoStop, indicesPorTipo, ladosDosDetalhes, fovPara } from '../site/js/core/camera.js';
 import { retanguloNaTela, fracaoVisivel } from '../site/js/core/projecao.js';
 import { brancura, alfa } from '../site/js/core/vulto.js';
-import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from '../site/js/config.js';
+import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE, VERSO, UNIDADES_POR_VH } from '../site/js/config.js';
 
 const perto = (a, b, tol = 1e-3) => Math.abs(a - b) < tol;
 
@@ -37,9 +37,9 @@ test('dados reais: um só vulto à frente, inclusive nos closes', () => {
   const vis = (s) => (s.tipo === 'detalhe' ? VISIBILIDADE_DETALHE : VISIBILIDADE);
   const aspecto = 1440 / 900, fov = fovPara(aspecto);
   const i = (id) => stops.findIndex(s => s.id === id);
-  const deCostas = (s, antes, vh) => s.tipo === 'verso' && antes?.tipo === 'detalhe'
-    && Math.cos(cartaoFinal(vh, { focoFrente: focoDe(linha, antes.id), focoVerso: focoDe(linha, s.id),
-      frente: planos[i(antes.id)][0], verso: planos[i(s.id)][0] }).giro - Math.PI) < 0;
+  const versoDeCostas = (s, antes, vh) => s.tipo === 'verso' && antes?.tipo === 'detalhe'
+    && deCostas(cartaoFinal(vh, { focoFrente: focoDe(linha, antes.id), focoVerso: focoDe(linha, s.id),
+      frente: planos[i(antes.id)][0], verso: planos[i(s.id)][0] }).giro, 'verso');
   const dentro = (r) => ({ esq: Math.max(0, r.esq), dir: Math.min(1, r.dir), topo: Math.max(0, r.topo), base: Math.min(1, r.base) });
 
   const partidas = ['duvidei', 'cartografia-do-intimo'];
@@ -59,8 +59,33 @@ test('dados reais: um só vulto à frente, inclusive nos closes', () => {
     assert.equal(alfa(d, vis(stops[b])), 1, msg);
     assert.ok(livre >= 0.4, msg);
     for (let c = b + 1; c < stops.length; c++) {
-      if (deCostas(stops[c], stops[c - 1], focoDe(linha, id))) continue;
+      if (versoDeCostas(stops[c], stops[c - 1], focoDe(linha, id))) continue;
       for (const p of planos[c]) assert.ok(alfa(zc - p.z, vis(stops[c])) <= 0.05, `${msg}; ${stops[c].id} aparece`);
     }
   }
+});
+
+// O vulto do verso (travessia/cartao.js): do lado oposto ao do último close, inteiro e quase
+// branco no foco do close, sem nunca ganhar cor enquanto aparece; some antes de o verso entrar
+// em foco (o clique nele nunca amplia).
+test('dados reais: vulto do verso ao lado do último close', () => {
+  const { stops } = JSON.parse(readFileSync('site/data/content.json', 'utf8'));
+  const images = JSON.parse(readFileSync('site/data/images.json', 'utf8'));
+  const linha = criarLinha(stops);
+  const [a, b] = stops.slice(-2);
+  assert.equal(a.tipo, 'detalhe'); assert.equal(b.tipo, 'verso');
+  const close = planosDoStop(a, indicesPorTipo(stops).get(a.id), images, linha, ladosDosDetalhes(stops, images, linha).get(a.id))[0];
+  assert.ok(close.x > 0 && VERSO.vulto.x < 0, 'o vulto fica do lado oposto ao do close');
+  const p = { focoFrente: focoDe(linha, a.id), focoVerso: focoDe(linha, b.id) };
+  const z = zDoStop(linha, b.id);
+  for (let vh = p.focoFrente - 20; vh <= p.focoVerso; vh += 0.5) {
+    const o = opacidadeDoVulto(vh, p);
+    if (o === 0) continue;
+    const d = DIST_FOCO - vh * UNIDADES_POR_VH - z;
+    const msg = `vh ${vh}: d ${d.toFixed(2)}`;
+    assert.ok(brancura(d, VISIBILIDADE) >= 0.85, msg);
+    assert.notEqual(emFoco(linha, vh), b.id, msg);
+  }
+  assert.equal(alfa(DIST_FOCO - p.focoFrente * UNIDADES_POR_VH - z, VISIBILIDADE), 1);
+  assert.equal(opacidadeDoVulto(p.focoVerso, p), 0);
 });

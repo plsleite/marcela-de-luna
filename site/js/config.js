@@ -18,7 +18,8 @@ export const VISIBILIDADE = { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.
 // (14,30) e, do foco da obra antes do trecho, o primeiro (18,15) já são vultos inteiros (branco
 // até 14) e o seguinte (20,60) sumiu (some até 20,4). Os demais campos são os de VISIBILIDADE.
 export const DETALHE = { altura: 6.2, x: 1.5, ys: [0.2, -0.25, 0.1] };
-export const VERSO = { altura: 4.6 };
+// O vulto do verso (travessia/cartao.js) fica do lado oposto ao do último close (à direita).
+export const VERSO = { altura: 4.6, vulto: { x: -2.2, y: 0 } };
 export const VISIBILIDADE_DETALHE = { ...VISIBILIDADE, surge: [2.0, 3.6], branco: [10, 14], some: [18.6, 20.4] };
 // Ímã do scroll: sem entrada há `espera` ms (e com a página parada), a câmera desliza até o foco
 // da parada mais próxima, em duracaoMin s até 20 vh de distância, crescendo até duracaoMax s em
