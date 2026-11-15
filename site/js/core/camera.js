@@ -39,7 +39,12 @@ export function planosDoStop(stop, indice, images, linha) {
       return [plano(stop.imagens[0], -2.0, 0, z0, 4.6)];
     case 'obra': {
       const [a, b] = stop.telas;
-      if (b === undefined) return [plano(a, indice % 2 === 0 ? -2.4 : 2.4, 0, z0, 4)];
+      if (b === undefined) {
+        // ±2,4, mas a borda externa nunca passa de 3,8 (obras largas; a fileira fica à direita)
+        const p = plano(a, 0, 0, z0, 4);
+        p.x = (indice % 2 === 0 ? -1 : 1) * Math.min(2.4, 3.8 - p.largura / 2);
+        return [p];
+      }
       return [plano(a, -2.3, 0.9, z0, 2.6), plano(b, 0.6, -0.9, z0 - 1.5, 2.6)];
     }
     case 'texto':

@@ -14,3 +14,9 @@ export function larguraPara(larguraPx, dpr, larguras) {
   const alvo = larguraPx * dpr;
   return ord.find(l => l >= alvo) ?? ord[ord.length - 1];
 }
+
+// Uma tela existe para o ponteiro, o realce e o pincel só entre `perto` (o surge[0] dela: mais
+// perto, está transparente, rente à câmera) e `alcance` (o some[1]: mais longe, sumiu no branco).
+export function aoAlcance(distancia, perto, alcance) {
+  return distancia >= perto && distancia < alcance;
+}

@@ -4,7 +4,7 @@
 // Recebe tudo por parâmetro: palco, raiz, telas, porId (Map id → stop), images, estado
 // (estado.id, estado.mergulho), criarTinta (gl/tinta.js), criarPreenchimento (ui/preenchimento.js)
 // e retanguloProjetado (gl/tela.js).
-import { VISIBILIDADE } from '../config.js';
+import { aoAlcance } from '../core/janela.js';
 import { corDaParada, distanciaAoRetangulo, forcaSobreTexto } from '../core/pincel.js';
 
 export function montarPincel({ palco, raiz, telas, porId, images, estado, criarTinta, criarPreenchimento, retanguloProjetado }) {
@@ -14,7 +14,7 @@ export function montarPincel({ palco, raiz, telas, porId, images, estado, criarT
     const cz = palco.camera.position.z;
     for (const m of telas) {
       const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
-      if (d > VISIBILIDADE.surge[0] && d < m.userData.alcance) telasNaJanela.push(retanguloProjetado(m, palco.camera));
+      if (aoAlcance(d, m.userData.perto, m.userData.alcance)) telasNaJanela.push(retanguloProjetado(m, palco.camera));
     }
     const paragrafos = [...raiz.querySelectorAll('.em-foco .corpo')].map((el) => {
       const b = el.getBoundingClientRect();

@@ -1,7 +1,8 @@
 // Palco three.js: cena branca, câmera em perspectiva olhando para −z, o laço de quadros
 // e o ponteiro do mouse (suavizado) para a paralaxe e a luz rasante.
 import * as THREE from 'three';
-import { DIST_FOCO, VISIBILIDADE } from '../config.js';
+import { DIST_FOCO } from '../config.js';
+import { aoAlcance } from '../core/janela.js';
 import { fovPara } from '../core/camera.js';
 import { suavizar } from '../core/paralaxe.js';
 
@@ -47,8 +48,9 @@ export function criarPalco(canvas) {
   }
 
   // Tela (Mesh com userData.stopId) mais próxima da câmera sob o ponto (x, y) em px da janela,
-  // ou null. Ignora as invisíveis: opacidade 0, rente à câmera ou sumidas ao longe
-  // (o `alcance` de cada tela, a distância em que o shader de gl/tela.js a deixa transparente).
+  // ou null. Ignora as invisíveis: opacidade 0, mais perto que o `perto` de cada tela (rente à
+  // câmera) ou além do `alcance` (sumidas ao longe), as distâncias em que o shader de gl/tela.js
+  // a deixa transparente.
   const lancadorDoPonto = new THREE.Raycaster();
   const ndcDoPonto = new THREE.Vector2();
   const _local = new THREE.Vector3();
@@ -59,7 +61,7 @@ export function criarPalco(canvas) {
       && o.material.uniforms?.uOpacidade?.value > 0);
     for (const hit of lancadorDoPonto.intersectObjects(telas, false)) {
       const dist = -_local.copy(hit.point).applyMatrix4(camera.matrixWorldInverse).z;
-      if (dist > VISIBILIDADE.surge[0] && dist < hit.object.userData.alcance) return hit.object;
+      if (aoAlcance(dist, hit.object.userData.perto, hit.object.userData.alcance)) return hit.object;
     }
     return null;
   }

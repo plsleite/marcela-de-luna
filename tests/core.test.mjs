@@ -2,7 +2,7 @@ import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { criarLinha, situar, focoDe, emFoco, alturaDaPagina, vizinho } from '../site/js/core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, indicesPorTipo } from '../site/js/core/camera.js';
-import { texturasNecessarias, larguraPara } from '../site/js/core/janela.js';
+import { texturasNecessarias, larguraPara, aoAlcance } from '../site/js/core/janela.js';
 import * as cfg from '../site/js/config.js';
 
 const stops = [{ id:'capa', tipo:'capa' }, { id:'t', tipo:'texto' }, { id:'o1', tipo:'obra', telas:['a'] }, { id:'o2', tipo:'obra', telas:['b','c'] }];
@@ -35,8 +35,17 @@ test('linha do tempo', () => {
 test('câmera e planos', () => {
   assert.ok(Math.abs(zDaCamera(260) - zDoStop(linha, 'o1') - 8) < 1e-9);
   const [p] = planosDoStop(stops[2], 0, images, linha);
-  assert.deepEqual([p.x, p.y, p.altura, p.largura], [-2.4, 0, 4, 3]);
-  assert.equal(planosDoStop(stops[2], 1, images, linha)[0].x, 2.4);
+  // obra de uma tela: x = ±min(2,4; 3,8 − largura/2) — a borda externa nunca passa de 3,8
+  assert.deepEqual([p.y, p.altura, p.largura], [0, 4, 3]);
+  assert.ok(Math.abs(p.x - -2.3) < 1e-9);
+  assert.ok(Math.abs(planosDoStop(stops[2], 1, images, linha)[0].x - 2.3) < 1e-9);
+  const quadrada = { id:'o1', tipo:'obra', telas:['b'] }; // b: 2000 × 2000 → largura 4
+  const [qe] = planosDoStop(quadrada, 0, images, linha);
+  const [qd] = planosDoStop(quadrada, 1, images, linha);
+  assert.ok(Math.abs(qe.x - -1.8) < 1e-9 && Math.abs(qd.x - 1.8) < 1e-9);
+  assert.ok(Math.abs(qd.x + qd.largura / 2 - 3.8) < 1e-9);
+  const estreita = planosDoStop(stops[2], 0, { a:{ w:1000, h:4000 } }, linha)[0]; // largura 1 → 2,4
+  assert.equal(estreita.x, -2.4);
   const [A, B] = planosDoStop(stops[3], 1, images, linha);
   assert.equal(A.altura, 2.6); assert.equal(B.z - A.z, -1.5); assert.ok(A.y > B.y);
 });
@@ -114,6 +123,16 @@ test('fovPara: campo horizontal constante abaixo da proporção 1,65', async () 
 
 test('visibilidade das telas: uma constante só', () => {
   assert.deepEqual(cfg.VISIBILIDADE, { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.08, some: [22, 28], realce: 0.63 });
+  assert.deepEqual(cfg.VISIBILIDADE_DETALHE.surge, [2.0, 3.6]);
+  assert.deepEqual(cfg.VISIBILIDADE.surge, [1.5, 3.0]);
+});
+
+test('aoAlcance: a tela existe para ponteiro, realce e pincel em [perto, alcance)', () => {
+  assert.equal(aoAlcance(1.7, 2.0, 30), false);
+  assert.equal(aoAlcance(2.0, 2.0, 30), true);
+  assert.equal(aoAlcance(8, 1.5, 28), true);
+  assert.equal(aoAlcance(28, 1.5, 28), false);
+  assert.equal(aoAlcance(-6, 1.5, 28), false);
 });
 
 test('indicesPorTipo e planos de detalhe e verso', () => {
