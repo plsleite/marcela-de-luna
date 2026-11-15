@@ -29,3 +29,5 @@ export const SOM = { volume: 0.6, subida: 3, troca: 0.6 };
 // Pigmentos do pincel (paleta da artista, medida no acervo): azul, rosa neon, magenta, laranja.
 // O primeiro é o padrão.
 export const PIGMENTOS = ['#305fa3', '#e91b6a', '#d15ca1', '#f3953e'];
+// Folga (unidades de mundo) do trilho da câmera abaixo da qual os textos das paradas valem.
+export const TRILHO_FOLGA_TEXTO = 0.15;

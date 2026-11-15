@@ -3,6 +3,8 @@
 import { emFoco } from '../core/timeline.js';
 import { atrasosDasPalavras } from '../core/projecao.js';
 import { posicaoDaLegenda } from '../core/legenda.js';
+import { textoVale } from '../core/trilho.js';
+import { TRILHO_FOLGA_TEXTO } from '../config.js';
 
 // Envolve cada palavra de .corpo num <span class="palavra"> (os espaços ficam como texto).
 function separarPalavras(corpo) {
@@ -46,19 +48,21 @@ function posicionarLegenda(secao, rets, W, H) {
 // nas obras de duas telas, a segunda passa por cima dela a partir de foco + 18 vh.
 const FRACAO_DA_LEGENDA = 0.16;
 
-export function criarLegendas(raiz, linha) {
+// trilho(vh) → x da câmera (core/trilho.js): com ele além da folga, nenhuma parada tem texto.
+export function criarLegendas(raiz, linha, trilho) {
   const secoes = new Map([...raiz.querySelectorAll('.parada')].map((s) => [s.dataset.id, s]));
   let atual = null;
   let comLegenda = null;
 
   function atualizar(vh) {
-    const l = emFoco(linha, vh, FRACAO_DA_LEGENDA);
+    const vale = textoVale(trilho(vh), TRILHO_FOLGA_TEXTO);
+    const l = vale ? emFoco(linha, vh, FRACAO_DA_LEGENDA) : null;
     if (l !== comLegenda) {
       if (comLegenda) secoes.get(comLegenda)?.classList.remove('com-legenda');
       comLegenda = l;
       secoes.get(l)?.classList.add('com-legenda');
     }
-    const id = emFoco(linha, vh);
+    const id = vale ? emFoco(linha, vh) : null;
     if (id === atual) return;
     if (atual) secoes.get(atual)?.classList.remove('em-foco');
     atual = id;

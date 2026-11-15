@@ -1,6 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { criarLinha } from '../site/js/core/timeline.js';
-import { criarTrilho } from '../site/js/core/trilho.js';
+import { criarTrilho, textoVale } from '../site/js/core/trilho.js';
 
 test('criarTrilho: entra na pintura da obra e sai pelo último close do trecho', () => {
   const stops = [{id:'c',tipo:'capa'},{id:'o',tipo:'obra'},{id:'d1',tipo:'detalhe'},{id:'d2',tipo:'detalhe'},{id:'a',tipo:'abertura'}];
@@ -19,4 +19,11 @@ test('criarTrilho: sem "saída" quando o close é seguido do verso', () => {
   const fim = [{id:'c',tipo:'capa'},{id:'d',tipo:'detalhe'},{id:'v',tipo:'verso'}];
   const tf = criarTrilho(criarLinha(fim), fim, () => 1.5);
   for (let vh = 0; vh < 300; vh += 7) assert.equal(tf(vh), 0);
+});
+
+test('textoVale: o texto de uma parada só vale com o trilho dentro da folga', () => {
+  assert.equal(textoVale(0, 0.15), true);
+  assert.equal(textoVale(0.149, 0.15), true);
+  assert.equal(textoVale(0.15, 0.15), false);
+  assert.equal(textoVale(-2.4, 0.15), false);
 });

@@ -34,3 +34,7 @@ export function criarTrilho(linha, stops, xDaTela) {
     return 0;
   };
 }
+
+// Os textos de uma parada (em-foco, com-legenda) só valem com o trilho praticamente em 0: com a
+// câmera deslocada, o texto (posto pelo retângulo da tela no foco) não estaria sobre a sua tela.
+export const textoVale = (xDoTrilho, folga) => Math.abs(xDoTrilho) < folga;

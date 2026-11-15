@@ -139,7 +139,13 @@ async function iniciarTravessia(stops, images) {
       const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, mesh.userData.stopId) + DIST_FOCO, aspecto, fovPara(aspecto));
       return { esq: r.esq * innerWidth, dir: r.dir * innerWidth, topo: r.topo * innerHeight, base: r.base * innerHeight };
     };
-    const legendas = criarLegendas(raiz, linha);
+    // Trilho (core/trilho.js): o x da câmera atravessa a última pintura de cada série e o último
+    // close do trecho. x de uma parada = o do seu primeiro plano. Os textos das paradas só valem
+    // com ele perto de 0 (ui/legendas.js).
+    const trilho = criarTrilho(linha, stops,
+      (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0).userData.plano.x);
+
+    const legendas = criarLegendas(raiz, linha, trilho);
     const posicionar = () => {
       const rets = new Map();
       for (const m of telas) {
@@ -190,11 +196,6 @@ async function iniciarTravessia(stops, images) {
       },
       fecharMergulho() { mergulho?.fechar(); },
     };
-
-    // Trilho (core/trilho.js): o x da câmera atravessa a última pintura de cada série e o último
-    // close do trecho. x de uma parada = o do seu primeiro plano.
-    const trilho = criarTrilho(linha, stops,
-      (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0).userData.plano.x);
 
     // Paralaxe: a câmera fica no z do scroll (e no x do trilho) e ganha por cima o deslocamento
     // do ponteiro; os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
