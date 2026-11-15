@@ -4,7 +4,7 @@
     {
       "name": "site",
       "runtimeExecutable": "/bin/sh",
-      "runtimeArgs": ["-c", "cd \"$HOME/Library/Caches/marcela-de-luna-site/preview\" && exec python3 -m http.server 4173"],
+      "runtimeArgs": ["-c", "cd \"$HOME/Library/Caches/marcela-de-luna-site/preview\" && exec python3 ../servidor.py 4173"],
       "port": 4173
     }
   ]
