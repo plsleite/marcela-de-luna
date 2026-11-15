@@ -18,7 +18,6 @@ function blobDe(uri) {
   return new Blob([bytes], { type: tipo });
 }
 
-// opcoes.renderer: para enviar a textura à GPU na chegada; opcoes.atraso: ms extras por textura (depuração).
 const urlDe = (id, largura) => `./assets/img/${id}-${largura}.webp`;
 async function buscar(url, { sinal, prioridade }) {
   const r = await fetch(url, { signal: sinal, priority: prioridade });
@@ -26,6 +25,7 @@ async function buscar(url, { sinal, prioridade }) {
   return r.blob();
 }
 
+// opcoes.renderer: para enviar a textura à GPU na chegada; opcoes.atraso: ms extras por textura (depuração).
 export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
   const cache = new Map(); // id → { largura, promessa, textura, anterior }
   const reserva = criarReserva({ buscar });

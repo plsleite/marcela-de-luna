@@ -1,7 +1,7 @@
 // Pincel (só com mouse): tinta no fundo branco, na cor viva da tela da parada atual, e letras
 // dos títulos que se enchem de pintura. Não deposita sobre as telas; passa por baixo de todo
 // texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura), e não
-// chega aos controles marcados com data-barra-tinta (nome, som, fileira).
+// chega aos controles marcados com data-barra-tinta (nome, som, fileira, linha "DETALHES").
 // Recebe tudo por parâmetro: palco, raiz, telas, porId (Map id → stop), images, estado
 // (estado.id, estado.mergulho), criarTinta (gl/tinta.js), criarPreenchimento (ui/preenchimento.js)
 // e retanguloProjetado (gl/tela.js).
