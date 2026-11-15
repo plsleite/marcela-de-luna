@@ -24,8 +24,8 @@
 - `<meta name="robots" content="noindex, nofollow">` no `index.html`.
 - Todo texto é texto real no DOM. `alt` das imagens de obra: `"{TÍTULO}, acrílica sobre tela, {dimensões}, 2026"`.
 - Navegadores: Safari e Chrome atuais. Neste plano, tela de toque na vertical, movimento reduzido ou falta de WebGL mostram a página base (Tarefa 6).
-- Testes: `node --test tests/` e `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"`.
-- Conferência visual: servidor `site` do `.claude/launch.json` (porta 4173), console sem erros.
+- Testes: `node --test tests/*.test.mjs` e `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"`.
+- Conferência visual: rodar `sh tools/preview-sync.sh` (copia `site/` para `~/Library/Caches/marcela-de-luna-site/preview`, porque o servidor do painel não lê a pasta do OneDrive) e abrir o servidor `site` do `.claude/launch.json` (porta 4173); console sem erros.
 
 ## Review Focus
 
@@ -111,7 +111,7 @@ test('fonte e index sem URL remota', () => {
 });
 ```
 
-- [ ] **Step 3: Rodar e ver falhar** — `node --test tests/` → FAIL (arquivos ausentes).
+- [ ] **Step 3: Rodar e ver falhar** — `node --test tests/*.test.mjs` → FAIL (arquivos ausentes).
 
 - [ ] **Step 4: Baixar as bibliotecas e a fonte, com versão fixa**
 
@@ -122,7 +122,7 @@ De `https://cdn.jsdelivr.net/npm/`: `three@0.187.0/build/three.module.min.js`, `
 `index.html`: `lang="pt-BR"`, título "Marcela de Luna — Portfólio 2026", meta robots, import map (`three`→`./vendor/three.module.min.js`, `gsap`→`./vendor/gsap.mjs`, `lenis`→`./vendor/lenis.mjs`), `<canvas id="gl">`, `<main id="paradas">`, `<script type="module" src="./js/main.js">`. `main.js` provisório importa as três e faz `console.log` das versões.
 `launch.json`: configuração `site`, `python3 -m http.server 4173 --directory site`, porta 4173.
 
-- [ ] **Step 6: Conferir** — `node --test tests/` → PASS. Abrir o servidor `site`: console mostra as três versões, sem erros.
+- [ ] **Step 6: Conferir** — `node --test tests/*.test.mjs` → PASS. Abrir o servidor `site`: console mostra as três versões, sem erros.
 
 - [ ] **Step 7: Commit** — `git add -A && git commit -m "chore: estrutura, bibliotecas e fonte"`
 
@@ -609,7 +609,7 @@ Para cada `close` da tela aberta: marca circular discreta (botão com `aria-labe
 **Files:**
 - Create: `docs/piloto-roteiro.md`
 
-- [ ] **Step 1: Rodar tudo** — `node --test tests/` e `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"` → tudo PASS.
+- [ ] **Step 1: Rodar tudo** — `node --test tests/*.test.mjs` e `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"` → tudo PASS.
 
 - [ ] **Step 2: Percorrer os cinco itens do Review Focus** em Chrome e em Safari, mais: do topo ao fim só com scroll, sem travar; texto das seis páginas conferido contra o PDF; console sem erros nem avisos de recurso remoto; aba de rede sem nenhum pedido a outro domínio.
 
