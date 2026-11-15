@@ -74,6 +74,20 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     voltar.type = 'button';
     voltar.className = 'mergulho-voltar';
     voltar.textContent = 'voltar';
+    // Título e ficha só nas obras: a capa e os recortes das páginas de texto não têm legenda no
+    // PDF, e a interface deles é só o "voltar" (nenhum bloco vazio).
+    const ficha = stop.tipo === 'obra' ? criarFicha(stop) : null;
+    const marcas = closes.map((close) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mergulho-marca';
+      b.setAttribute('aria-label', 'Ver detalhe');
+      return { el: b, close };
+    });
+    ui.append(voltar, ...(ficha ? [ficha] : []), ...marcas.map((mk) => mk.el));
+    return { ui, voltar, marcas };
+  }
+  function criarFicha(stop) {
     const ficha = document.createElement('div');
     ficha.className = 'mergulho-ficha';
     const titulo = document.createElement('h2');
@@ -87,15 +101,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       el.textContent = linha ?? '';
       ficha.append(el);
     }
-    const marcas = closes.map((close) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'mergulho-marca';
-      b.setAttribute('aria-label', 'Ver detalhe');
-      return { el: b, close };
-    });
-    ui.append(voltar, ficha, ...marcas.map((mk) => mk.el));
-    return { ui, voltar, marcas };
+    return ficha;
   }
 
   function posicionarMarcas() {

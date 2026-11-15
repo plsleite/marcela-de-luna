@@ -295,9 +295,9 @@ async function iniciarTravessia(stops, images) {
       cadaUm([() => p.soltar(), () => p.tinta.liberar(), () => p.preenchimento.desfazer()]);
     });
 
-    // Clique numa tela (quem decide é core/clique.js): só depois da abertura; a da obra em foco
-    // abre o mergulho (capa e recortes de texto em foco não fazem nada), qualquer outra visível
-    // leva até a sua parada. Durante uma viagem, toda tela leva até a sua parada. Dentro do
+    // Clique numa tela (quem decide é core/clique.js): só depois da abertura; a da parada em foco
+    // (obra, capa ou recorte de texto) abre o mergulho, qualquer outra visível leva até a sua
+    // parada. Durante uma viagem, toda tela leva até a sua parada. Dentro do
     // mergulho o scroll suavizado para, o pincel descansa e a pintura vem na maior largura.
     mergulho = criarMergulho({
       palco, porId, images, telas, estado, poseDoScroll,
