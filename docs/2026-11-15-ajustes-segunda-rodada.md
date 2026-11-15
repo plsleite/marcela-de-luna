@@ -89,7 +89,7 @@ A tinta é desenhada num alvo com metade da resolução do canvas. Na tela retin
 
 ## B7. Controles protegidos da tinta
 
-- O nome "MARCELA DE LUNA", o botão de som (com o texto do convite), a fileira (na largura da lente aberta) e a linha "DETALHES" das legendas barram a tinta: força 0 dentro do retângulo com 10 px de margem, subindo até a força cheia em 24 px.
+- O nome "MARCELA DE LUNA", o botão de som (com o texto do convite), a fileira (na largura da lente aberta) e a linha "DETALHES" das legendas barram a tinta: força 0 dentro do retângulo com 10 px de margem, subindo até a força cheia em 24 px. A margem e a rampa contam a partir da borda do carimbo, não do centro (decisão R2, abaixo).
 - Usa o mecanismo de obstáculos que já existe em `site/js/travessia/pincel.js` (`forcaSobreTexto`).
 - Conferir: passar o mouse sobre cada controle não deixa tinta sob ele nem atrás do texto.
 
@@ -130,7 +130,7 @@ A pintura em foco já usa a largura que a tela comporta, e a ampliação usa a m
 - **Falha de download** (pendência antiga): o arquivo sai da reserva e do cache de texturas, e a próxima aproximação tenta de novo.
 - **Troca suave** (pendência antiga): a passagem da miniatura para a imagem nítida esmaece em 0,35 s, em vez de trocar de uma vez.
 - Testes (com `buscar` falso): nunca mais de dois downloads ao mesmo tempo; a ordem da fila; `pedir` de um arquivo em curso devolve a mesma promessa; falha remove a entrada e um novo `pedir` baixa de novo; `encerrar` aborta os que estão em curso e esvazia a fila; `filaDeReserva` do meio vai até o fim e depois volta.
-- Conferir no navegador: depois de 30 s parado na capa (rede local), apertar End não mostra nenhuma tela borrada no caminho nem na chegada; nenhum pedido a outro domínio.
+- Conferir no navegador: depois de 30 s parado na capa (rede local), apertar End não mostra tela borrada na chegada; nenhum pedido a outro domínio. As telas do caminho de uma viagem longa continuam na miniatura (decisão R4, abaixo).
 
 ## B12. Documentos
 
@@ -159,3 +159,10 @@ Antes de cada conferência: `sh tools/preview-sync.sh`; servidor `site` na porta
 Regressão a cada tarefa: abertura, pincel, letras com tinta, ampliar e fechar, close em "A Dança é por Ela", fileira, setas, giro final, redimensionar, `loseContext`, nenhum erro no console.
 
 Testes: `node --test tests/*.test.mjs` e `/usr/bin/python3 -m unittest discover -s tools -p "test_*.py"`.
+
+## Decisões durante a execução
+
+- **R1 (B7).** A proteção da tinta foi feita de forma genérica na tarefa 4: todo elemento com o atributo `data-barra-tinta` barra a tinta. As tarefas seguintes marcaram os seus controles novos (convite do som, barreira da fileira, linha "DETALHES").
+- **R2 (B7).** A margem de 10 px e a rampa de 24 px contam a partir da borda do carimbo (distância do centro menos a meia largura do pincel), porque, contadas do centro, as cerdas ainda passavam sob o controle. A zona sem tinta ficou cerca de 23 px maior.
+- **R3 (B10).** A legenda desce o mínimo para não cobrir o vulto da parada seguinte: "Cartografia do Íntimo" fica 33, 62 e 69 px abaixo da base da pintura em 1440×900, 1024×768 e 900×900; "Dúvidei", 29 e 36 px em 1024×768 e 900×900. Reversível em `core/legenda.js`.
+- **R4 (B11).** Numa viagem longa, as telas do caminho continuam na miniatura e só a chegada é nítida: deixar nítidas as ~24 paradas por segundo do voo estouraria o limite de memória de vídeo, que continua. Alternativa, se o Pedro pedir: carregar numa largura menor a parada por onde se passa.
