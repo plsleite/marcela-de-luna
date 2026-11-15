@@ -1,6 +1,8 @@
-// Palco three.js: cena branca, câmera em perspectiva olhando para −z e o laço de quadros.
+// Palco three.js: cena branca, câmera em perspectiva olhando para −z, o laço de quadros
+// e o ponteiro do mouse (suavizado) para a paralaxe e a luz rasante.
 import * as THREE from 'three';
 import { FOV, DIST_FOCO } from '../config.js';
+import { suavizar } from '../core/paralaxe.js';
 
 export function criarPalco(canvas) {
   let renderer;
@@ -19,11 +21,41 @@ export function criarPalco(canvas) {
   const camera = new THREE.PerspectiveCamera(FOV, innerWidth / innerHeight, 0.1, 80);
   camera.position.set(0, 0, DIST_FOCO);
 
+  // Ponteiro em −1..1 (y para cima): `alvo` segue o mouse; `ponteiro` o persegue a cada quadro.
+  // Fora da janela (ou sem foco), o alvo volta ao centro. Toque não move nada.
+  const ponteiro = { x: 0, y: 0 };
+  const alvo = { x: 0, y: 0 };
+  const aoMover = (e) => {
+    if (e.pointerType === 'touch') return;
+    alvo.x = (e.clientX / innerWidth) * 2 - 1;
+    alvo.y = 1 - (e.clientY / innerHeight) * 2;
+  };
+  const aoCentro = () => { alvo.x = 0; alvo.y = 0; };
+  const aoSair = (e) => { if (!e.relatedTarget) aoCentro(); };
+  addEventListener('pointermove', aoMover, { passive: true });
+  document.addEventListener('mouseout', aoSair);
+  addEventListener('blur', aoCentro);
+
+  // Raio da câmera pelo ponteiro suavizado (com a câmera já posicionada neste quadro).
+  const lancador = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  function raioDoPonteiro() {
+    camera.updateMatrixWorld();
+    lancador.setFromCamera(ndc.set(ponteiro.x, ponteiro.y), camera);
+    return lancador.ray;
+  }
+
   const fns = [];
   const aoQuadro = (fn) => { fns.push(fn); };
   const erros = [];
   const aoErro = (fn) => { erros.push(fn); };
-  const parar = () => renderer.setAnimationLoop(null);
+  // Para o laço e solta os ouvintes do ponteiro.
+  const parar = () => {
+    renderer.setAnimationLoop(null);
+    removeEventListener('pointermove', aoMover);
+    document.removeEventListener('mouseout', aoSair);
+    removeEventListener('blur', aoCentro);
+  };
 
   function redimensionar() {
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -34,9 +66,14 @@ export function criarPalco(canvas) {
   redimensionar();
 
   // Um erro num quadro para o laço e avisa quem se registrou em aoErro (a travessia se desmonta).
+  let anterior = null;
   renderer.setAnimationLoop((t) => {
     try {
-      for (const fn of fns) fn(t);
+      const dt = anterior === null ? 0 : t - anterior;
+      anterior = t;
+      ponteiro.x = suavizar(ponteiro.x, alvo.x, dt);
+      ponteiro.y = suavizar(ponteiro.y, alvo.y, dt);
+      for (const fn of fns) fn(t, dt);
       renderer.render(cena, camera);
     } catch (erro) {
       parar();
@@ -44,5 +81,5 @@ export function criarPalco(canvas) {
     }
   });
 
-  return { cena, camera, renderer, aoQuadro, aoErro, redimensionar, parar };
+  return { cena, camera, renderer, ponteiro, raioDoPonteiro, aoQuadro, aoErro, redimensionar, parar };
 }

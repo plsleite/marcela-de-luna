@@ -4,6 +4,7 @@ import { criarLinha, situar, focoDe, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop } from './core/camera.js';
 import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
+import { paralaxe, suavizar } from './core/paralaxe.js';
 
 const raiz = document.getElementById('paradas');
 const html = document.documentElement;
@@ -47,7 +48,7 @@ function suspenderImagens(suspender) {
 
 async function iniciarTravessia(stops, images) {
   const canvas = document.getElementById('gl');
-  const [{ criarPalco }, { criarTela }, { criarTexturas }, { criarLegendas }, { default: Lenis }, { gsap }] = await Promise.all([
+  const [{ criarPalco }, { criarTela, pontoNaTela }, { criarTexturas }, { criarLegendas }, { default: Lenis }, { gsap }] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'),
     import('./ui/legendas.js'), import('lenis'), import('gsap'),
   ]);
@@ -66,6 +67,8 @@ async function iniciarTravessia(stops, images) {
     palco.parar();
     lenis?.destroy();
     for (const s of raiz.querySelectorAll('.em-foco')) s.classList.remove('em-foco');
+    raiz.style.removeProperty('--paralaxe-x');
+    raiz.style.removeProperty('--paralaxe-y');
     ficarNaBase();
     document.getElementById(estado.id)?.scrollIntoView();
   }
@@ -149,18 +152,53 @@ async function iniciarTravessia(stops, images) {
 
     lenis = new Lenis({ lerp: 0.09 });
     window.__site = {
-      linha, estado,
+      linha, estado, telas, ponteiro: palco.ponteiro,
       irPara(id) { lenis.scrollTo((focoDe(linha, id) / 100) * innerHeight); },
     };
 
+    // Paralaxe: a câmera fica no z do scroll e ganha por cima o deslocamento do ponteiro;
+    // os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
+    let textoAnterior = '';
+    function aplicarParalaxe(vh) {
+      const p = paralaxe(palco.ponteiro);
+      palco.camera.position.set(p.x, p.y, zDaCamera(vh));
+      palco.camera.rotation.set(p.giroX, p.giroY, 0);
+      const texto = `${p.textoX.toFixed(1)}|${p.textoY.toFixed(1)}`;
+      if (texto !== textoAnterior) {
+        textoAnterior = texto;
+        raiz.style.setProperty('--paralaxe-x', `${p.textoX.toFixed(1)}px`);
+        raiz.style.setProperty('--paralaxe-y', `${p.textoY.toFixed(1)}px`);
+      }
+    }
+
+    // Luz rasante: em cada tela, a luz fica onde o raio do ponteiro cruza o seu plano; a tela
+    // sob o cursor (a mais próxima atingida) recebe força 1, as demais 0,35, com transição suave.
+    const FORCA_SOB = 1;
+    const FORCA_DEMAIS = 0.35;
+    function aplicarLuz(dt) {
+      const raio = palco.raioDoPonteiro();
+      const pontos = telas.map((m) => pontoNaTela(m, raio));
+      let sob = -1;
+      pontos.forEach((p, i) => {
+        if (!p || p.t < 3 || p.u < 0 || p.u > 1 || p.v < 0 || p.v > 1) return;
+        if (sob < 0 || p.t < pontos[sob].t) sob = i;
+      });
+      telas.forEach((m, i) => {
+        const u = m.material.uniforms;
+        if (pontos[i]) u.uLuz.value.set(pontos[i].u, pontos[i].v);
+        u.uRelevo.value = suavizar(u.uRelevo.value, i === sob ? FORCA_SOB : FORCA_DEMAIS, dt);
+      });
+    }
+
     let indiceAtual = -1;
-    palco.aoQuadro((t) => {
+    palco.aoQuadro((t, dt) => {
       lenis.raf(t);
       const vh = (scrollY / innerHeight) * 100;
       const s = situar(linha, vh);
       estado.id = s.id;
       estado.local = s.local;
-      palco.camera.position.z = zDaCamera(vh);
+      aplicarParalaxe(vh);
+      aplicarLuz(dt);
       legendas.atualizar(vh);
       if (s.indice !== indiceAtual) { indiceAtual = s.indice; carregarJanela(indiceAtual); }
     });

@@ -10,6 +10,8 @@ html.travessia .parada {
   transition: opacity 0.45s ease;
 }
 html.travessia .parada.em-foco { opacity: 1; transition-duration: 0.7s; }
+/* paralaxe: os textos andam até 8 px contra o ponteiro (--paralaxe-*, escritas em main.js) */
+html.travessia .parada { translate: var(--paralaxe-x, 0px) var(--paralaxe-y, 0px); }
 html.travessia .parada.em-foco a { pointer-events: auto; }
 
 /* As <img> continuam no DOM para leitores de tela; quem desenha as pinturas é o palco. */
