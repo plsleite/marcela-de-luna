@@ -5,7 +5,12 @@ import { RELEVO } from '../config.js';
 export const ALTURA_LUZ = 0.15; // altura da luz sobre o plano, em UV: baixa = rasante
 export const RAIO_LUZ = 0.5;    // alcance da luz em torno do cursor, em UV
 export const GANHO = 3;
-export const PASSO_TEXELS = 2;   // distância dos 4 vizinhos no shader: relevo da pincelada, não do grão
+// Distância dos 4 vizinhos no shader: relevo da pincelada, não do grão. Constante em UV
+// (2 texels de uma textura de 1280 px de largura): trocar a resolução não muda o brilho.
+export const PASSO_UV = 2 / 1280;
+
+// Passo nos dois eixos para uma tela de proporção largura/altura (texel quadrado).
+export const passoDoRelevo = (proporcao) => ({ u: PASSO_UV, v: PASSO_UV * proporcao });
 
 // gx, gy: diferença de luminância entre os vizinhos (direita − esquerda, cima − baixo);
 // dx, dy: vetor do ponto até a luz, em UV; forca: 0..1 (0 = sem efeito).

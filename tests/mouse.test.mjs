@@ -1,6 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { suavizar, paralaxe } from '../site/js/core/paralaxe.js';
-import { fatorDeLuz } from '../site/js/core/luz.js';
+import { fatorDeLuz, passoDoRelevo } from '../site/js/core/luz.js';
 import { RELEVO } from '../site/js/config.js';
 
 const perto = (a, b, tol = 1e-9) => Math.abs(a - b) <= tol;
@@ -64,4 +64,10 @@ test('fatorDeLuz: sempre dentro de 1 ± RELEVO', () => {
       }
     }
   }
+});
+
+test('passoDoRelevo: constante em UV (2 texels de 1280 px), sem depender da resolução', () => {
+  const p = passoDoRelevo(0.75); // tela 3:4 (largura/altura)
+  assert.ok(perto(p.u, 2 / 1280));
+  assert.ok(perto(p.v, 2 / (1280 / 0.75))); // texel quadrado: 1280 px de largura → 1707 de altura
 });

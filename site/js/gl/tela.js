@@ -3,7 +3,7 @@
 // a única luz é a rasante do cursor, que só multiplica a cor (luminância, nunca matiz).
 import * as THREE from 'three';
 import { RELEVO } from '../config.js';
-import { ALTURA_LUZ, RAIO_LUZ, GANHO, PASSO_TEXELS } from '../core/luz.js';
+import { ALTURA_LUZ, RAIO_LUZ, GANHO, PASSO_UV } from '../core/luz.js';
 import { PINCELADA as PC } from '../core/abertura.js';
 
 const f = (v) => v.toFixed(4); // constante JS → literal GLSL
@@ -27,7 +27,7 @@ const float RELEVO = ${f(RELEVO)};
 const float ALTURA_LUZ = ${f(ALTURA_LUZ)};
 const float RAIO_LUZ = ${f(RAIO_LUZ)};
 const float GANHO = ${f(GANHO)};
-const float PASSO = ${f(PASSO_TEXELS)};
+const float PASSO = ${PASSO_UV.toFixed(8)}; // UV (mesmo de passoDoRelevo em core/luz.js)
 uniform sampler2D uMapa;
 uniform vec3 uCor;
 uniform float uTemMapa;
@@ -84,7 +84,7 @@ void main() {
     cor = mix(uCor, texture2D(uMapa, vUv).rgb, uTemMapa);
     float forca = uRelevo * uTemMapa;
     if (forca > 0.0) {
-      vec2 passo = PASSO / vec2(textureSize(uMapa, 0));
+      vec2 passo = vec2(PASSO, PASSO * uProporcao);
       float gx = lum(vUv + vec2(passo.x, 0.0)) - lum(vUv - vec2(passo.x, 0.0));
       float gy = lum(vUv + vec2(0.0, passo.y)) - lum(vUv - vec2(0.0, passo.y));
       fator = fatorDeLuz(gx, gy, uLuz - vUv, forca);

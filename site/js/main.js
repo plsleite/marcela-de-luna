@@ -1,6 +1,6 @@
-import { PILOTO_ULTIMA_PAGINA, DIST_FOCO } from './config.js';
+import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, FOV } from './config.js';
 import { montarBase } from './ui/base.js';
-import { criarLinha, situar, focoDe, alturaDaPagina } from './core/timeline.js';
+import { criarLinha, situar, focoDe, emFoco, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop } from './core/camera.js';
 import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
@@ -51,11 +51,11 @@ async function iniciarTravessia(stops, images) {
   const canvas = document.getElementById('gl');
   const [
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
-    { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { default: Lenis }, { gsap },
+    { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { default: Lenis }, { gsap },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
-    import('lenis'), import('gsap'),
+    import('./ui/mergulho-ui.js'), import('lenis'), import('gsap'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -64,6 +64,7 @@ async function iniciarTravessia(stops, images) {
   let lenis = null;
   let pincel = null; // { tinta, preenchimento, soltar }
   let abertura = null; // promessa de rodarAbertura, com .encerrar()
+  let mergulho = null; // criarMergulho: abrir, fechar, quadro, encerrar
   let ativo = true;
   // Único caminho de desmontagem (contexto perdido, erro num quadro ou erro na montagem):
   // para o laço, solta o scroll e mostra a página base na parada em que se estava.
@@ -72,6 +73,7 @@ async function iniciarTravessia(stops, images) {
     ativo = false;
     if (erro) console.error(erro);
     palco.parar();
+    mergulho?.encerrar();
     lenis?.destroy();
     abertura?.encerrar();
     if (pincel) { pincel.soltar(); pincel.tinta.liberar(); pincel.preenchimento.desfazer(); pincel = null; }
@@ -143,6 +145,9 @@ async function iniciarTravessia(stops, images) {
         else u.uTemMapa.value = 1;
       }
     }
+    // Durante o mergulho, a pintura aberta fica na maior largura disponível.
+    let imagemDoMergulho = null;
+    const larguraMaxima = (id) => images[id].larguras.at(-1);
     function carregarJanela(indice) {
       const conjunto = texturasNecessarias(linha, stops, indice);
       const dpr = Math.min(devicePixelRatio, 2);
@@ -150,7 +155,8 @@ async function iniciarTravessia(stops, images) {
         const m = telasDe(id)[0];
         if (!m) continue;
         const r = retanguloNoFoco(m);
-        texturas.pedir(id, larguraPara(r.dir - r.esq, dpr, images[id].larguras))
+        const largura = id === imagemDoMergulho ? larguraMaxima(id) : larguraPara(r.dir - r.esq, dpr, images[id].larguras);
+        texturas.pedir(id, largura)
           .then((tex) => { if (tex) aplicar(id, tex); })
           .catch((erro) => console.error(erro));
       }
@@ -168,16 +174,27 @@ async function iniciarTravessia(stops, images) {
     window.__site = {
       linha, estado, telas, ponteiro: palco.ponteiro,
       get abertura() { return abertura?.estado ?? null; },
-      irPara(id) { lenis.scrollTo((focoDe(linha, id) / 100) * innerHeight); },
+      // Toda navegação fecha o mergulho antes de agir.
+      irPara(id) { mergulho?.fechar(); lenis.scrollTo((focoDe(linha, id) / 100) * innerHeight); },
+      abrirMergulho(stopId, indiceTela = 0) {
+        mergulho?.abrir(telas.find((m) => m.userData.stopId === stopId && m.userData.indiceTela === indiceTela));
+      },
+      fecharMergulho() { mergulho?.fechar(); },
     };
 
     // Paralaxe: a câmera fica no z do scroll e ganha por cima o deslocamento do ponteiro;
     // os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
     let textoAnterior = '';
+    function poseDoScroll(vh = (scrollY / innerHeight) * 100) {
+      const p = paralaxe(palco.ponteiro);
+      return { x: p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: FOV };
+    }
     function aplicarParalaxe(vh) {
       const p = paralaxe(palco.ponteiro);
-      palco.camera.position.set(p.x, p.y, zDaCamera(vh));
-      palco.camera.rotation.set(p.giroX, p.giroY, 0);
+      const c = poseDoScroll(vh);
+      palco.camera.position.set(c.x, c.y, c.z);
+      palco.camera.rotation.set(c.rx, c.ry, 0);
+      if (palco.camera.fov !== c.fov) { palco.camera.fov = c.fov; palco.camera.updateProjectionMatrix(); } // depois do mergulho
       const texto = `${p.textoX.toFixed(1)}|${p.textoY.toFixed(1)}`;
       if (texto !== textoAnterior) {
         textoAnterior = texto;
@@ -232,7 +249,7 @@ async function iniciarTravessia(stops, images) {
       p.tinta = criarTinta(palco, { forca });
       p.preenchimento = criarPreenchimento(raiz);
       const aoMover = (e) => {
-        if (e.pointerType !== 'mouse') return;
+        if (e.pointerType !== 'mouse' || estado.mergulho) return;
         p.tinta.pintar(e.clientX, e.clientY, corDaParada(porId.get(estado.id), images));
         p.preenchimento.tocar(e.clientX, e.clientY);
       };
@@ -247,6 +264,32 @@ async function iniciarTravessia(stops, images) {
     }
     pincel = montarPincel();
 
+    // Mergulho: só a tela da parada em foco abre, e só depois da abertura. Dentro dele o scroll
+    // suavizado para, o pincel descansa e a pintura vem na maior largura.
+    const porId = new Map(stops.map((s) => [s.id, s]));
+    mergulho = criarMergulho({
+      palco, porId, images, telas, estado, poseDoScroll,
+      podeAbrir: (mesh) => abertura?.estado === 'fim'
+        && mesh.userData.stopId === emFoco(linha, (scrollY / innerHeight) * 100),
+      aoAbrir(mesh) {
+        lenis.stop();
+        pincel.tinta.ativa = false;
+        pincel.tinta.romper();
+        pincel.preenchimento.romper();
+        const id = mesh.userData.imagem;
+        imagemDoMergulho = id;
+        texturas.pedir(id, larguraMaxima(id))
+          .then((tex) => { if (tex && ativo) aplicar(id, tex); })
+          .catch((erro) => console.error(erro));
+      },
+      aoFechar() {
+        lenis.start();
+        pincel.tinta.ativa = true;
+        imagemDoMergulho = null;
+        if (indiceAtual >= 0) carregarJanela(indiceAtual); // volta à largura da janela
+      },
+    });
+
     let indiceAtual = -1;
     palco.aoQuadro((t, dt) => {
       pincel.obstaculos = null; // a câmera e os textos podem ter mudado
@@ -255,7 +298,7 @@ async function iniciarTravessia(stops, images) {
       const s = situar(linha, vh);
       estado.id = s.id;
       estado.local = s.local;
-      aplicarParalaxe(vh);
+      if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
       aplicarLuz(dt);
       legendas.atualizar(vh);
       if (s.indice !== indiceAtual) { indiceAtual = s.indice; carregarJanela(indiceAtual); }

@@ -123,3 +123,60 @@ html.travessia .parada--capa .nome.abertura-enche {
 @media (prefers-reduced-motion: reduce) {
   html.travessia .parada, html.travessia .corpo .palavra { transition: none; }
 }
+
+/* ---------- mergulho (mergulho-ui.js) ----------
+   Com html.mergulhando, os textos da travessia somem e a câmera está dentro de uma tela.
+   A interface (título, ficha, "voltar" e as marcas dos closes) é DOM real sobre o palco. */
+html.travessia.pode-mergulhar { cursor: zoom-in; }
+html.travessia.mergulhando { cursor: grab; }
+html.travessia.mergulhando.arrastando { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+html.travessia.mergulhando .parada.em-foco { opacity: 0; transition-duration: 0.35s; }
+html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
+
+.mergulho {
+  position: fixed; inset: 0; z-index: 4; pointer-events: none;
+  animation: mergulho-entra 0.5s ease 0.35s both;
+}
+@keyframes mergulho-entra { from { opacity: 0; } to { opacity: 1; } }
+.mergulho button { pointer-events: auto; font: inherit; color: inherit; cursor: pointer; }
+.mergulho-voltar {
+  position: absolute; top: clamp(1rem, 3vh, 2rem); left: clamp(1rem, 2.4vw, 2.2rem);
+  padding: 0.45rem 1.05rem 0.5rem; border: 1px solid #000; border-radius: 999px;
+  background: rgb(255 255 255 / 0.88); font-size: 0.85rem; font-weight: 400; letter-spacing: 0.04em; line-height: 1;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.mergulho-voltar:hover { background: #000; color: #fff; }
+.mergulho-voltar:focus-visible, .mergulho-marca:focus-visible { outline: 2px solid #305fa3; outline-offset: 3px; }
+.mergulho-ficha {
+  position: absolute; left: clamp(1rem, 2.4vw, 2.2rem); bottom: clamp(1rem, 4vh, 2.4rem);
+  max-width: min(18rem, 24vw); font-size: 0.8rem; line-height: 1.35;
+  /* sobre a pintura ampliada o texto continua legível; na margem branca o fundo não aparece */
+  padding: 0.85rem 1rem 0.8rem; margin: -0.85rem -1rem -0.8rem; background: rgb(255 255 255 / 0.86);
+}
+.mergulho-titulo {
+  margin: 0 0 0.6rem; padding-bottom: 0.6rem; border-bottom: 1px solid #000;
+  font-weight: 300; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1;
+  font-size: clamp(0.95rem, 1.3vw, 1.25rem);
+}
+/* marca de close: um anel discreto que respira; posição (transform) escrita a cada quadro */
+.mergulho-marca {
+  position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; padding: 0;
+  border: 0; border-radius: 50%; background: none;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+}
+.mergulho-marca::before, .mergulho-marca::after {
+  content: ''; position: absolute; border-radius: 50%; inset: 7px;
+  border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25), 0 1px 6px rgb(0 0 0 / 0.25);
+}
+.mergulho-marca::after { inset: 0; border-width: 1px; box-shadow: none; opacity: 0.7; animation: mergulho-respira 2.4s ease-in-out infinite; }
+@keyframes mergulho-respira { 0%, 100% { transform: scale(0.55); opacity: 0; } 50% { transform: scale(1); opacity: 0.7; } }
+.mergulho-marca:hover::before { background: rgb(255 255 255 / 0.35); }
+.mergulho.livre .mergulho-marca { opacity: 1; pointer-events: auto; }
+.mergulho.com-detalhe .mergulho-marca { opacity: 0; pointer-events: none; }
+/* o close cresce da marca até a janela (gsap no transform da imagem) */
+.mergulho-detalhe { position: fixed; inset: 0; z-index: 3; background: #fff; cursor: zoom-out; }
+.mergulho-detalhe img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mergulho, .mergulho-marca::after { animation: none; }
+}

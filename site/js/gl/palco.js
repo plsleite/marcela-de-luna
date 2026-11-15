@@ -45,6 +45,24 @@ export function criarPalco(canvas) {
     return lancador.ray;
   }
 
+  // Tela (Mesh com userData.stopId) mais próxima da câmera sob o ponto (x, y) em px da janela,
+  // ou null. Ignora as invisíveis: opacidade 0, rente à câmera ou sumidas no branco ao longe
+  // (as mesmas distâncias em que o shader de gl/tela.js as deixa transparentes).
+  const lancadorDoPonto = new THREE.Raycaster();
+  const ndcDoPonto = new THREE.Vector2();
+  const _local = new THREE.Vector3();
+  function telaSob(x, y) {
+    camera.updateMatrixWorld();
+    lancadorDoPonto.setFromCamera(ndcDoPonto.set((x / innerWidth) * 2 - 1, 1 - (y / innerHeight) * 2), camera);
+    const telas = cena.children.filter((o) => o.isMesh && o.visible && o.userData.stopId !== undefined
+      && o.material.uniforms?.uOpacidade?.value > 0);
+    for (const hit of lancadorDoPonto.intersectObjects(telas, false)) {
+      const dist = -_local.copy(hit.point).applyMatrix4(camera.matrixWorldInverse).z;
+      if (dist > 1.5 && dist < 28) return hit.object;
+    }
+    return null;
+  }
+
   const fns = [];
   const aoQuadro = (fn) => { fns.push(fn); };
   const erros = [];
@@ -81,5 +99,5 @@ export function criarPalco(canvas) {
     }
   });
 
-  return { cena, camera, renderer, ponteiro, raioDoPonteiro, aoQuadro, aoErro, redimensionar, parar };
+  return { cena, camera, renderer, ponteiro, raioDoPonteiro, telaSob, aoQuadro, aoErro, redimensionar, parar };
 }
