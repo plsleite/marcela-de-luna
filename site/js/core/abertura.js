@@ -6,7 +6,8 @@ export const ABERTURA = {
   revela: 1.6,           // s: uRevela de 0 a 1
   intervaloLetras: 0.04, // s entre as letras de "PORTFÓLIO"
   atrasoDoTraco: 0.2,    // s: se tudo ficar pronto antes, o traço de carregamento nem aparece
-  larguraDaCapa: 1280,   // px da textura da capa que a abertura espera
+  larguraDaCapa: 640,    // px da textura da capa que a abertura espera (a da janela vem depois)
+  prazo: 4,              // s: teto da espera pelo carregamento; depois, estado final sem revelação
 };
 
 // Pinceladas: faixas paralelas na diagonal (ANGULO, subindo para a direita), cada uma com o seu

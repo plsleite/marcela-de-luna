@@ -12,7 +12,8 @@ test('ABERTURA: valores do brief', () => {
   assert.equal(ABERTURA.revela, 1.6);
   assert.equal(ABERTURA.intervaloLetras, 0.04);
   assert.equal(ABERTURA.atrasoDoTraco, 0.2);
-  assert.equal(ABERTURA.larguraDaCapa, 1280);
+  assert.equal(ABERTURA.larguraDaCapa, 640); // a revelação começa com a capa leve
+  assert.equal(ABERTURA.prazo, 4);           // s: teto da espera pelo carregamento
 });
 
 test('fracaoCarregada: feitos sobre o total, entre 0 e 1', () => {

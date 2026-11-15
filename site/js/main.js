@@ -126,8 +126,9 @@ async function iniciarTravessia(stops, images) {
     };
 
     // Carregamento progressivo: só as texturas da janela em torno da parada atual.
-    const lento = new URLSearchParams(location.search).get('lento') === '1';
-    const texturas = criarTexturas(images, { renderer: palco.renderer, atraso: lento ? 1500 : 0 });
+    // Depuração: ?lento=1 atrasa cada textura em 1,5 s; ?lento=trava nunca entrega a capa da abertura.
+    const lento = new URLSearchParams(location.search).get('lento');
+    const texturas = criarTexturas(images, { renderer: palco.renderer, atraso: lento === '1' ? 1500 : 0 });
     const telasDe = (id) => telas.filter((m) => m.userData.imagem === id);
     // esmaecer: a primeira textura entra sobre a cor dominante em 0,6 s (a capa, na abertura,
     // entra direto: quem a mostra são as pinceladas).
@@ -265,27 +266,33 @@ async function iniciarTravessia(stops, images) {
     indiceAtual = inicio.indice;
     estado.id = inicio.id;
 
-    // Abertura: só a fonte e a capa (em 1280) bloqueiam; content.json e images.json já chegaram.
-    // Do topo, a capa vem antes de tudo (o resto da janela espera por ela para não disputar a
-    // rede); recarregada no meio da página, a janela carrega já e a abertura só espera a fonte.
+    // Abertura: só a fonte e a capa (em 640, leve) bloqueiam; content.json e images.json já
+    // chegaram. Do topo, a capa vem antes de tudo: o resto da janela (inclusive a capa na largura
+    // certa, que troca sem salto quando chegar) espera por ela, ou pelo fim da abertura se a capa
+    // travar. Recarregada no meio da página, a janela carrega já e a abertura só espera a fonte.
     const fonte = document.fonts ? document.fonts.load('1em Outfit') : Promise.resolve();
     const telaDaCapa = stops[0].tipo === 'capa' ? telas.find((m) => m.userData.stopId === stops[0].id) : null;
     const etapas = [Promise.resolve(), Promise.resolve(), fonte];
+    let capa = null;
     if (telaDaCapa && scrollY <= 0) {
       const id = telaDaCapa.userData.imagem;
       const larguras = images[id].larguras;
       const largura = larguras.includes(ABERTURA.larguraDaCapa) ? ABERTURA.larguraDaCapa : larguras[0];
-      const capa = texturas.pedir(id, largura).then((tex) => {
+      capa = lento === 'trava' ? new Promise(() => {}) : texturas.pedir(id, largura).then((tex) => {
         if (tex && ativo) aplicar(id, tex, abertura?.estado !== 'carregando');
       });
-      capa.catch((erro) => console.error(erro))
-        .finally(() => { if (ativo) carregarJanela(indiceAtual); });
+      capa.catch((erro) => console.error(erro));
       etapas.push(capa);
     } else {
       carregarJanela(indiceAtual); // já pede as texturas da parada inicial, sem esperar o primeiro quadro
     }
     const fundo = telas.filter((m) => m !== telaDaCapa);
     abertura = rodarAbertura({ telaDaCapa, pronto: Promise.all(etapas), etapas, fundo });
+    if (capa) {
+      Promise.race([capa, abertura]).catch(() => {}) // erro da capa já registrado acima
+        .then(() => { if (ativo) carregarJanela(indiceAtual); })
+        .catch(desmontar);
+    }
     addEventListener('resize', () => {
       if (!ativo) return;
       try {

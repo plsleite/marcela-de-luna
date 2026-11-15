@@ -52,6 +52,9 @@ export function rodarAbertura({ telaDaCapa, pronto, etapas = [pronto], fundo = [
 
   // ---------- traço de carregamento ----------
   const fracao = () => fracaoCarregada(feitos, etapas.length);
+  // Teto da espera: se `pronto` não resolver em ABERTURA.prazo (rede travada sem erro), a
+  // página vai ao estado final; a capa entra depois, quando chegar. A revelação já em curso segue.
+  const prazo = setTimeout(() => { if (estado === 'carregando') terminar(); }, ABERTURA.prazo * 1000);
   const temporizador = setTimeout(() => {
     if (terminado || estado !== 'carregando') return;
     traco = document.createElement('div');
@@ -84,6 +87,7 @@ export function rodarAbertura({ telaDaCapa, pronto, etapas = [pronto], fundo = [
   function comecar() {
     if (terminado) return;
     clearTimeout(temporizador);
+    clearTimeout(prazo);
     estado = 'revelando';
     linha = gsap.timeline({ onComplete: terminar });
     let t0 = 0;
@@ -136,9 +140,12 @@ export function rodarAbertura({ telaDaCapa, pronto, etapas = [pronto], fundo = [
       spans.push(s);
     }
     titulo.replaceChildren(frag);
+    // mede o glifo do mesmo jeito (Range sobre o texto), não a caixa do inline-block
+    const faixa = document.createRange();
     spans.forEach((s, i) => {
       if (!s || !antes[i]) return;
-      const r = s.getBoundingClientRect();
+      faixa.selectNodeContents(s);
+      const r = faixa.getBoundingClientRect();
       gsap.set(s, { x: antes[i].left - r.left, y: antes[i].top - r.top });
     });
     return spans.filter(Boolean);
@@ -157,6 +164,7 @@ export function rodarAbertura({ telaDaCapa, pronto, etapas = [pronto], fundo = [
     terminado = true;
     estado = 'fim';
     clearTimeout(temporizador);
+    clearTimeout(prazo);
     linha?.kill();
     removeEventListener('wheel', aoRolar);
     removeEventListener('touchmove', aoRolar);
