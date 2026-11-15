@@ -1,6 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { criarLinha } from '../site/js/core/timeline.js';
-import { duracaoDaViagem, curvaDaViagem, paradaMaisProxima, destinoDaTecla, marcasDaFileira } from '../site/js/core/navegacao.js';
+import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira } from '../site/js/core/navegacao.js';
 
 const perto = (a, b, tol = 1e-9) => Math.abs(a - b) < tol;
 
@@ -87,4 +87,18 @@ test('marcasDaFileira: uma marca por parada, pinceladas nas obras, grupos por s�
   assert.deepEqual(m.map((x) => x.forma), ['traco', 'traco', 'traco', 'pincelada', 'pincelada', 'pincelada']);
   assert.deepEqual(m.map((x) => x.cor), [null, null, null, '#aa0000', '#333333', null]); // acento da 1ª tela; reserva: cor
   assert.deepEqual(m.map((x) => x.novoGrupo), [false, false, true, false, false, true]);
+});
+
+test('impulsoDaRoda: só soma o impulso da viagem quando a roda vai no mesmo sentido', () => {
+  assert.equal(impulsoDaRoda(100, 2700, 5.4), 600);    // descendo: 100 + 2700/5,4
+  assert.equal(impulsoDaRoda(-100, -2700, 5.4), -600); // subindo
+  assert.equal(impulsoDaRoda(-100, 2700, 5.4), -100);  // sentido contrário: a roda manda
+  assert.equal(impulsoDaRoda(100, -2700, 5.4), 100);
+  assert.equal(impulsoDaRoda(0, 2700, 5.4), 0);        // sem deltaY vertical, nada muda
+  assert.equal(impulsoDaRoda(100, 0, 5.4), 100);
+  assert.equal(impulsoDaRoda(100, NaN, 5.4), 100);     // valores não finitos: sem impulso
+  assert.equal(impulsoDaRoda(100, Infinity, 5.4), 100);
+  assert.equal(impulsoDaRoda(100, 2700, 0), 100);
+  assert.equal(impulsoDaRoda(100, 2700, NaN), 100);
+  assert.ok(Number.isNaN(impulsoDaRoda(NaN, 2700, 5.4))); // deltaY inválido passa adiante intacto
 });

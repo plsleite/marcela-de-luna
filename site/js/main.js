@@ -174,7 +174,8 @@ async function iniciarTravessia(stops, images) {
     }
 
     const LERP = 0.09;
-    // virtualScroll só intervém com uma viagem em andamento (a roda herda a velocidade dela).
+    // virtualScroll só intervém com uma viagem em andamento (a roda no mesmo sentido herda a
+    // velocidade dela). Depende do Lenis 1.3.27 vendorizado ler data.deltaY depois do gancho.
     lenis = new Lenis({ lerp: LERP, virtualScroll: (dados) => { navegacao?.aoRolarVirtual(dados); } });
     navegacao = criarNavegacao({
       linha, stops, images, lenis, amortecimento: LERP * 60, antes: raiz,

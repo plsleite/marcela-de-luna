@@ -4,7 +4,7 @@
 // a atual sem tranco (a nova parte na velocidade em que a página já ia).
 // Tudo o que este módulo cria (elementos e ouvintes) sai em encerrar().
 import { focoDe, emFoco } from '../core/timeline.js';
-import { duracaoDaViagem, curvaDaViagem, paradaMaisProxima, destinoDaTecla, marcasDaFileira } from '../core/navegacao.js';
+import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira } from '../core/navegacao.js';
 
 const FOLGA = 250; // ms depois do fim previsto em que a viagem ainda conta como em andamento
 
@@ -44,11 +44,14 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
       onComplete: () => { if (viagem === v) viagem = null; },
     });
   }
-  // Roda no meio da viagem: o Lenis passa a seguir a roda pelo amortecimento; somar ao primeiro
-  // passo o caminho que a velocidade atual percorreria faz a página desacelerar em vez de frear.
+  // Roda no meio da viagem: o Lenis troca a viagem pelo amortecimento da roda. No mesmo sentido,
+  // o primeiro passo herda o impulso da viagem (impulsoDaRoda); no contrário, a roda manda.
+  // Depende do Lenis 1.3.27 vendorizado (site/vendor/lenis.mjs), que chama o gancho
+  // virtualScroll ANTES de ler data.deltaY: mudar `dados.deltaY` aqui muda o passo. Se a
+  // versão mudar, conferir essa ordem em onVirtualScroll.
   function aoRolarVirtual(dados) {
     if (!viajando() || !dados.event?.type?.includes('wheel') || dados.event.ctrlKey || !dados.deltaY) return;
-    dados.deltaY += velocidade / amortecimento;
+    dados.deltaY = impulsoDaRoda(dados.deltaY, velocidade, amortecimento);
     viagem = null;
   }
   const cancelar = () => { viagem = null; };

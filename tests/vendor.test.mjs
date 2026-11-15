@@ -14,3 +14,10 @@ test('fonte e index sem URL remota', () => {
   assert.doesNotMatch(html, /(src|href)=["']https?:/);
   assert.match(html, /name="robots" content="noindex, nofollow"/);
 });
+test('Lenis fixo em 1.3.27, lendo deltaY depois do gancho virtualScroll (navegacao.js depende disso)', () => {
+  const txt = readFileSync('site/vendor/lenis.mjs', 'utf8');
+  assert.match(txt, /var version = "1\.3\.27";/);
+  const gancho = txt.indexOf('this.options.virtualScroll(data)');
+  const leitura = txt.indexOf('const { deltaX, deltaY, event } = data;');
+  assert.ok(gancho > 0 && leitura > gancho);
+});

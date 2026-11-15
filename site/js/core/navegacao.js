@@ -22,6 +22,16 @@ export function curvaDaViagem(k = 0) {
   };
 }
 
+// Roda girada no meio de uma viagem: o primeiro passo da roda (deltaY, px) herda o caminho que a
+// velocidade atual (px/s) percorreria sob o amortecimento do Lenis (1/s), para a página
+// desacelerar em vez de frear. Só no mesmo sentido do gesto: no sentido contrário (ou sem
+// deltaY, ou com valores não finitos) a roda segue intacta e manda.
+export function impulsoDaRoda(deltaY, velocidade, amortecimento) {
+  if (!deltaY || !Number.isFinite(deltaY) || !Number.isFinite(velocidade) || !Number.isFinite(amortecimento) || amortecimento <= 0) return deltaY;
+  if (Math.sign(deltaY) !== Math.sign(velocidade)) return deltaY;
+  return deltaY + velocidade / amortecimento;
+}
+
 export function paradaMaisProxima(linha, vh) {
   let melhor = linha.itens[0];
   for (const it of linha.itens) if (Math.abs(vh - it.foco) < Math.abs(vh - melhor.foco)) melhor = it;
