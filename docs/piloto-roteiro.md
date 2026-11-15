@@ -31,19 +31,19 @@ Use um computador (notebook ou desktop) com mouse ou trackpad. O Chrome é o nav
 
 Faça com calma. Se algo parecer estranho, anote o que você fez e o que viu.
 
-1. **A abertura.** Recarregue a página (Cmd+R). Você deve ver a tela branca, a pintura da capa surgir por pinceladas, "PORTFÓLIO" subir letra a letra e "MARCELA DE LUNA" se encher de tinta. Deve levar poucos segundos.
+1. **A abertura.** A abertura só acontece com a página no topo. Se você já rolou, volte à capa (clique em "MARCELA DE LUNA" no canto ou aperte Home) e recarregue a página (Cmd+R). Você deve ver a tela branca, a pintura da capa surgir por pinceladas, "PORTFÓLIO" subir letra a letra e "MARCELA DE LUNA" se encher de tinta. Deve levar poucos segundos.
 2. **Rolar.** Neste roteiro, "travessia" é o modo animado do site: a câmera avança por um espaço branco e cada página do PDF é uma parada. Role devagar, com o mouse ou o trackpad, do topo até o fim. Você deve ver a câmera avançar: a capa se abre, aparece a Pesquisa Artística com o texto, depois A Bailarina e as três obras. Nada deve travar nem pular. A barra de rolagem funciona normalmente.
 3. **Mexer o mouse.** Com uma obra em foco (por exemplo, A Dança é por Ela), mova o mouse devagar. Você deve ver duas coisas discretas: as camadas se deslocam um pouco (paralaxe) e uma luz acompanha o cursor, deixando o relevo das pinceladas aparecer. As cores da pintura não devem mudar. Com o mouse parado, nada deve tremer.
-4. **Pintar o fundo.** Passe o mouse no fundo branco. Deve surgir uma pincelada com textura de cerdas, na cor da pintura mais próxima, que some aos poucos. A tinta nunca deve cobrir uma pintura nem o texto.
+4. **Pintar o fundo.** Passe o mouse no fundo branco. Deve surgir uma pincelada com textura de cerdas, que some aos poucos. A tinta sai num de quatro pigmentos da paleta da artista (azul, rosa, magenta e laranja), escolhido pela pintura mais próxima: não é a cor exata da pintura, é o pigmento da paleta que mais combina com ela. A tinta nunca deve cobrir uma pintura nem o texto.
 5. **Pintar os títulos.** Passe o mouse sobre um título grande, como "PESQUISA ARTÍSTICA" ou "A BAILARINA". As letras devem se encher de pintura.
-6. **Clicar numa tela.** Com uma obra em foco, clique nela. O "mergulho" é isso: a câmera chega bem perto até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse para aproximar e arraste para mover a pintura.
-7. **Abrir um close.** Em A Dança é por Ela há uma pequena marca sobre a pintura. Neste piloto, só ela tem marca de detalhe. Clique na marca: abre o close em alta resolução. Aperte **Esc** uma vez para voltar à tela e **Esc** de novo para voltar à travessia, no mesmo ponto onde você estava. (A lista de todas as ligações entre closes e telas está em `docs/closes.md`. As outras ligações são de obras que ainda não existem neste piloto, então você só confere a de A Dança é por Ela agora.)
+6. **Clicar numa tela.** Com uma obra em foco, clique nela. O "mergulho" é isso: a câmera chega bem perto até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse (ou a pinça no trackpad) para aproximar e arraste para mover a pintura. Só as obras abrem assim: clicar na pintura da capa ou nos recortes da Pesquisa Artística, quando estão em foco, não faz nada. Clicar numa tela que está ao longe leva até ela.
+7. **Abrir um close.** Em A Dança é por Ela há uma pequena marca sobre a pintura. Neste piloto, só ela tem marca de detalhe. Clique na marca: abre o close em alta resolução. Aperte **Esc** uma vez para voltar à tela e **Esc** de novo para voltar à travessia, no mesmo ponto onde você estava. Cada Esc volta um nível: do close para a tela, da tela para a travessia; na travessia, o Esc não faz nada. (A lista de todas as ligações entre closes e telas está em `docs/closes.md`. As outras ligações são de obras que ainda não existem neste piloto, então você só confere a de A Dança é por Ela agora.)
 8. **Sair do mergulho de outros jeitos.** Entre de novo numa tela e saia pelo botão "voltar", depois rolando a roda para baixo sem ter aproximado, depois com a seta para baixo do teclado. Esc e "voltar" devolvem ao mesmo ponto; a seta para baixo fecha o mergulho e já leva à parada seguinte. Em todos os casos você não deve ficar preso.
 9. **A fileira de pinceladas.** Na borda direita há uma fileira vertical de marcas, uma por parada. Passe o mouse: aparece o título. Clique: a câmera viaja até lá. A marca da parada atual fica mais comprida. Clique em marcas diferentes com a página parada e também logo depois de rolar rápido, e diga se a câmera sempre parou na obra escolhida.
 10. **As setas e a barra de espaço.** Com a página em foco, use seta para baixo, seta para cima e barra de espaço: cada toque leva à parada seguinte ou anterior.
 11. **O nome no canto.** Clique em "MARCELA DE LUNA" no canto superior esquerdo: volta à capa.
 12. **Recarregar no meio.** Role até a metade, recarregue a página. Ela deve abrir na mesma parada, sem repetir a abertura por cima do conteúdo.
-13. **Mudar o tamanho da janela.** Aumente e diminua a janela com uma obra em foco. A tela deve continuar inteira na janela e a ficha não deve cobrir a pintura.
+13. **Mudar o tamanho da janela.** Com uma obra em foco, aumente e diminua a janela (inclusive deixando-a estreita, quase quadrada, ou abrindo o painel do desenvolvedor ao lado). Você deve continuar na mesma obra, com a pintura inteira na janela (numa janela estreita ela fica menor, com mais branco acima e abaixo) e a ficha sem cobrir a pintura. Faça o mesmo com uma tela aberta no mergulho e depois saia: deve voltar ao mesmo ponto. Por fim, recarregue a página: ela reabre na mesma obra.
 
 ## 3. O que ainda não existe neste piloto
 
@@ -61,9 +61,10 @@ Eu não tenho Safari para testar. Abra o piloto no Safari do seu Mac (use o mesm
 2. Rolar do topo ao fim é fluido e nada trava.
 3. O mouse deixa pinceladas no fundo e enche os títulos.
 4. Clicar numa tela mergulha, e o botão "voltar" e o Esc funcionam.
-5. A fileira de pinceladas na direita leva às paradas.
-6. As letras de "MARCELA DE LUNA" e dos subtítulos aparecem preenchidas com pintura.
-7. Se algo aparecer em branco, preto ou cortado, anote em qual passo.
+5. No mergulho, o gesto de pinça no trackpad aproxima a pintura (e não a página inteira)? Este ponto eu fiz sem poder testar.
+6. A fileira de pinceladas na direita leva às paradas.
+7. As letras de "MARCELA DE LUNA" e dos subtítulos aparecem preenchidas com pintura.
+8. Se algo aparecer em branco, preto ou cortado, anote em qual passo.
 
 ## 4b. O que conferir com movimento reduzido
 
@@ -80,7 +81,7 @@ Para cada uma, responda "está bom", "mais" ou "menos", e, se puder, diga por qu
 2. **Força da paralaxe.** O deslocamento com o mouse está sutil demais, na medida ou forte demais?
 3. **Força da luz.** A luz que acompanha o cursor deixa o relevo aparecer o bastante? Alguma vez parece alterar a cor da pintura?
 4. **Duração da tinta do pincel.** A pincelada some rápido demais, na medida ou fica tempo demais?
-5. **Cor da tinta do pincel.** A cor tirada da pintura mais próxima combina? Prefere mais viva, mais suave, ou uma cor só?
+5. **Cor da tinta do pincel.** Os quatro pigmentos (azul, rosa, magenta e laranja) estão certos? O pigmento escolhido para cada pintura combina com ela? Prefere mais vivo, mais suave, ou uma cor só?
 6. **Pesos da fonte.** Compare com o PDF: o título grande (pesado), o título de obra (leve) e o texto corrido (leve, com negritos) têm o mesmo peso e a mesma presença do original?
 7. **Posição das legendas.** O título e a ficha ao lado de cada obra estão bem colocados? Cobrem alguma coisa? Ficam longe ou perto demais da pintura?
 8. **A abertura.** A duração, o gesto das pinceladas e a entrada de "PORTFÓLIO" e do nome estão como você imaginava? Gostaria mais rápida, mais lenta ou diferente?
@@ -89,12 +90,10 @@ Para cada uma, responda "está bom", "mais" ou "menos", e, se puder, diga por qu
 
 ## 6. Problemas conhecidos
 
-Estes eu encontrei ao conferir. Não foram consertados, porque esta etapa é só de conferência.
+Estes eu encontrei ao conferir e ainda não foram consertados.
 
-- **Redimensionar a janela muda a parada.** Ao aumentar ou diminuir a janela no meio da página, você pode ser levado a outra parada (por exemplo, estava em A Dança é por Ela e passa para A Bailarina). A tela não quebra; só o ponto de leitura se desloca.
 - **"PORTFÓLIO" cortado na versão simples.** Na página sem animação (celular, por exemplo), a palavra "PORTFÓLIO" é branca e invade a base da pintura; a parte que cai no fundo branco some.
 - **Imagem da capa baixada duas vezes.** A capa pequena é carregada mais de uma vez ao abrir. Não se vê nada, mas gasta internet à toa.
-- **Ícone do site.** O navegador procura um ícone e não acha. É só um aviso na lista de pedidos; não aparece para você.
 - **Legenda atrasada.** Logo depois de mudar de parada, a legenda da parada anterior pode ficar um instante na tela. Se durar, avise.
 - **Primeira tela de Intervalo perto do nome.** Em algumas janelas, a primeira pintura de Intervalo chega a poucos pixels de "MARCELA DE LUNA" no canto.
 - **Telas que ainda não chegaram.** Quando você salta para uma parada que ainda não carregou, as telas aparecem primeiro na cor dominante e depois ganham a imagem. É de propósito. Se você enxergar um clarão branco inteiro durante um salto longo, avise: eu não consegui confirmar se isso é do site ou do meu teste.
