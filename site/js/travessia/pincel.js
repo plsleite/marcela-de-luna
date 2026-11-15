@@ -1,11 +1,12 @@
 // Pincel (só com mouse): tinta no fundo branco, na cor viva da tela da parada atual, e letras
 // dos títulos que se enchem de pintura. Não deposita sobre as telas; passa por baixo de todo
-// texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura).
+// texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura), e não
+// chega aos controles marcados com data-barra-tinta (nome, som, fileira).
 // Recebe tudo por parâmetro: palco, raiz, telas, porId (Map id → stop), images, estado
 // (estado.id, estado.mergulho), criarTinta (gl/tinta.js), criarPreenchimento (ui/preenchimento.js)
 // e retanguloProjetado (gl/tela.js).
 import { aoAlcance } from '../core/janela.js';
-import { corDaParada, distanciaAoRetangulo, forcaSobreTexto } from '../core/pincel.js';
+import { corDaParada, distanciaAoRetangulo, forcaJuntoAosControles, forcaSobreTexto } from '../core/pincel.js';
 
 export function montarPincel({ palco, raiz, telas, porId, images, estado, criarTinta, criarPreenchimento, retanguloProjetado }) {
   const p = { obstaculos: null };
@@ -23,12 +24,26 @@ export function montarPincel({ palco, raiz, telas, porId, images, estado, criarT
       const b = el.getBoundingClientRect();
       return { esq: b.left, dir: b.right, topo: b.top, base: b.bottom };
     });
-    return { telasNaJanela, paragrafos };
+    // lidos a cada quadro (o cache é limpo em limparObstaculos): os controles podem aparecer,
+    // sumir, mudar de tamanho ou de lugar; os invisíveis (visibility, opacidade 0) não barram
+    const controles = [];
+    for (const el of document.querySelectorAll('[data-barra-tinta]')) {
+      if (!visivel(el)) continue;
+      const b = el.getBoundingClientRect();
+      if (b.width > 0 && b.height > 0) controles.push({ esq: b.left, dir: b.right, topo: b.top, base: b.bottom });
+    }
+    return { telasNaJanela, paragrafos, controles };
+  }
+  function visivel(el) {
+    if (el.checkVisibility) return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+    const cs = getComputedStyle(el);
+    return cs.visibility === 'visible' && cs.display !== 'none' && Number(cs.opacity) > 0;
   }
   const forca = (x, y) => {
     const o = (p.obstaculos ??= obstaculos());
     if (o.telasNaJanela.some((r) => distanciaAoRetangulo(x, y, r) === 0)) return 0;
-    return forcaSobreTexto({ x, y }, o.paragrafos, { dentro: 0.3, faixa: 40 });
+    const c = o.controles.length ? forcaJuntoAosControles({ x, y }, o.controles) : 1;
+    return c > 0 ? Math.min(c, forcaSobreTexto({ x, y }, o.paragrafos, { dentro: 0.3, faixa: 40 })) : 0;
   };
   const tinta = criarTinta(palco, { forca });
   const preenchimento = criarPreenchimento(raiz);

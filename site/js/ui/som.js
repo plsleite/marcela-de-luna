@@ -88,6 +88,7 @@ export function criarSom() {
     botao = document.createElement('button');
     botao.type = 'button';
     botao.className = 'som';
+    botao.dataset.barraTinta = ''; // o pincel não pinta sob o botão (travessia/pincel.js)
     for (let i = 0; i < 3; i++) {
       const barra = document.createElement('span');
       barra.setAttribute('aria-hidden', 'true');

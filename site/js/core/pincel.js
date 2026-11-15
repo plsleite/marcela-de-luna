@@ -122,3 +122,10 @@ export function forcaSobreTexto(p, retangulos, { dentro = 0.3, faixa = 40 } = {}
   const t = d / faixa;
   return dentro + (1 - dentro) * t * t * (3 - 2 * t);
 }
+
+// Força do depósito junto aos controles da interface (nome, som, fileira): 0 dentro do controle
+// e até `margem` px dele, subindo suave até 1 em mais `rampa` px.
+export function forcaJuntoAosControles(p, retangulos, { margem = 10, rampa = 24 } = {}) {
+  const largos = retangulos.map((r) => ({ esq: r.esq - margem, dir: r.dir + margem, topo: r.topo - margem, base: r.base + margem }));
+  return forcaSobreTexto(p, largos, { dentro: 0, faixa: rampa });
+}

@@ -85,6 +85,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   if (capa?.nome) {
     topo = criar('header', 'topo-site');
     const a = criar('a', 'topo-nome');
+    a.dataset.barraTinta = ''; // o pincel não pinta sob o nome (travessia/pincel.js)
     a.href = `#${capa.id}`;
     a.textContent = capa.nome;
     a.addEventListener('click', (e) => { e.preventDefault(); soltarFocoDoPonteiro(e); irPara(capa.id); });
@@ -97,6 +98,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   const titulo = criar('span', 'navegacao-titulo');
   titulo.setAttribute('aria-hidden', 'true'); // o nome já está no aria-label de cada marca
   const lista = criar('ol', 'navegacao-lista');
+  lista.dataset.barraTinta = ''; // nem sob a fileira
   const marcas = marcasDaFileira(stops, images);
   const botoes = [];
   for (const m of marcas) {
