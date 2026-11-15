@@ -70,12 +70,27 @@ export function criarPalco(canvas) {
   const aoQuadro = (fn) => { fns.push(fn); };
   const erros = [];
   const aoErro = (fn) => { erros.push(fn); };
-  // Para o laço e solta os ouvintes do ponteiro.
+
+  // Densidade que muda sem o tamanho mudar (janela levada a outro monitor): o mesmo caminho do
+  // resize, para o canvas e para quem ouve o resize. A consulta vale para uma densidade só:
+  // é rearmada a cada troca.
+  let densidade = null;
+  const aoTrocarDensidade = () => { armarDensidade(); dispatchEvent(new Event('resize')); };
+  function armarDensidade() {
+    densidade?.removeEventListener('change', aoTrocarDensidade);
+    densidade = matchMedia(`(resolution: ${devicePixelRatio}dppx)`);
+    densidade.addEventListener('change', aoTrocarDensidade);
+  }
+  armarDensidade();
+
+  // Para o laço e solta os ouvintes do ponteiro e da densidade.
   const parar = () => {
     renderer.setAnimationLoop(null);
     removeEventListener('pointermove', aoMover);
     document.removeEventListener('mouseout', aoSair);
     removeEventListener('blur', aoCentro);
+    densidade?.removeEventListener('change', aoTrocarDensidade);
+    densidade = null;
   };
 
   function redimensionar() {
