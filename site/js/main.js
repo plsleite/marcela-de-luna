@@ -249,6 +249,34 @@ async function iniciarTravessia(stops, images) {
       });
     }
 
+    // Realce dos vultos: com o ponteiro sobre uma tela que não é da parada em foco, o uRealce
+    // dela vai a 1 em ~200 ms (o vulto ganha um esmaecido mais visível) e volta a 0 ao sair. A tela
+    // da parada em foco não muda; nada disso vale na abertura nem com uma tela ampliada.
+    const REALCE_MS = 200;
+    const mouse = { x: 0, y: 0, dentro: false };
+    const aoMoverMouse = (e) => {
+      if (e.pointerType === 'touch') return;
+      mouse.x = e.clientX; mouse.y = e.clientY; mouse.dentro = true;
+    };
+    const aoSairMouse = (e) => { if (!e.relatedTarget) mouse.dentro = false; };
+    addEventListener('pointermove', aoMoverMouse, { passive: true });
+    document.addEventListener('mouseout', aoSairMouse, { passive: true });
+    aoDesmontar(() => {
+      removeEventListener('pointermove', aoMoverMouse);
+      document.removeEventListener('mouseout', aoSairMouse);
+    });
+    function aplicarRealce(dt, vh) {
+      const vale = mouse.dentro && abertura?.estado === 'fim' && !estado.mergulho && !mergulho.saindo;
+      const sob = vale ? palco.telaSob(mouse.x, mouse.y) : null;
+      const vulto = sob && sob.userData.stopId !== emFoco(linha, vh) ? sob : null;
+      const passo = dt / REALCE_MS;
+      for (const m of telas) {
+        const u = m.material.uniforms.uRealce;
+        const alvo = m === vulto ? 1 : 0;
+        if (u.value !== alvo) u.value = alvo > u.value ? Math.min(1, u.value + passo) : Math.max(0, u.value - passo);
+      }
+    }
+
     // Pincel (só com mouse): tinta no fundo branco, na cor viva da tela da parada atual, e letras
     // dos títulos que se enchem de pintura. Não deposita sobre as telas; passa por baixo de todo
     // texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura).
@@ -259,7 +287,7 @@ async function iniciarTravessia(stops, images) {
         const cz = palco.camera.position.z;
         for (const m of telas) {
           const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
-          if (d > VISIBILIDADE.surge[0] && d < VISIBILIDADE.branco[1]) telasNaJanela.push(retanguloProjetado(m, palco.camera));
+          if (d > VISIBILIDADE.surge[0] && d < VISIBILIDADE.some[1]) telasNaJanela.push(retanguloProjetado(m, palco.camera));
         }
         const paragrafos = [...raiz.querySelectorAll('.em-foco .corpo')].map((el) => {
           const b = el.getBoundingClientRect();
@@ -351,6 +379,7 @@ async function iniciarTravessia(stops, images) {
       estado.local = s.local;
       if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
       aplicarLuz(dt);
+      aplicarRealce(dt, vh);
       legendas.atualizar(vh);
       // Cabeçalho e fileira só voltam depois da volta do mergulho: o 2º clique em "voltar" cairia no cabeçalho.
       navegacao.quadro(dt, { atual: s.id, oculta: abertura?.estado !== 'fim' || Boolean(estado.mergulho) || mergulho.saindo });

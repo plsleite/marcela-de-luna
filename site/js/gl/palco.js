@@ -47,7 +47,7 @@ export function criarPalco(canvas) {
   }
 
   // Tela (Mesh com userData.stopId) mais próxima da câmera sob o ponto (x, y) em px da janela,
-  // ou null. Ignora as invisíveis: opacidade 0, rente à câmera ou sumidas no branco ao longe
+  // ou null. Ignora as invisíveis: opacidade 0, rente à câmera ou sumidas ao longe
   // (as mesmas distâncias em que o shader de gl/tela.js as deixa transparentes).
   const lancadorDoPonto = new THREE.Raycaster();
   const ndcDoPonto = new THREE.Vector2();
@@ -59,7 +59,7 @@ export function criarPalco(canvas) {
       && o.material.uniforms?.uOpacidade?.value > 0);
     for (const hit of lancadorDoPonto.intersectObjects(telas, false)) {
       const dist = -_local.copy(hit.point).applyMatrix4(camera.matrixWorldInverse).z;
-      if (dist > VISIBILIDADE.surge[0] && dist < VISIBILIDADE.branco[1]) return hit.object;
+      if (dist > VISIBILIDADE.surge[0] && dist < VISIBILIDADE.some[1]) return hit.object;
     }
     return null;
   }

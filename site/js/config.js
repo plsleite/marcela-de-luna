@@ -7,9 +7,11 @@ export const DIST_FOCO = 8;
 export const FOV = 35;
 export const RELEVO = 0.12;
 // Distâncias (unidades de mundo, da câmera à tela) em que uma tela é visível: surge de
-// transparente entre surge[0] e surge[1] (rente à câmera) e se dissolve no branco entre branco[0]
-// e branco[1] (ao longe). Fora de [surge[0], branco[1]] não é clicável nem barra o pincel.
-export const VISIBILIDADE = { surge: [1.5, 3.0], branco: [14, 28] };
+// transparente entre surge[0] e surge[1] (rente à câmera); ao longe embranquece entre branco[0] e
+// branco[1] até virar um vulto que conserva `residuo` da pintura, e some (alfa 0) entre some[0] e
+// some[1]. Com o ponteiro sobre um vulto, a brancura cai até `realce`. Fora de
+// [surge[0], some[1]] a tela não é clicável nem barra o pincel.
+export const VISIBILIDADE = { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.08, some: [22, 28], realce: 0.63 };
 // Ímã do scroll: sem entrada há `espera` ms (e com a página parada), a câmera desliza até o foco
 // da parada mais próxima, em duracaoMin s até 20 vh de distância, crescendo até duracaoMax s em
 // 80 vh ou mais; a menos de `folga` vh do foco, não faz nada.

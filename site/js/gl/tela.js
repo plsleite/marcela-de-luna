@@ -1,5 +1,5 @@
 // Uma pintura suspensa: plano com a textura (ou a cor dominante enquanto ela não chega),
-// que nasce do branco ao longe e some ao passar rente à câmera. Sem iluminação da cena:
+// que ao longe é um vulto quase branco (e some de vez mais longe) e some ao passar rente à câmera. Sem iluminação da cena:
 // a única luz é a rasante do cursor, que só multiplica a cor (luminância, nunca matiz).
 import * as THREE from 'three';
 import { RELEVO, VISIBILIDADE as VIS } from '../config.js';
@@ -36,6 +36,7 @@ uniform vec2 uLuz;
 uniform float uRelevo;
 uniform float uOpacidade;
 uniform float uProporcao;
+uniform float uRealce; // 0..1: o ponteiro sobre um vulto (a brancura cai até VIS.realce)
 varying vec2 vUv;
 varying float vDist;
 
@@ -90,12 +91,15 @@ void main() {
       fator = fatorDeLuz(gx, gy, uLuz - vUv, forca);
     }
   }
-  float branco = smoothstep(${f(VIS.branco[0])}, ${f(VIS.branco[1])}, vDist);
+  // Em foco (até branco[0]) a pintura fica inteira; ao longe vira um vulto quase branco, que
+  // conserva VIS.residuo da pintura; com o ponteiro sobre ele, ganha um esmaecido mais visível.
+  float branco = smoothstep(${f(VIS.branco[0])}, ${f(VIS.branco[1])}, vDist) * ${f(1 - VIS.residuo)};
+  branco = mix(branco, min(branco, ${f(VIS.realce)}), uRealce);
   cor = mix(cor, vec3(1.0), branco);
   fator = mix(fator, 1.0, branco); // o branco da distância não ganha relevo
-  // Quase toda branca, a tela também fica transparente: sobre o branco não muda nada, e não
-  // recorta um retângulo branco na tinta do pincel que está atrás.
-  float alfa = uOpacidade * revelacao(vUv, uRevela) * smoothstep(${f(VIS.surge[0])}, ${f(VIS.surge[1])}, vDist) * (1.0 - smoothstep(0.85, 1.0, branco));
+  // Mais longe, o vulto some (alfa 0 entre some[0] e some[1]): sobre o branco não muda nada, e
+  // não recorta um retângulo branco na tinta do pincel que está atrás.
+  float alfa = uOpacidade * revelacao(vUv, uRevela) * smoothstep(${f(VIS.surge[0])}, ${f(VIS.surge[1])}, vDist) * (1.0 - smoothstep(${f(VIS.some[0])}, ${f(VIS.some[1])}, vDist));
   gl_FragColor = vec4(cor, alfa);
   #include <colorspace_fragment>
   // Depois da conversão para sRGB: o mesmo fator nos três canais da cor exibida mantém a
@@ -118,6 +122,7 @@ export function criarTela(plano, info) {
       uRelevo: { value: 0 },
       uOpacidade: { value: 1 },
       uProporcao: { value: plano.largura / plano.altura },
+      uRealce: { value: 0 },
     },
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(plano.largura, plano.altura), material);

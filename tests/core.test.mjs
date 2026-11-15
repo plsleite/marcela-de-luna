@@ -109,5 +109,5 @@ test('fovPara: campo horizontal constante abaixo da proporção 1,65', async () 
 });
 
 test('visibilidade das telas: uma constante só', () => {
-  assert.deepEqual(cfg.VISIBILIDADE, { surge: [1.5, 3.0], branco: [14, 28] });
+  assert.deepEqual(cfg.VISIBILIDADE, { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.08, some: [22, 28], realce: 0.63 });
 });
