@@ -80,6 +80,22 @@ html.travessia .parada--obra .legenda {
 html.travessia .parada--obra.com-legenda .legenda { opacity: 1; transition-duration: 0.7s; }
 /* título da obra numa linha só, como no PDF */
 html.travessia .obra-titulo { white-space: nowrap; }
+/* linha "DETALHES" (legendas.js): só recebe ponteiro e foco com a legenda visível */
+html.travessia .legenda-detalhes {
+  display: flex; align-items: center; gap: 0.55rem; margin: 0.45rem auto 0; padding: 0.4rem 0.5rem;
+  border: 0; background: none; color: inherit; font: inherit; font-size: 0.8rem; font-weight: 400;
+  letter-spacing: 0.08em; line-height: 1; cursor: pointer;
+  visibility: hidden; pointer-events: none; transition: visibility 0s linear 0.45s;
+}
+html.travessia .parada--obra.com-legenda .legenda-detalhes { visibility: visible; pointer-events: auto; transition-delay: 0s; }
+html.travessia.mergulhando .legenda-detalhes { visibility: hidden; pointer-events: none; }
+html.travessia .legenda-detalhes:focus { outline: none; }
+html.travessia .legenda-detalhes:focus-visible { outline: 1.5px solid #305fa3; outline-offset: 1px; }
+.legenda-anel {
+  flex: none; width: 0.8rem; height: 0.8rem; box-sizing: border-box; border: 1.5px solid #000; border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+html.travessia .legenda-detalhes:hover .legenda-anel, html.travessia .legenda-detalhes:focus-visible .legenda-anel { transform: scale(1.25); }
 
 /* ---------- closes ----------
    "DETALHES": branco sobre o primeiro close de cada trecho, no canto inferior esquerdo da tela,
@@ -181,17 +197,27 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
   font-weight: 300; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1;
   font-size: clamp(0.95rem, 1.3vw, 1.25rem);
 }
-/* marca de close: um anel discreto que respira; posição (transform) escrita a cada quadro */
+/* marca de close: anel de 20 px com um ponto cheio no centro (44 px de área); posição (transform)
+   escrita a cada quadro. Ao aparecer (.livre), três anéis se expandem em sequência (2,2 s no
+   total) e depois ela respira. */
 .mergulho-marca {
-  position: absolute; left: 0; top: 0; width: 30px; height: 30px; margin: -15px 0 0 -15px; padding: 0;
-  border: 0; border-radius: 50%; background: none;
+  position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0;
+  border: 0; border-radius: 50%;
+  /* ponto de 6 px, branco, com o filete escuro do anel */
+  background: radial-gradient(circle, #fff 0 3px, rgb(0 0 0 / 0.25) 3px 4px, transparent 4px);
   opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
-.mergulho-marca::before, .mergulho-marca::after {
-  content: ''; position: absolute; border-radius: 50%; inset: 7px;
+.mergulho-marca::before, .mergulho-marca::after, .mergulho-pulso {
+  content: ''; position: absolute; border-radius: 50%; inset: 12px;
   border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25), 0 1px 6px rgb(0 0 0 / 0.25);
 }
-.mergulho-marca::after { inset: 0; border-width: 1px; box-shadow: none; opacity: 0.7; animation: mergulho-respira 2.4s ease-in-out infinite; }
+.mergulho-marca::after { inset: 0; border-width: 1px; box-shadow: none; opacity: 0; }
+.mergulho-pulso { inset: 0; opacity: 0; }
+.mergulho.livre .mergulho-pulso { animation: mergulho-pulso 0.9s ease-out backwards; }
+.mergulho.livre .mergulho-pulso:nth-of-type(2) { animation-delay: 0.65s; }
+.mergulho.livre .mergulho-pulso:nth-of-type(3) { animation-delay: 1.3s; }
+.mergulho.livre .mergulho-marca::after { animation: mergulho-respira 2.4s ease-in-out 2.2s infinite backwards; }
+@keyframes mergulho-pulso { 0% { transform: scale(0.45); opacity: 0; } 15% { opacity: 0.9; } 100% { transform: scale(1); opacity: 0; } }
 @keyframes mergulho-respira { 0%, 100% { transform: scale(0.55); opacity: 0; } 50% { transform: scale(1); opacity: 0.7; } }
 .mergulho-marca:hover::before { background: rgb(255 255 255 / 0.35); }
 .mergulho.livre .mergulho-marca { opacity: 1; pointer-events: auto; }
@@ -201,7 +227,8 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
 .mergulho-detalhe img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 
 @media (prefers-reduced-motion: reduce) {
-  .mergulho, .mergulho-marca::after { animation: none; }
+  .mergulho, .mergulho-marca::after, .mergulho-pulso { animation: none !important; }
+  .mergulho-marca::after { opacity: 0.7; } /* sem pulso nem respiração: só o anel externo parado */
 }
 
 /* ---------- navegação rápida e cabeçalho (navegacao.js) ----------

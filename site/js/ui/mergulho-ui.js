@@ -89,6 +89,11 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       b.type = 'button';
       b.className = 'mergulho-marca';
       b.setAttribute('aria-label', 'Ver detalhe');
+      for (let i = 0; i < 3; i++) { // anéis do pulso de entrada (travessia.css)
+        const p = document.createElement('span');
+        p.className = 'mergulho-pulso';
+        b.append(p);
+      }
       return { el: b, close };
     });
     ui.append(voltar, ...(ficha ? [ficha] : []), ...marcas.map((mk) => mk.el));
@@ -432,6 +437,12 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     if (d === 'mergulho') abrir(mesh);
     else if (d === 'viagem') aoViajar(mesh);
   }
+  // Ampliar a tela de uma parada sem clicar nela (a linha "DETALHES" da legenda): as mesmas
+  // regras do clique, pelo mesmo destino() de main.js (abertura, outra ampliação, viagem).
+  function ampliar(stopId, indiceTela) {
+    const mesh = telas.find((t) => t.userData.stopId === stopId && t.userData.indiceTela === indiceTela);
+    if (mesh && !m && !saida && destino(mesh) === 'mergulho') abrir(mesh);
+  }
   const ponteiro = { x: innerWidth / 2, y: innerHeight / 2 }; // último ponto (âncora da pinça do Safari)
   function aoPassar(e) {
     ponteiro.x = e.clientX; ponteiro.y = e.clientY;
@@ -468,5 +479,5 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   function reancorar() { if (m) m.y0 = scrollY; }
 
   // saindo: a volta animada (0,7 s) ainda não terminou; cabeçalho e fileira esperam por ela.
-  return { abrir, fechar, quadro, encerrar, reancorar, get aberto() { return m !== null; }, get saindo() { return saida !== null; } };
+  return { abrir, ampliar, fechar, quadro, encerrar, reancorar, get aberto() { return m !== null; }, get saindo() { return saida !== null; } };
 }

@@ -2,7 +2,7 @@
 // e posição das legendas em relação às telas projetadas.
 import { emFoco } from '../core/timeline.js';
 import { atrasosDasPalavras } from '../core/projecao.js';
-import { posicaoDaLegenda } from '../core/legenda.js';
+import { posicaoDaLegenda, telaDoDestaque } from '../core/legenda.js';
 
 // Envolve cada palavra de .corpo num <span class="palavra"> (os espaços ficam como texto).
 function separarPalavras(corpo) {
@@ -34,10 +34,10 @@ function prepararEntrada(secao) {
 }
 
 // Legenda de obra ao lado da sua tela, alinhada pela base (a conta é core/legenda.js).
-function posicionarLegenda(secao, rets, W, H) {
+function posicionarLegenda(secao, rets, evitar, W, H) {
   const leg = secao.querySelector('.legenda');
   if (!leg) return;
-  const { x, y } = posicaoDaLegenda({ rets, W, H, lw: leg.offsetWidth, lh: leg.offsetHeight });
+  const { x, y } = posicaoDaLegenda({ rets, W, H, lw: leg.offsetWidth, lh: leg.offsetHeight, evitar });
   secao.style.setProperty('--leg-x', `${Math.round(x)}px`);
   secao.style.setProperty('--leg-y', `${Math.round(y)}px`);
 }
@@ -46,8 +46,37 @@ function posicionarLegenda(secao, rets, W, H) {
 // nas obras de duas telas, a segunda passa por cima dela a partir de foco + 18 vh.
 const FRACAO_DA_LEGENDA = 0.16;
 
-export function criarLegendas(raiz, linha) {
+// Linha "DETALHES" no fim da legenda das obras que têm close: um botão (anel + texto) que amplia a
+// obra, na tela que tem o close. Só existe na travessia: a página base não a tem, e encerrar() a
+// tira. Já no DOM quando a legenda é medida (posicionarLegenda); some para o teclado e o ponteiro
+// enquanto a legenda está oculta (travessia.css). Barra a tinta do pincel (data-barra-tinta).
+function criarLinhasDeDetalhes(raiz, stops, images, ampliar) {
+  const linhas = [];
+  for (const stop of stops) {
+    const tela = stop.tipo === 'obra' ? telaDoDestaque(stop.closes, images) : null;
+    const leg = tela === null ? null : raiz.querySelector(`.parada[data-id="${stop.id}"] .legenda`);
+    if (!leg) continue;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'legenda-detalhes';
+    b.setAttribute('aria-label', `Detalhes de ${stop.titulo}`);
+    b.setAttribute('data-barra-tinta', '');
+    b.innerHTML = '<span class="legenda-anel" aria-hidden="true"></span>DETALHES';
+    const clique = () => ampliar(stop.id, tela);
+    b.addEventListener('click', clique);
+    leg.append(b);
+    linhas.push({ b, clique });
+  }
+  return linhas;
+}
+
+// opcoes: stops e images (o conteúdo), telas (meshes) e retanguloNoFoco(mesh, idDoFoco) (retângulo
+// na janela da tela vista do foco daquela parada), ampliar(stopId, indiceTela) (abre a ampliação,
+// com os mesmos bloqueios do clique na pintura) e aoDesmontar(fn) (encerramento da travessia).
+export function criarLegendas(raiz, linha, { stops, images, telas, retanguloNoFoco, ampliar, aoDesmontar }) {
   const secoes = new Map([...raiz.querySelectorAll('.parada')].map((s) => [s.dataset.id, s]));
+  const linhas = criarLinhasDeDetalhes(raiz, stops, images, ampliar);
+  aoDesmontar(() => { for (const { b, clique } of linhas) { b.removeEventListener('click', clique); b.remove(); } });
   let atual = null;
   let comLegenda = null;
 
@@ -70,9 +99,17 @@ export function criarLegendas(raiz, linha) {
     s.classList.add('em-foco');
   }
 
-  // retangulos: Map id → [{ esq, dir, topo, base }] em px, das telas projetadas no foco.
-  function posicionar(retangulos) {
+  // Retângulos (px) das telas de cada parada no seu foco: Map id → [{ esq, dir, topo, base }].
+  // Cada legenda evita o vulto: as telas da parada seguinte, vistas do foco desta.
+  function posicionar() {
     const W = innerWidth, H = innerHeight;
+    const retangulos = new Map();
+    for (const m of telas) {
+      if (!retangulos.has(m.userData.stopId)) retangulos.set(m.userData.stopId, []);
+      retangulos.get(m.userData.stopId).push(retanguloNoFoco(m));
+    }
+    const seguinte = new Map(linha.itens.map((it, i) => [it.id, linha.itens[i + 1]?.id]));
+    const vultosDe = (id) => telas.filter((m) => m.userData.stopId === seguinte.get(id)).map((m) => retanguloNoFoco(m, id));
     for (const [id, rets] of retangulos) {
       const s = secoes.get(id);
       if (!s || !rets.length) continue;
@@ -82,7 +119,7 @@ export function criarLegendas(raiz, linha) {
       };
       for (const k of ['esq', 'dir', 'topo', 'base']) s.style.setProperty(`--tela-${k}`, `${Math.round(u[k])}px`);
       s.style.setProperty('--tela-larg', `${Math.round(u.dir - u.esq)}px`);
-      if (s.classList.contains('parada--obra')) posicionarLegenda(s, rets, W, H);
+      if (s.classList.contains('parada--obra')) posicionarLegenda(s, rets, vultosDe(id), W, H);
     }
     // Se a janela mudou com um texto em foco, as linhas mudaram: recalcula os atrasos.
     const s = atual && secoes.get(atual);

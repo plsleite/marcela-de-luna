@@ -134,9 +134,9 @@ async function iniciarTravessia(stops, images) {
     }
 
     // Retângulo de cada tela na janela, com a câmera no foco da sua parada.
-    const retanguloNoFoco = (mesh) => {
+    const retanguloNoFoco = (mesh, id = mesh.userData.stopId) => {
       const aspecto = innerWidth / innerHeight;
-      const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, mesh.userData.stopId) + DIST_FOCO, aspecto, fovPara(aspecto));
+      const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, id) + DIST_FOCO, aspecto, fovPara(aspecto));
       return { esq: r.esq * innerWidth, dir: r.dir * innerWidth, topo: r.topo * innerHeight, base: r.base * innerHeight };
     };
     // Cartão final e vulto do verso (travessia/cartao.js). O vulto fica fora de `telas` (não
@@ -146,15 +146,8 @@ async function iniciarTravessia(stops, images) {
     aoDesmontar(() => cartao.encerrar());
     const telasDoPalco = [...telas, ...cartao.vultos];
 
-    const legendas = criarLegendas(raiz, linha);
-    const posicionar = () => {
-      const rets = new Map();
-      for (const m of telas) {
-        if (!rets.has(m.userData.stopId)) rets.set(m.userData.stopId, []);
-        rets.get(m.userData.stopId).push(retanguloNoFoco(m));
-      }
-      legendas.posicionar(rets);
-    };
+    const legendas = criarLegendas(raiz, linha, { stops, images, telas, retanguloNoFoco, aoDesmontar, ampliar: (id, i) => mergulho?.ampliar(id, i) });
+    const posicionar = () => legendas.posicionar();
 
     // Carregamento progressivo: só as texturas da janela em torno da parada atual.
     // Depuração: ?lento=1 atrasa cada textura em 1,5 s; ?lento=trava nunca entrega a capa da abertura.
