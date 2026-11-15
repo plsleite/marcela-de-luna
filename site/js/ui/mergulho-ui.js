@@ -398,7 +398,8 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   // Onde o botão desceu: um clique que chega depois de arrastar (seleção, gesto) não viaja nem mergulha.
   let descida = null;
   function aoDescer(e) { descida = e.isPrimary ? { x: e.clientX, y: e.clientY } : descida; }
-  // Com uma tela ampliada: com um close aberto, o clique fecha só o close; sem ele, um clique
+  // Com uma tela ampliada: um clique num controle (botão de som, "voltar") é só dele; com um
+  // close aberto, o clique fora fecha só o close; sem ele, um clique
   // (não arrasto) fora da tela e fora dos controles fecha a ampliação. Este mesmo clique não
   // segue adiante (não viaja): a volta (saida) ainda segura os cliques seguintes.
   function aoClicar(e) {
@@ -408,8 +409,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     const arrastou = Boolean(d0) && Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > CLIQUE_MAX;
     if (m) {
       if (m.engolirClique) { m.engolirClique = false; return; }
+      if (e.target.closest?.('a, button, input, select, textarea, label')) return; // controles (som, voltar…)
       if (m.detalhe) { if (!detalheRecente()) recolher(); return; }
-      if (arrastou || e.target.closest?.('a, button, input, select, textarea, label')) return;
+      if (arrastou) return;
       if (!sobATela(m.mesh, e.clientX, e.clientY)) fechar();
       return;
     }
