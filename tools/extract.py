@@ -5,6 +5,7 @@ Uso (a partir da raiz do projeto):
   /usr/bin/python3 tools/extract.py texto   -> tools/pdf-text.txt
   /usr/bin/python3 tools/extract.py propor  -> rasteriza as páginas no cache e propõe tools/crops.json
   /usr/bin/python3 tools/extract.py gerar   -> site/assets/img/<id>-<largura>.webp e site/data/images.json
+  /usr/bin/python3 tools/extract.py cores   -> grava `acento` em images.json a partir dos WebP existentes
 
 Entradas de tools/crops.json:
   {"pNN-a": {"pagina": N, "rect": [x0, y0, x1, y1]}}
@@ -55,8 +56,8 @@ def caixa_nao_branca(im, limiar=245):
     return mascara.getbbox()
 
 
-def cor_dominante(im, limiar=245):
-    """Cor mais frequente (#rrggbb) após quantizar em 8 cores, ignorando branco."""
+def _grupos(im):
+    """Quantiza em 8 cores: lista de (pixels, cor média) e o total de pixels."""
     rgb = im.convert('RGB')
     rgb.thumbnail((200, 200))
     q = rgb.quantize(colors=8, method=Image.Quantize.MEDIANCUT)
@@ -66,9 +67,14 @@ def cor_dominante(im, limiar=245):
     for i, (r, g, b) in zip(idx, px):
         s = soma.setdefault(i, [0, 0, 0, 0])
         s[0] += r; s[1] += g; s[2] += b; s[3] += 1
+    grupos = [(n, (round(r / n), round(g / n), round(b / n))) for r, g, b, n in soma.values()]
+    return grupos, len(px)
+
+
+def cor_dominante(im, limiar=245):
+    """Cor mais frequente (#rrggbb) após quantizar em 8 cores, ignorando branco."""
     melhor = None
-    for i, (r, g, b, n) in soma.items():
-        media = (round(r / n), round(g / n), round(b / n))
+    for n, media in _grupos(im)[0]:
         if min(media) > limiar:
             continue
         if melhor is None or n > melhor[0]:
@@ -78,6 +84,27 @@ def cor_dominante(im, limiar=245):
     else:
         media = melhor[1]
     return '#%02x%02x%02x' % media
+
+
+def cor_de_acento(im, limiar=245, minimo=0.03, saturacao_minima=0.25):
+    """Cor mais viva (#rrggbb): entre as 8 cores quantizadas (sem o quase branco e sem as que
+    ocupam menos de 3% da imagem), a de maior saturação HSV × raiz da fração ocupada. Sem
+    nenhuma com saturação ≥ 0,25, devolve a cor dominante."""
+    grupos, total = _grupos(im)
+    melhor = None
+    for n, media in grupos:
+        if min(media) > limiar or n / total < minimo:
+            continue
+        alto, baixo = max(media), min(media)
+        sat = (alto - baixo) / alto if alto else 0
+        if sat < saturacao_minima:
+            continue
+        nota = sat * (n / total) ** 0.5
+        if melhor is None or nota > melhor[0]:
+            melhor = (nota, media)
+    if melhor is None:
+        return cor_dominante(im, limiar)
+    return '#%02x%02x%02x' % melhor[1]
 
 
 def larguras_para(w):
@@ -283,6 +310,7 @@ def cmd_gerar():
             'w': maior,
             'h': round(im.height * maior / im.width),
             'cor': cor_dominante(im),
+            'acento': cor_de_acento(im),
             'mini': 'data:image/webp;base64,' + base64.b64encode(webp_bytes(mini, 60)).decode(),
             'larguras': larguras,
         }
@@ -291,8 +319,26 @@ def cmd_gerar():
     print(f'{len(dados)} imagens')
 
 
+def cmd_cores():
+    """Grava `acento` em images.json a partir dos WebP já gerados (não toca nos demais campos)."""
+    dados = json.loads(SAIDA_JSON.read_text())
+    for id_, e in dados.items():
+        largura = 640 if 640 in e['larguras'] else min(e['larguras'])
+        with Image.open(SAIDA_IMG / f'{id_}-{largura}.webp') as im:
+            acento = cor_de_acento(im)
+        novo = {}
+        for k, v in e.items():
+            if k != 'acento':
+                novo[k] = v
+            if k == 'cor':
+                novo['acento'] = acento
+        dados[id_] = novo
+        print(f"{id_}: {e['cor']} -> {acento}")
+    SAIDA_JSON.write_text(json.dumps(dados, ensure_ascii=False, indent=1) + '\n')
+
+
 if __name__ == '__main__':
-    comandos = {'texto': cmd_texto, 'propor': cmd_propor, 'gerar': cmd_gerar}
+    comandos = {'texto': cmd_texto, 'propor': cmd_propor, 'gerar': cmd_gerar, 'cores': cmd_cores}
     if len(sys.argv) != 2 or sys.argv[1] not in comandos:
         raise SystemExit(__doc__)
     comandos[sys.argv[1]]()

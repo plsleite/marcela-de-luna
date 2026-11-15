@@ -1,5 +1,5 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
-import { carimbosEntre, corDaParada, gesto, distanciaAoRetangulo } from '../site/js/core/pincel.js';
+import { carimbosEntre, corDaParada, gesto, distanciaAoRetangulo, forcaSobreTexto } from '../site/js/core/pincel.js';
 
 test('carimbosEntre: passo, último carimbo e ângulo do gesto', () => {
   const c = carimbosEntre({ x: 0, y: 0 }, { x: 10, y: 0 }, 2.5);
@@ -16,9 +16,10 @@ test('carimbosEntre: espaçamento regular e sobra para o próximo trecho', () =>
   assert.ok(Math.abs(Math.abs(d[0].ang) - Math.PI) < 1e-9);
 });
 
-test('corDaParada: cor da primeira imagem da parada, conforme o tipo', () => {
-  const images = { a: { cor: '#111111' }, b: { cor: '#222222' }, c: { cor: '#333333' } };
-  assert.equal(corDaParada({ tipo: 'obra', telas: ['b', 'a'] }, images), '#222222');
+test('corDaParada: acento da primeira imagem da parada, conforme o tipo (cor como reserva)', () => {
+  const images = { a: { cor: '#111111' }, b: { cor: '#222222', acento: '#ff3c8c' }, c: { cor: '#333333' } };
+  assert.equal(corDaParada({ tipo: 'obra', telas: ['b', 'a'] }, images), '#ff3c8c');
+  assert.equal(corDaParada({ tipo: 'obra', telas: ['a', 'b'] }, images), '#111111');
   assert.equal(corDaParada({ tipo: 'capa', imagens: ['c'] }, images), '#333333');
   assert.equal(corDaParada({ tipo: 'texto', planos: [{ imagem: 'a' }, { imagem: 'b' }] }, images), '#111111');
   assert.equal(corDaParada({ tipo: 'texto' }, images), null);
@@ -48,4 +49,20 @@ test('distanciaAoRetangulo: zero dentro, euclidiana fora', () => {
   assert.equal(distanciaAoRetangulo(15, 20, r), 0);
   assert.equal(distanciaAoRetangulo(0, 20, r), 10);
   assert.equal(distanciaAoRetangulo(23, 34, r), 5);
+});
+
+test('forcaSobreTexto: 30% dentro do bloco, sobe até 100% em 40 px', () => {
+  const r = [{ esq: 100, dir: 300, topo: 100, base: 200 }];
+  const op = { dentro: 0.3, faixa: 40 };
+  assert.equal(forcaSobreTexto({ x: 150, y: 150 }, r, op), 0.3);
+  assert.equal(forcaSobreTexto({ x: 100, y: 150 }, r, op), 0.3); // na borda
+  assert.equal(forcaSobreTexto({ x: 340, y: 150 }, r, op), 1);
+  assert.equal(forcaSobreTexto({ x: 400, y: 400 }, r, op), 1);
+  const meio = forcaSobreTexto({ x: 320, y: 150 }, r, op);
+  assert.ok(meio > 0.3 && meio < 1);
+  assert.ok(forcaSobreTexto({ x: 310, y: 150 }, r, op) < meio); // sobe com a distância
+  assert.equal(forcaSobreTexto({ x: 150, y: 150 }, [], op), 1);
+  // o bloco mais próximo manda; os padrões são 0,3 e 40 px
+  const dois = [...r, { esq: 330, dir: 400, topo: 100, base: 200 }];
+  assert.equal(forcaSobreTexto({ x: 335, y: 150 }, dois), 0.3);
 });

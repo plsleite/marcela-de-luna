@@ -138,8 +138,9 @@ const preMultiplicado = (m) => {
   return m;
 };
 
-// opcoes.livre(x, y): false onde o pincel não deposita (sobre telas e textos).
-export function criarTinta(palco, { livre = () => true } = {}) {
+// opcoes.forca(x, y): 0..1, quanto da tinta o pincel deposita ali (0 sobre as telas, menos
+// sobre os parágrafos).
+export function criarTinta(palco, { forca = () => 1 } = {}) {
   const { renderer, cena } = palco;
   const flutuante = renderer.extensions.has('EXT_color_buffer_float')
     || renderer.extensions.has('EXT_color_buffer_half_float');
@@ -230,7 +231,7 @@ export function criarTinta(palco, { livre = () => true } = {}) {
   let semente = 3;
   const rnd = () => ((semente = (semente * 16807) % 2147483647) / 2147483647);
 
-  function enfileirar(p, cor, g) {
+  function enfileirar(p, cor, g, f) {
     if (fila >= MAX) return;
     const i = fila++;
     aCentro.setXY(i, p.x * escala, (innerHeight - p.y) * escala); // alvo com y para cima
@@ -239,7 +240,7 @@ export function criarTinta(palco, { livre = () => true } = {}) {
     aTam.setXY(i, COMPRIMENTO * escala, LARGURA * g.escala * escala);
     aCor.setXYZ(i, cor.r, cor.g, cor.b);
     // cada carimbo falha cerdas um pouco diferentes: o traço não sai como uma fita regular
-    aSecaCarga.setXY(i, Math.min(0.9, g.seca + 0.14 * rnd()), g.carga * (0.85 + 0.15 * rnd()));
+    aSecaCarga.setXY(i, Math.min(0.9, g.seca + 0.14 * rnd()), g.carga * f * (0.85 + 0.15 * rnd()));
   }
 
   const cor = { r: 0, g: 0, b: 0 };
@@ -267,7 +268,8 @@ export function criarTinta(palco, { livre = () => true } = {}) {
       const g = gesto(velocidade, percurso);
       for (const p of cs) {
         distancia = (distancia + PASSO) % 30000; // limitado: precisão do ruído na GPU
-        if (livre(p.x, p.y)) enfileirar(p, cor, g);
+        const f = forca(p.x, p.y);
+        if (f > 0) enfileirar(p, cor, g, f);
       }
       const fim = cs.at(-1);
       ultimo.x = fim.x; ultimo.y = fim.y;

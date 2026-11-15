@@ -17,11 +17,12 @@ export function carimbosEntre(a, b, passo) {
   return c;
 }
 
-// Cor da tinta: a cor dominante da primeira imagem da parada (telas, imagens ou planos).
+// Cor da tinta: o acento (cor mais viva) da primeira imagem da parada (telas, imagens ou
+// planos); a cor dominante fica de reserva.
 export function corDaParada(stop, images) {
   if (!stop) return null;
   const id = stop.telas?.[0] ?? stop.imagens?.[0] ?? stop.planos?.[0]?.imagem;
-  return images[id]?.cor ?? null;
+  return images[id]?.acento ?? images[id]?.cor ?? null;
 }
 
 // Gesto pela velocidade (px/ms): devagar o pincel deita inteiro e carregado; rápido fica mais
@@ -40,4 +41,14 @@ export function distanciaAoRetangulo(x, y, r) {
   const dx = Math.max(r.esq - x, 0, x - r.dir);
   const dy = Math.max(r.topo - y, 0, y - r.base);
   return Math.hypot(dx, dy);
+}
+
+// Força do depósito perto dos blocos de parágrafos: `dentro` sobre o bloco, subindo suave até 1
+// a `faixa` px dele (vale o bloco mais próximo). Sem blocos, 1.
+export function forcaSobreTexto(p, retangulos, { dentro = 0.3, faixa = 40 } = {}) {
+  let d = Infinity;
+  for (const r of retangulos) d = Math.min(d, distanciaAoRetangulo(p.x, p.y, r));
+  if (d >= faixa) return 1;
+  const t = d / faixa;
+  return dentro + (1 - dentro) * t * t * (3 - 2 * t);
 }

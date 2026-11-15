@@ -5,7 +5,7 @@ import { zDaCamera, zDoStop, planosDoStop } from './core/camera.js';
 import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { paralaxe, suavizar } from './core/paralaxe.js';
-import { corDaParada, distanciaAoRetangulo } from './core/pincel.js';
+import { corDaParada, distanciaAoRetangulo, forcaSobreTexto } from './core/pincel.js';
 
 const raiz = document.getElementById('paradas');
 const html = document.documentElement;
@@ -196,29 +196,31 @@ async function iniciarTravessia(stops, images) {
       });
     }
 
-    // Pincel (só com mouse): tinta no fundo branco, na cor da tela da parada atual, e letras dos
-    // títulos que se enchem de pintura. Não deposita tinta sobre as telas nem sob os textos.
+    // Pincel (só com mouse): tinta no fundo branco, na cor viva da tela da parada atual, e letras
+    // dos títulos que se enchem de pintura. Não deposita sobre as telas; passa por baixo de todo
+    // texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura).
     function montarPincel() {
       const porId = new Map(stops.map((s) => [s.id, s]));
-      const TEXTOS = '.titulo-secao, .subtitulo, .corpo, .legenda, .capa-assinatura, .contato, .rodape';
-      const FOLGA_TEXTO = 23; // px: meia largura do pincel
       const p = { obstaculos: null };
       function obstaculos() {
-        const rets = [];
+        const telasNaJanela = [];
         const cz = palco.camera.position.z;
         for (const m of telas) {
           const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
-          if (d > 1.5 && d < 28) rets.push({ r: retanguloProjetado(m, palco.camera), folga: 0 });
+          if (d > 1.5 && d < 28) telasNaJanela.push(retanguloProjetado(m, palco.camera));
         }
-        for (const el of raiz.querySelectorAll(`.em-foco :is(${TEXTOS})`)) {
+        const paragrafos = [...raiz.querySelectorAll('.em-foco .corpo')].map((el) => {
           const b = el.getBoundingClientRect();
-          rets.push({ r: { esq: b.left, dir: b.right, topo: b.top, base: b.bottom }, folga: FOLGA_TEXTO });
-        }
-        return rets;
+          return { esq: b.left, dir: b.right, topo: b.top, base: b.bottom };
+        });
+        return { telasNaJanela, paragrafos };
       }
-      const livre = (x, y) => (p.obstaculos ??= obstaculos())
-        .every(({ r, folga }) => distanciaAoRetangulo(x, y, r) > folga);
-      p.tinta = criarTinta(palco, { livre });
+      const forca = (x, y) => {
+        const o = (p.obstaculos ??= obstaculos());
+        if (o.telasNaJanela.some((r) => distanciaAoRetangulo(x, y, r) === 0)) return 0;
+        return forcaSobreTexto({ x, y }, o.paragrafos, { dentro: 0.3, faixa: 40 });
+      };
+      p.tinta = criarTinta(palco, { forca });
       p.preenchimento = criarPreenchimento(raiz);
       const aoMover = (e) => {
         if (e.pointerType !== 'mouse') return;
