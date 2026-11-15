@@ -102,9 +102,10 @@ Os textos corridos saem do PDF por extração (`pdftotext`). Os três subtítulo
 - *Abertura:* tela branca; pinceladas varrem a tela e revelam a pintura da capa; "PORTFÓLIO" sobe letra a letra; "MARCELA DE LUNA" se enche de tinta. O carregamento inicial é curto e aparece como um traço de tinta sendo puxado.
 - *Textos:* entram linha a linha conforme a câmera chega; os negritos assentam por último.
 - *Obras:* cada tela está suspensa no espaço, alternando lado e profundidade. Ao longe é só um vulto quase branco; ganha cor ao se aproximar, fica em foco com a ficha colada ao seu lado e passa pela lateral. Nas páginas com duas telas, as duas ficam em profundidades diferentes, na diagonal do PDF.
-- *Entrada em "Detalhes":* a câmera não desvia da última tela da série; atravessa a superfície e sai num voo rasante sobre a tinta. Os closes passam grandes, sobrepostos, em ritmo mais rápido que o das obras.
-- *Saída de "Detalhes":* o último close se abre em branco e a série seguinte começa.
-- *Final:* a última imagem gira e mostra o verso da tela com a assinatura.
+- *Câmera* (segunda rodada de ajustes, 15/11/2026): anda em linha reta em todo o percurso, só com o desvio da paralaxe. A primeira versão das 58 páginas fazia a câmera passar por dentro da última pintura de cada série para entrar nos closes (o "trilho"); o Pedro não gostou, e isso saiu. Os textos de todas as paradas valem pelas frações de sempre (0,3 do caminho para os textos, 0,16 para a legenda de obra); "DETALHES" entra como qualquer título.
+- *Um só vulto à frente:* do foco de qualquer parada vê-se uma única tela à frente, a primeira da parada seguinte, em vulto com realce. Nos closes, a visibilidade é `{ surge: [2,0, 3,6], branco: [10, 14], some: [18,6, 20,4] }` (as demais distâncias são as das obras): o close seguinte, a 14,30 un., e o primeiro close visto da obra que abre o trecho, a 18,15 un., ficam com brancura 0,92 e alfa 1; a 20,60 un. e além, alfa 0.
+- *Detalhes:* os closes passam grandes, sobrepostos, em ritmo mais rápido que o das obras, alternando de lado. Em cada trecho, o último close fica do lado oposto ao da primeira tela da parada seguinte, e os anteriores alternam a partir dele: no primeiro trecho, o 1º close fica à direita e o 16º à esquerda, com o vulto de "Entre Nós" livre à direita; o segundo trecho termina com o close à direita.
+- *Final:* a última imagem gira e mostra o verso da tela com a assinatura. Com o último close em foco, um vulto do verso aparece do lado oposto (x = −2,2, y = 0, na altura do verso, 4,6 un., e no z do foco do verso), só com a miniatura. Ele some com o avanço (opacidade `1 − smoothstep(foco + 2, foco + 14, vh)`), antes de o giro começar, e nunca ganha cor; reage ao ponteiro como os outros vultos, e o clique viaja até o verso, com o giro no caminho. Com uma tela ampliada, o vulto some e volta em 0,6 s.
 
 **Mouse.** Dois efeitos discretos, sempre ativos:
 
@@ -114,21 +115,31 @@ Os textos corridos saem do PDF por extração (`pdftotext`). Os três subtítulo
 **Pintar.** O cursor é um pincel.
 
 - No fundo branco, o movimento deixa pinceladas com textura de cerdas, na cor dominante da tela mais próxima. A tinta fica atrás das pinturas e do texto e some aos poucos.
-- Nos títulos grandes, passar o pincel preenche as letras com pintura, como os subtítulos do PDF.
+- Nos títulos grandes, passar o pincel preenche as letras com pintura, como os subtítulos do PDF. A caixa de cada letra tem folga em cima e embaixo (0,25em), para os acentos, como o de "NÓS", ficarem inteiros.
 - As pinturas nunca são pintadas por cima.
+- *Resolução do traço* (segunda rodada): um ponto de tinta por ponto de tela em qualquer monitor (a metade da densidade de pixels, nunca menos de 1), com teto de 8,3 milhões de pontos; acima dele, os dois lados encolhem na mesma proporção. Antes, num monitor de densidade 1, cada ponto de tinta ocupava 2×2 pixels.
+- *Curva:* entre posições do mouse, os carimbos seguem uma Bézier quadrática entre os pontos médios, com a posição do mouse como controle, e cada carimbo fica tangente à curva. Os eventos agrupados do navegador entram todos. Com o mouse parado por 90 ms, o traço se fecha em linha reta até o cursor. A largura (46 px), a textura das cerdas, a cor e o tempo de sumiço não mudaram.
+- *Controles protegidos:* o nome, o botão de som (com o convite), a fileira (na extensão da lente aberta) e a linha "DETALHES" das legendas barram a tinta. A força é 0 até 10 px do controle e sobe até cheia em mais 24 px, contados da borda do carimbo, não do centro (a meia largura do pincel entra na conta). Qualquer elemento com o atributo `data-barra-tinta` entra nessa regra. Telas com opacidade 0 não barram a tinta.
 
-**Ímã do scroll** (ajuste de 15/11/2026). Quando o visitante para de rolar, a câmera desliza sozinha até o ponto ideal da parada mais próxima. Qualquer gesto (roda, toque, tecla, barra de rolagem) interrompe o deslize na hora.
+**Ímã do scroll** (ajuste de 15/11/2026; sentido na segunda rodada). Quando o visitante para de rolar (160 ms sem entrada), a câmera desliza sozinha até o foco de uma parada. O ímã guarda onde a página estava parada quando o gesto começou e segue o sentido da rolada: descendo, avança para a parada seguinte a partir de 25% do caminho entre as duas, e abaixo disso volta; subindo, a mesma regra ao contrário. Sem origem conhecida, vai à parada mais próxima. Qualquer gesto (roda, toque, tecla, barra de rolagem) interrompe o deslize na hora.
 
 **Clicar.** (ajustes de 15/11/2026)
 
 - *Tela em foco (ampliar):* a câmera avança até a tela ocupar a janela, com zoom e arrasto livres. Vale para as obras e também para a pintura da capa e os recortes das páginas de texto. Nas obras aparecem título e ficha; na capa e nos recortes não há legenda, porque o PDF não traz. Se a tela tiver closes associados em "Detalhes", pequenas marcas indicam onde eles ficam; clicar leva ao close em alta resolução. Sair: tecla Esc, botão "voltar", clicar em qualquer ponto fora da tela ou continuar rolando.
+- *Marca de destaque* (segunda rodada): na obra ampliada, a marca de cada close mede 44 px, com anel de 20 px e um ponto branco cheio de 6 px no centro, com filete escuro. Ao abrir a tela, três anéis se expandem em sequência (0,9 s cada, a cada 0,65 s, cerca de 2,2 s no total); depois a marca respira. Sem animação com movimento reduzido.
+- *Linha "DETALHES"* (segunda rodada): nas 18 obras que têm close ligado, a legenda ganha, abaixo da ficha, uma linha "DETALHES" com um anel pequeno antes do texto. É um botão que amplia a obra, como o clique na pintura; nas obras de duas telas, amplia a tela que tem o close. A posição da legenda continua calculada pela base da pintura; quando ela cobriria o vulto da parada seguinte, desce o mínimo para não cobri-lo (hoje só "Cartografia do Íntimo" e, em janelas menores, "Dúvidei").
 - *Tela ao longe (viajar):* a câmera viaja até ela. A tela ao longe é um vulto quase branco; ao passar o mouse ela ganha um esmaecido mais visível, que sinaliza o clique.
 
 **Navegação rápida.** Na borda direita, uma fileira vertical de pequenas pinceladas: uma por obra, na cor dominante da tela, agrupadas por série, mais uma marca por abertura de seção e por trecho de "Detalhes". A atual fica alongada. Passar o mouse mostra o título em letras pequenas; clicar leva a câmera até lá num movimento contínuo. Setas e barra de espaço andam de parada em parada.
 
-**Cabeçalho.** Só "MARCELA DE LUNA" pequeno no canto, que volta à capa.
+- *Fileira contraída, com lente* (segunda rodada): em repouso, cada marca é um traço de 8 × 1,5 px com opacidade 0,45, e o passo é 45% do passo cheio, nunca abaixo de 6 px; a separação entre séries encolhe na mesma proporção. Com o ponteiro na faixa da fileira (72 px a partir da borda direita, na altura da coluna), as marcas perto dele crescem até a pincelada cheia (14 × 4 px, no passo cheio), numa lente de três passos cheios para cada lado; a marca sob o ponteiro não sai do lugar e a ordem das marcas se conserva. A lente entra e sai em 0,25 s. Com foco de teclado, a marca focada faz o papel do ponteiro. Em aparelho sem ponteiro fino, a fileira fica sempre cheia. Com a lente aberta, a coluna continua inteira dentro da janela em 1440×900, 1280×700 e 1024×768.
 
-**Música** (ajuste de 15/11/2026). "O Cisne", de Saint-Saëns, em looping e volume baixo. O site abre em silêncio, porque os navegadores não tocam som antes de um clique ou tecla; a música entra suave no primeiro clique ou tecla. Um botão discreto liga e desliga o som, e a escolha fica lembrada.
+**Cabeçalho.** "MARCELA DE LUNA" pequeno no canto superior esquerdo, que volta à capa, e o botão de som na mesma linha.
+
+**Música** (ajuste de 15/11/2026; lugar e convite na segunda rodada). "O Cisne", de Saint-Saëns, em looping e volume baixo. O site abre em silêncio, porque os navegadores não tocam som antes de um clique ou tecla; a música entra suave (3 s) no primeiro clique ou tecla, em qualquer ponto, sem pop-up. Um botão discreto liga e desliga o som, e a escolha fica lembrada.
+
+- *Lugar:* na capa, onde o nome fica oculto, o botão ocupa a margem esquerda, no lugar do nome; fora da capa, fica 18 px à direita do nome. A troca é uma transição de 0,5 s. Com uma tela ampliada, ele continua visível e utilizável à direita do nome, sem encostar no botão "voltar".
+- *Convite:* enquanto a música ainda não tocou nesta visita e a escolha guardada não é "desligado", o botão mostra, à direita das barras, o texto "LIGAR O SOM" na tipografia do nome, e as barras ondulam devagar e baixas (entre 0,25 e 0,55 da altura, ciclo de 2,4 s). Quando a música começa, o texto some em 0,6 s e ficam só as barras. Com a escolha "desligado", só as barras baixas e paradas. O texto do convite fica fora da leitura de tela; o rótulo do botão não mudou.
 
 ### 5.4 Conceito para celular — "Folhas"
 
@@ -156,6 +167,10 @@ Todo o texto existe como texto de verdade na página (selecionável e legível p
 - **Fonte Outfit** guardada no projeto, pelo mesmo motivo.
 - **Imagens tiradas do PDF** por rasterização das páginas e recorte de cada tela, na resolução nativa das fotos (cerca de 200 a 360 pontos por polegada nas páginas de obras e de 100 a 150 nos closes, que ficam com 1500 a 2200 px de largura). Cada imagem é gerada em três larguras em WebP, mais uma miniatura e a cor dominante. O recorte das páginas com duas telas em diagonal é definido à mão e conferido visualmente.
 - **Carregamento progressivo:** só o necessário para a abertura carrega de início; as demais imagens carregam à frente da câmera e as distantes são liberadas da memória. No celular, as texturas têm no máximo 2048 px de lado.
+  - *Reserva em segundo plano* (segunda rodada): depois que a abertura termina (inclusive quando a página reabre no meio, sem abertura), o site baixa os arquivos de todas as telas na largura que a janela pede e guarda os bytes em memória, sem decodificar: de 12 MB (largura 640) a 85 MB (maior largura), conforme a janela. A ordem vai da parada atual até o fim e depois da atual para trás; dois downloads por vez, com prioridade baixa. A maior largura da parada em foco e da seguinte também entra, para a ampliação abrir sem espera. Um pedido da janela de carregamento passa na frente e reaproveita um download em curso do mesmo arquivo. Não roda com economia de dados ligada.
+  - O limite de telas nítidas ao mesmo tempo é de memória de vídeo e não mudou: a reserva nunca decodifica. Numa viagem longa, as telas do caminho passam na miniatura e só a chegada fica nítida.
+  - *Falha de download:* o arquivo sai da reserva, a tela fica na miniatura, e a próxima aproximação tenta de novo (uma tentativa por aproximação).
+  - *Troca suave:* a passagem da miniatura para a imagem nítida esmaece em 0,35 s.
 - **Um arquivo de conteúdo** descreve as paradas na ordem do PDF: tipo, textos, ficha, imagens, cor dominante e closes associados.
 - **Pastas:** `site/` (o site), `tools/` (extração das imagens), `docs/` (este documento).
 - **Como ver durante a construção:** um servidor local simples aberto na pasta `site/`.
