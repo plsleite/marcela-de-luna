@@ -1,0 +1,799 @@
+{
+ "stops": [
+  {
+   "id": "capa",
+   "tipo": "capa",
+   "pagina": 1,
+   "imagens": [
+    "p01-a"
+   ],
+   "titulo": "PORTFÓLIO",
+   "nome": "MARCELA DE LUNA",
+   "ano": "2026",
+   "contato": {
+    "rotulo": "PROJETOS | CONTATO",
+    "telefone": "+55 21 996602668",
+    "instagram": "@marceladeluna_art",
+    "email": "marceladeluna.art@gmail.com"
+   },
+   "rodape": "PESQUISA ARTÍSTICA | PINTURA CONTEMPORÂNEA"
+  },
+  {
+   "id": "pesquisa-artistica",
+   "tipo": "texto",
+   "pagina": 2,
+   "titulo": "PESQUISA ARTÍSTICA",
+   "subtitulo": "A mulher como campo de investigação",
+   "paragrafos": [
+    [
+     {
+      "t": "Minha pesquisa pictórica tem a figura feminina como eixo central de investigação. Através do corpo, do gesto e da expressão, busco explorar dimensões da experiência humana que atravessam a mulher: "
+     },
+     {
+      "t": "identidade, subjetividade, força, vulnerabilidade e transformação.",
+      "b": true
+     }
+    ],
+    [
+     {
+      "t": "A bailarina ocupa um lugar central nesse universo. Mais do que uma temática, ela representa um campo de tensões entre disciplina e liberdade, controle e espontaneidade, exposição e interioridade. Interessa-me investigar o que existe para além da forma apresentada: os movimentos invisíveis, as contradições e as experiências que constituem cada presença."
+     }
+    ],
+    [
+     {
+      "t": "Na pintura, a figuração se expande pela cor, pela matéria e pelo gesto. A construção das imagens não busca apenas reproduzir corpos e expressões, mas explorar possibilidades de traduzir estados interiores e produzir sentidos através da própria linguagem pictórica."
+     }
+    ],
+    [
+     {
+      "t": "É nesse encontro entre figura, cor e expressão que desenvolvo minha pesquisa."
+     }
+    ]
+   ],
+   "planos": [
+    {
+     "imagem": "p02-a",
+     "x": -1.6,
+     "y": 1.1,
+     "z": -0.6,
+     "altura": 3.4
+    },
+    {
+     "imagem": "p02-b",
+     "x": -3.4,
+     "y": -1.5,
+     "z": 0,
+     "altura": 3.6
+    }
+   ]
+  },
+  {
+   "id": "a-bailarina",
+   "tipo": "abertura",
+   "pagina": 3,
+   "serie": "a-bailarina",
+   "titulo": "A BAILARINA",
+   "subtitulo": "CORPO, MOVIMENTO E EXPRESSÃO",
+   "paragrafos": [
+    [
+     {
+      "t": "Para além da representação da dança, investigo a figura feminina como presença expressiva, atravessada por forças e vulnerabilidades.",
+      "b": true
+     },
+     {
+      "t": " O gesto, a postura e a relação entre corpo e espaço tornam-se elementos de construção de uma linguagem visual que busca revelar aquilo que ultrapassa o movimento aparente."
+     }
+    ]
+   ],
+   "planos": [
+    {
+     "imagem": "p03-a",
+     "x": -0.6,
+     "y": -1.2,
+     "z": -0.3,
+     "altura": 4.6
+    }
+   ]
+  },
+  {
+   "id": "foyer-de-la-danse",
+   "tipo": "obra",
+   "pagina": 4,
+   "serie": "a-bailarina",
+   "titulo": "FOYER DE LA DANSE",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p04-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "a-danca-e-por-ela",
+   "tipo": "obra",
+   "pagina": 5,
+   "serie": "a-bailarina",
+   "titulo": "A DANÇA É POR ELA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p05-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "intervalo",
+   "tipo": "obra",
+   "pagina": 6,
+   "serie": "a-bailarina",
+   "titulo": "INTERVALO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p06-a",
+    "p06-b"
+   ],
+   "closes": []
+  },
+  {
+   "id": "dualidade",
+   "tipo": "obra",
+   "pagina": 7,
+   "serie": "a-bailarina",
+   "titulo": "DUALIDADE",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p07-a",
+    "p07-b"
+   ],
+   "closes": []
+  },
+  {
+   "id": "presenca",
+   "tipo": "obra",
+   "pagina": 8,
+   "serie": "a-bailarina",
+   "titulo": "PRESENÇA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p08-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "bastidores",
+   "tipo": "obra",
+   "pagina": 9,
+   "serie": "a-bailarina",
+   "titulo": "BASTIDORES",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p09-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "entre-gestos",
+   "tipo": "obra",
+   "pagina": 10,
+   "serie": "a-bailarina",
+   "titulo": "ENTRE GESTOS",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p10-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "le-silence-du-corps",
+   "tipo": "obra",
+   "pagina": 11,
+   "serie": "a-bailarina",
+   "titulo": "LE SILENCE DU CORPS",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p11-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "entre-deux-temps",
+   "tipo": "obra",
+   "pagina": 12,
+   "serie": "a-bailarina",
+   "titulo": "ENTRE DEUX TEMPS",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p12-a",
+    "p12-b"
+   ],
+   "closes": []
+  },
+  {
+   "id": "contracorpo",
+   "tipo": "obra",
+   "pagina": 13,
+   "serie": "a-bailarina",
+   "titulo": "CONTRACORPO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p13-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "duas-faces",
+   "tipo": "obra",
+   "pagina": 14,
+   "serie": "a-bailarina",
+   "titulo": "DUAS FACES",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p14-a",
+    "p14-b"
+   ],
+   "closes": []
+  },
+  {
+   "id": "presences",
+   "tipo": "obra",
+   "pagina": 15,
+   "serie": "a-bailarina",
+   "titulo": "PRÉSENCES",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p15-a",
+    "p15-b"
+   ],
+   "closes": []
+  },
+  {
+   "id": "deux-figures",
+   "tipo": "obra",
+   "pagina": 16,
+   "serie": "a-bailarina",
+   "titulo": "DEUX FIGURES",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p16-a",
+    "p16-b"
+   ],
+   "closes": []
+  },
+  {
+   "id": "suspenso",
+   "tipo": "obra",
+   "pagina": 17,
+   "serie": "a-bailarina",
+   "titulo": "SUSPENSO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p17-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "plena",
+   "tipo": "obra",
+   "pagina": 18,
+   "serie": "a-bailarina",
+   "titulo": "PLENA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p18-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "abstrata",
+   "tipo": "obra",
+   "pagina": 19,
+   "serie": "a-bailarina",
+   "titulo": "ABSTRATA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p19-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "solitude",
+   "tipo": "obra",
+   "pagina": 20,
+   "serie": "a-bailarina",
+   "titulo": "SOLITUDE",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p20-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "alcance",
+   "tipo": "obra",
+   "pagina": 21,
+   "serie": "a-bailarina",
+   "titulo": "ALCANCE",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p21-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "a-espera",
+   "tipo": "obra",
+   "pagina": 22,
+   "serie": "a-bailarina",
+   "titulo": "A ESPERA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p22-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "duvidei",
+   "tipo": "obra",
+   "pagina": 23,
+   "serie": "a-bailarina",
+   "titulo": "DÚVIDEI",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p23-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "detalhes-1-01",
+   "tipo": "detalhe",
+   "pagina": 24,
+   "imagens": [
+    "p24-a"
+   ],
+   "titulo": "DETALHES"
+  },
+  {
+   "id": "detalhes-1-02",
+   "tipo": "detalhe",
+   "pagina": 25,
+   "imagens": [
+    "p25-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-03",
+   "tipo": "detalhe",
+   "pagina": 26,
+   "imagens": [
+    "p26-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-04",
+   "tipo": "detalhe",
+   "pagina": 27,
+   "imagens": [
+    "p27-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-05",
+   "tipo": "detalhe",
+   "pagina": 28,
+   "imagens": [
+    "p28-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-06",
+   "tipo": "detalhe",
+   "pagina": 29,
+   "imagens": [
+    "p29-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-07",
+   "tipo": "detalhe",
+   "pagina": 30,
+   "imagens": [
+    "p30-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-08",
+   "tipo": "detalhe",
+   "pagina": 31,
+   "imagens": [
+    "p31-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-09",
+   "tipo": "detalhe",
+   "pagina": 32,
+   "imagens": [
+    "p32-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-10",
+   "tipo": "detalhe",
+   "pagina": 33,
+   "imagens": [
+    "p33-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-11",
+   "tipo": "detalhe",
+   "pagina": 34,
+   "imagens": [
+    "p34-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-12",
+   "tipo": "detalhe",
+   "pagina": 35,
+   "imagens": [
+    "p35-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-13",
+   "tipo": "detalhe",
+   "pagina": 36,
+   "imagens": [
+    "p36-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-14",
+   "tipo": "detalhe",
+   "pagina": 37,
+   "imagens": [
+    "p37-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-15",
+   "tipo": "detalhe",
+   "pagina": 38,
+   "imagens": [
+    "p38-a"
+   ]
+  },
+  {
+   "id": "detalhes-1-16",
+   "tipo": "detalhe",
+   "pagina": 39,
+   "imagens": [
+    "p39-a"
+   ]
+  },
+  {
+   "id": "entre-nos",
+   "tipo": "abertura",
+   "pagina": 40,
+   "serie": "entre-nos",
+   "titulo": "ENTRE NÓS",
+   "subtitulo": "FIGURA, IDENTIDADE E SUBJETIVIDADE",
+   "paragrafos": [
+    [
+     {
+      "t": "A pintura torna-se um espaço de experimentação, no qual cor, matéria e gesto participam da construção de estados emocionais e dimensões interiores.",
+      "b": true
+     },
+     {
+      "t": " Não busco fixar uma identidade ou oferecer uma representação definitiva da mulher, mas explorar suas múltiplas possibilidades de existência."
+     }
+    ]
+   ],
+   "planos": [
+    {
+     "imagem": "p40-a",
+     "x": -0.4,
+     "y": 1.0,
+     "z": -0.3,
+     "altura": 4.4
+    }
+   ]
+  },
+  {
+   "id": "impermanencia",
+   "tipo": "obra",
+   "pagina": 41,
+   "serie": "entre-nos",
+   "titulo": "IMPERMANÊNCIA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p41-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "intima",
+   "tipo": "obra",
+   "pagina": 42,
+   "serie": "entre-nos",
+   "titulo": "ÍNTIMA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "20 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p42-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "o-peso",
+   "tipo": "obra",
+   "pagina": 43,
+   "serie": "entre-nos",
+   "titulo": "O PESO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p43-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "tensao",
+   "tipo": "obra",
+   "pagina": 44,
+   "serie": "entre-nos",
+   "titulo": "TENSÃO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p44-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "l-inconnue",
+   "tipo": "obra",
+   "pagina": 45,
+   "serie": "entre-nos",
+   "titulo": "L'INCONNUE",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p45-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "anatomia",
+   "tipo": "obra",
+   "pagina": 46,
+   "serie": "entre-nos",
+   "titulo": "ANATOMIA",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p46-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "dentro",
+   "tipo": "obra",
+   "pagina": 47,
+   "serie": "entre-nos",
+   "titulo": "DENTRO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p47-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "a-outra-margem",
+   "tipo": "obra",
+   "pagina": 48,
+   "serie": "entre-nos",
+   "titulo": "A OUTRA MARGEM",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 20 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p48-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "cartografia-do-intimo",
+   "tipo": "obra",
+   "pagina": 49,
+   "serie": "entre-nos",
+   "titulo": "CARTOGRAFIA DO ÍNTIMO",
+   "ficha": {
+    "tecnica": "acrílica sobre tela",
+    "dimensoes": "30 x 40 cm",
+    "ano": "2026"
+   },
+   "telas": [
+    "p49-a"
+   ],
+   "closes": []
+  },
+  {
+   "id": "detalhes-2-01",
+   "tipo": "detalhe",
+   "pagina": 50,
+   "imagens": [
+    "p50-a"
+   ],
+   "titulo": "DETALHES"
+  },
+  {
+   "id": "detalhes-2-02",
+   "tipo": "detalhe",
+   "pagina": 51,
+   "imagens": [
+    "p51-a"
+   ]
+  },
+  {
+   "id": "detalhes-2-03",
+   "tipo": "detalhe",
+   "pagina": 52,
+   "imagens": [
+    "p52-a"
+   ]
+  },
+  {
+   "id": "detalhes-2-04",
+   "tipo": "detalhe",
+   "pagina": 53,
+   "imagens": [
+    "p53-a"
+   ]
+  },
+  {
+   "id": "detalhes-2-05",
+   "tipo": "detalhe",
+   "pagina": 54,
+   "imagens": [
+    "p54-a"
+   ]
+  },
+  {
+   "id": "detalhes-2-06",
+   "tipo": "detalhe",
+   "pagina": 55,
+   "imagens": [
+    "p55-a"
+   ]
+  },
+  {
+   "id": "detalhes-2-07",
+   "tipo": "detalhe",
+   "pagina": 56,
+   "imagens": [
+    "p56-a"
+   ]
+  },
+  {
+   "id": "detalhes-2-08",
+   "tipo": "detalhe",
+   "pagina": 57,
+   "imagens": [
+    "p57-a"
+   ]
+  },
+  {
+   "id": "verso",
+   "tipo": "verso",
+   "pagina": 58,
+   "imagens": [
+    "p58-a"
+   ]
+  }
+ ]
+}
