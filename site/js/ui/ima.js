@@ -1,13 +1,15 @@
 // Ímã do scroll (só na travessia): quando o visitante para de rolar (nenhuma entrada há
 // IMA.espera ms e a página parada), a câmera desliza até o foco da parada mais próxima, por
-// lenis.scrollTo: o scroll continua o nativo. Qualquer entrada (roda, toque, tecla, barra de
-// rolagem) interrompe o deslize na hora, sem impulso herdado e sem conter nada: a página fica
-// onde está e o Lenis segue com o gesto. O ímã só age depois de uma entrada do visitante
+// lenis.scrollTo: o scroll continua o nativo. Qualquer entrada que rola (roda, toque, tecla de
+// rolagem, barra de rolagem) interrompe o deslize na hora, sem impulso herdado e sem conter nada:
+// a página fica onde está e o Lenis segue com o gesto. Enquanto um gesto está em curso (dedo na
+// tela, botão apertado na barra), o ímã espera; ele conta a espera a partir de quando o gesto
+// termina. Tab, Shift e as demais teclas não mexem no ímã. O ímã só age depois de uma entrada do visitante
 // (nunca sozinho na carga, depois de restaurar a posição, nem depois de corrigir o resize) e
 // nunca enquanto `bloqueado()` (abertura, tela ampliada ou a volta dela, viagem de navegação).
 // Tudo o que este módulo cria (ouvintes) sai em encerrar().
 import { IMA } from '../config.js';
-import { alvoDoIma, duracaoDoIma, curvaDoIma } from '../core/ima.js';
+import { alvoDoIma, duracaoDoIma, curvaDoIma, teclaDeRolagem } from '../core/ima.js';
 import { vhDe, pxDe } from '../core/rolagem.js';
 
 const CAPTURA = { capture: true, passive: true };
@@ -19,7 +21,8 @@ const PARADA = 30;
 export function criarIma({ linha, lenis, bloqueado }) {
   let armado = false;            // houve entrada do visitante desde a última vez que o ímã agiu
   let ultimaEntrada = -Infinity; // performance.now() da última entrada
-  let naBarra = false;           // botão apertado sobre a barra de rolagem
+  let naBarra = false;           // botão apertado sobre a barra de rolagem (até e.buttons voltar a 0)
+  let toques = 0;                // dedos na tela
   let yConhecido = scrollY;      // scrollY no último quadro (ou na última correção)
   let tAnterior = performance.now();
   let deslize = null;            // userData do deslize em curso (identidade)
@@ -27,25 +30,52 @@ export function criarIma({ linha, lenis, bloqueado }) {
   const deslizando = () => meu() && lenis.isScrolling === 'smooth';
 
   // Para o deslize onde a página está (reset do Lenis: sem velocidade nem alvo herdados).
+  // Devolve se havia um deslize (a página ficou fora do foco e o ímã precisa voltar a agir).
   function interromper() {
-    if (deslizando()) lenis.reset();
+    const havia = deslizando();
+    if (havia) lenis.reset();
     deslize = null;
+    return havia;
   }
   function entrada() {
     interromper();
     armado = true;
     ultimaEntrada = performance.now();
   }
+  // Fim de um gesto (dedo solto, botão da barra solto): a espera começa agora.
+  function fimDoGesto() {
+    ultimaEntrada = performance.now();
+  }
+  const emGesto = () => toques > 0 || naBarra;
 
   // Na captura da janela: chega antes do Lenis (roda) e da navegação (teclas), então o deslize
   // já parou quando eles agem; a roda parte da posição atual.
-  const aoEntrar = () => entrada();
-  function aoApertar(e) {
-    // a barra de rolagem (fora do conteúdo) não emite pointerup confiável: solta no próximo movimento sem botão
-    if (e.clientX >= document.documentElement.clientWidth) { naBarra = true; entrada(); }
+  function aoRodar(e) { if (!e.ctrlKey && (e.deltaY || e.deltaX)) entrada(); } // ctrl + roda: pinça, não rola
+  function aoTeclar(e) { if (teclaDeRolagem(e)) entrada(); }
+  function aoTocar(e) {
+    toques = e.touches.length;
+    // o dedo na tela segura a página; só arma se cortou um deslize (senão, quando rolar)
+    if (interromper()) armado = true;
   }
-  function aoMover(e) { if (naBarra && e.buttons === 0) naBarra = false; }
-  const aoSoltar = () => { naBarra = false; };
+  const aoArrastarDedo = () => entrada(); // o dedo que move rola a página
+  function aoSoltarDedo(e) {
+    toques = e.touches.length;
+    if (toques === 0) fimDoGesto();
+  }
+  // Barra de rolagem: o pointerdown cai no próprio <html> (o conteúdo da travessia é o <main>)
+  // ou fora da área do conteúdo (barra clássica). Segura o ímã até e.buttons voltar a 0.
+  function aoApertar(e) {
+    const html = document.documentElement;
+    if (e.target === html || e.clientX >= html.clientWidth || e.clientY >= html.clientHeight) {
+      naBarra = true;
+      entrada();
+    }
+  }
+  function soltarBarra(e) {
+    if (!naBarra || (e.type === 'pointermove' && e.buttons !== 0)) return;
+    naBarra = false;
+    fimDoGesto();
+  }
   // Scroll nativo que não veio do Lenis nem de uma correção nossa: barra de rolagem, toque.
   function aoRolar() {
     const y = scrollY;
@@ -55,14 +85,20 @@ export function criarIma({ linha, lenis, bloqueado }) {
     }
     if (lenis.isScrolling === 'native' && Math.abs(y - yConhecido) >= 1) entrada();
   }
-  addEventListener('wheel', aoEntrar, CAPTURA);
-  addEventListener('touchstart', aoEntrar, CAPTURA);
-  addEventListener('touchmove', aoEntrar, CAPTURA);
-  addEventListener('keydown', aoEntrar, { capture: true });
-  addEventListener('pointerdown', aoApertar, CAPTURA);
-  addEventListener('pointermove', aoMover, { passive: true });
-  addEventListener('pointerup', aoSoltar, { passive: true });
-  addEventListener('scroll', aoRolar, { passive: true });
+  const OUVINTES = [
+    ['wheel', aoRodar, CAPTURA],
+    ['keydown', aoTeclar, { capture: true }],
+    ['touchstart', aoTocar, CAPTURA],
+    ['touchmove', aoArrastarDedo, CAPTURA],
+    ['touchend', aoSoltarDedo, CAPTURA],
+    ['touchcancel', aoSoltarDedo, CAPTURA],
+    ['pointerdown', aoApertar, CAPTURA],
+    ['pointermove', soltarBarra, CAPTURA],
+    ['pointerup', soltarBarra, CAPTURA],
+    ['pointercancel', soltarBarra, CAPTURA],
+    ['scroll', aoRolar, { passive: true }],
+  ];
+  for (const [tipo, fn, op] of OUVINTES) addEventListener(tipo, fn, op);
 
   // A cada quadro, depois de lenis.raf.
   function quadro() {
@@ -75,7 +111,7 @@ export function criarIma({ linha, lenis, bloqueado }) {
     if (bloqueado()) { deslize = null; armado = false; return; }
     if (deslizando()) return;
     deslize = null;
-    if (!armado || naBarra || !parada || agora - ultimaEntrada < IMA.espera) return;
+    if (!armado || emGesto() || !parada || agora - ultimaEntrada < IMA.espera) return;
     armado = false;
     const vh = vhDe(y, innerHeight);
     const alvo = alvoDoIma(linha, vh, IMA.folga);
@@ -102,14 +138,7 @@ export function criarIma({ linha, lenis, bloqueado }) {
   function encerrar() {
     interromper();
     armado = false;
-    removeEventListener('wheel', aoEntrar, CAPTURA);
-    removeEventListener('touchstart', aoEntrar, CAPTURA);
-    removeEventListener('touchmove', aoEntrar, CAPTURA);
-    removeEventListener('keydown', aoEntrar, { capture: true });
-    removeEventListener('pointerdown', aoApertar, CAPTURA);
-    removeEventListener('pointermove', aoMover, { passive: true });
-    removeEventListener('pointerup', aoSoltar, { passive: true });
-    removeEventListener('scroll', aoRolar, { passive: true });
+    for (const [tipo, fn, op] of OUVINTES) removeEventListener(tipo, fn, op);
   }
 
   return { quadro, desarmar, encerrar, get deslizando() { return deslizando(); } };

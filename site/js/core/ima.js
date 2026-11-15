@@ -29,3 +29,10 @@ export function curvaDoIma(t) {
   const x = Math.min(1, Math.max(0, t));
   return Math.sin((x * Math.PI) / 2);
 }
+
+// Tecla que rola a página (e por isso arma o ímã): setas verticais, PageUp/PageDown, espaço,
+// Home e End, sem Ctrl, Cmd ou Alt. Tab, Shift e as demais não rolam e não mexem no ímã.
+const ROLAM = new Set(['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Spacebar', 'Home', 'End']);
+export function teclaDeRolagem({ key, ctrlKey = false, metaKey = false, altKey = false }) {
+  return ROLAM.has(key) && !ctrlKey && !metaKey && !altKey;
+}

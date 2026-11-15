@@ -1,6 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { IMA } from '../site/js/config.js';
-import { paradaDoIma, alvoDoIma, duracaoDoIma, curvaDoIma } from '../site/js/core/ima.js';
+import { paradaDoIma, alvoDoIma, duracaoDoIma, curvaDoIma, teclaDeRolagem } from '../site/js/core/ima.js';
 
 // focos: 0, 100, 200, 300 (linha mínima, só com o que o ímã lê)
 const linha = { itens: [0, 100, 200, 300].map((foco, i) => ({ id: `p${i}`, foco })) };
@@ -60,4 +60,17 @@ test('curvaDoIma: de 0 a 1, sempre crescendo, com saída suave (chega parada)', 
   const vInicio = (curvaDoIma(h) - curvaDoIma(0)) / h;
   assert.ok(vFim < 0.01, `vFim ${vFim}`);
   assert.ok(vInicio > 1, `vInicio ${vInicio}`);
+});
+
+test('teclaDeRolagem: só as teclas que rolam a página armam o ímã', () => {
+  for (const key of ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Spacebar', 'Home', 'End']) {
+    assert.equal(teclaDeRolagem({ key }), true, key);
+    assert.equal(teclaDeRolagem({ key, shiftKey: true }), true, `shift+${key}`); // shift+espaço volta
+  }
+  for (const key of ['Tab', 'Shift', 'Control', 'Alt', 'Meta', 'Escape', 'Enter', 'a', 'ArrowLeft', 'ArrowRight']) {
+    assert.equal(teclaDeRolagem({ key }), false, key);
+  }
+  assert.equal(teclaDeRolagem({ key: 'ArrowDown', ctrlKey: true }), false);
+  assert.equal(teclaDeRolagem({ key: 'ArrowDown', metaKey: true }), false);
+  assert.equal(teclaDeRolagem({ key: 'ArrowDown', altKey: true }), false);
 });
