@@ -2,7 +2,7 @@
 
 Este roteiro é para você, Pedro. Ele diz como abrir o piloto, o que experimentar e o que você precisa me dizer para o trabalho continuar. Não precisa saber programar.
 
-Desde 15/11/2026 o site tem as 58 páginas do PDF, na ordem do PDF: a capa, a Pesquisa Artística, a abertura de A Bailarina e as suas 20 obras, o primeiro trecho de "Detalhes" (16 closes), a abertura de Entre Nós e as suas 9 obras, o segundo trecho de "Detalhes" (8 closes) e o verso da tela com a assinatura. Os passos das seções 1 a 6 foram escritos quando o piloto tinha só as seis primeiras páginas; eles continuam valendo, e a seção "O que entrou em 15/11/2026: as 58 páginas", logo abaixo, diz o que experimentar no resto.
+Desde 15/11/2026 o site tem as 58 páginas do PDF, na ordem do PDF: a capa, a Pesquisa Artística, a abertura de A Bailarina e as suas 20 obras, o primeiro trecho de "Detalhes" (16 closes), a abertura de Entre Nós e as suas 9 obras, o segundo trecho de "Detalhes" (8 closes) e o verso da tela com a assinatura. Os passos das seções 1 a 6 foram escritos quando o piloto tinha só as seis primeiras páginas; eles continuam valendo, e a seção "O que entrou em 15/11/2026: as 58 páginas", logo abaixo, diz o que experimentar no resto. Os ajustes da segunda rodada, também de 15/11/2026, estão em "O que mudou na segunda rodada (15/11/2026)"; eles valem por cima de todas as seções.
 
 ## O que mudou em 15/11/2026 (ajustes que você pediu)
 
@@ -10,12 +10,93 @@ Estas mudanças valem por cima do que os passos abaixo descrevem.
 
 - **Ampliar a capa e os recortes.** Clicar na pintura da capa, nos dois recortes de "Pesquisa Artística" e no recorte de "A Bailarina" também amplia a imagem. Nesses casos não aparece legenda, só o botão "voltar".
 - **Clicar fora fecha.** Com uma tela ampliada, clicar em qualquer ponto fora dela faz o mesmo que "voltar".
-- **Ímã.** Quando você para de rolar, a página desliza sozinha até o ponto ideal da parada mais próxima. Rolar de novo interrompe na hora.
+- **Ímã.** Quando você para de rolar, a página desliza sozinha até o ponto ideal da parada mais próxima. Rolar de novo interrompe na hora. (Mudou na segunda rodada: agora o ímã segue o sentido da rolada; veja "O que mudou na segunda rodada".)
 - **Tela seguinte quase branca.** A tela que vem depois aparece só como um vulto claro. Ao passar o mouse, ela ganha um pouco de cor; clicar leva até ela.
 - **Legenda ao lado da base da pintura**, como etiqueta de museu.
-- **Música.** Um botão discreto de som fica no canto superior direito, e a música entra no primeiro clique ou tecla.
+- **Música.** Um botão discreto de som fica no canto superior direito, e a música entra no primeiro clique ou tecla. (Mudou na segunda rodada: o botão passou para o canto esquerdo, ao lado do nome, com o convite "LIGAR O SOM".)
 
 Perguntas novas: o ímã puxa no tempo certo, cedo demais ou tarde demais? O vulto está claro o bastante? A legenda ficou bem ao lado da base?
+
+## O que mudou na segunda rodada (15/11/2026)
+
+Estas são as doze mudanças que você pediu depois de usar o site com as 58 páginas. Elas valem por cima do que as seções seguintes descrevem; onde um passo antigo ficou falso, ele traz uma linha apontando para cá. Abra o site como na seção 1 e siga os passos na ordem: eles acompanham o caminho do topo ao fim.
+
+### Os passos
+
+1. **O botão de som na capa.** Recarregue a página no topo e espere a abertura terminar. No canto superior esquerdo, onde o nome fica nas outras paradas, você deve ver três barras baixas ondulando devagar e, à direita delas, o texto "LIGAR O SOM", na mesma letra do nome. Nenhuma janela pede nada.
+2. **O botão de som fora da capa.** Role até a Pesquisa Artística. O nome "MARCELA DE LUNA" aparece no canto, e o botão desliza em meio segundo para a direita do nome, sem salto. Volte à capa (Home): ele desliza de volta para a margem.
+3. **A música.** Clique em qualquer ponto vazio. A música começa, o texto "LIGAR O SOM" some em pouco mais de meio segundo e ficam só as barras, agora tocando. Clique no botão: o som desliga, as barras param baixas e o convite não volta. Recarregue: continua sem convite, porque a escolha ficou guardada. Clique no botão de novo para religar.
+4. **A fileira contraída.** Olhe a borda direita: a fileira de marcas agora é uma coluna curta de traços finos, mais ou menos a metade da altura de antes. A marca da parada atual continua mais comprida e na sua cor.
+5. **A lente da fileira.** Leve o mouse até a fileira. As marcas perto do ponteiro crescem até o tamanho de antes e se afastam umas das outras, como sob uma lupa; a marca sob o ponteiro não sai do lugar. Suba e desça devagar: a lente acompanha sem tremer. Tire o mouse: a fileira volta ao repouso em um quarto de segundo. Clique numa marca com a lente aberta: a câmera viaja até a parada escolhida.
+6. **O ímã com rolada curta.** Com "Foyer de la Danse" em foco, dê uma rolada curta para baixo (cerca de um quarto do caminho até a obra seguinte) e solte. O ímã deve levar adiante, a "A Dança é por Ela". Uma rolada menor que isso devolve a "Foyer". Faça o mesmo para cima. Entre dois closes, uma rolada ainda mais curta já avança.
+7. **A tinta longe dos controles.** Passe o pincel devagar em volta do nome, do botão de som (com e sem o convite), da fileira e da linha "DETALHES" de uma legenda. A tinta deve parar antes de cada um, sem deixar cerda por baixo nem atrás do texto.
+8. **O acento de "NÓS".** Na abertura de Entre Nós, passe o pincel sobre "ENTRE NÓS". O acento do Ó deve ficar inteiro, pintado como o resto da letra. Faça o mesmo em "PESQUISA ARTÍSTICA" e "A BAILARINA": nenhuma letra deve mudar de lugar.
+9. **A linha "DETALHES" na legenda.** Em "A Dança é por Ela", abaixo da ficha, há agora uma linha "DETALHES" com um anel pequeno antes do texto. Clique nela: a obra amplia, como no clique na pintura. As 18 obras que têm close mostram essa linha; as outras, não.
+10. **A marca maior ao ampliar.** Com "A Dança é por Ela" ampliada, a marca de destaque aparece maior, com um ponto branco no centro. Logo depois de a tela abrir, três anéis se expandem um depois do outro (pouco mais de 2 segundos no total); depois a marca respira como antes. Clique nela: abre o close.
+11. **Um só vulto antes dos closes.** Na fileira, vá a "Dúvidei". Colado ao lado esquerdo da pintura, e parcialmente atrás dela, deve aparecer um único vulto claro: o primeiro close. Passe o mouse sobre ele: ganha cor e o cursor vira a mãozinha. Clique: a câmera viaja até ele. Faça o mesmo em "Cartografia do Íntimo".
+12. **Um só vulto entre os closes.** Em qualquer close, deve aparecer à frente um único vulto, o close seguinte, do outro lado. Nenhum close aparece em cores inteiras antes da hora, e não há uma fila de closes atrás.
+13. **"Entre Nós" atrás do último close.** Vá ao 16º close do primeiro trecho (o último antes de Entre Nós). Ele fica à esquerda, e à direita aparece o vulto da imagem da abertura de Entre Nós. Clique no vulto: a câmera viaja até "Entre Nós".
+14. **A câmera em linha reta.** Volte a "Dúvidei" e role devagar até o primeiro close e de volta. A câmera anda em linha reta, como no resto do site: não vai mais para o lado nem passa por dentro da pintura. O título e a ficha de "Dúvidei" ficam na tela até a obra sair de foco, como em qualquer obra, e "DETALHES" entra como qualquer título.
+15. **O vulto do verso.** Vá ao último close do segundo trecho (o 8º). À esquerda aparece um vulto claro com a imagem do verso, a tela de costas com o chassi. Passe o mouse: ele ganha cor e o cursor vira a mãozinha. Role um pouco para baixo: o vulto some antes de o giro começar.
+16. **O giro ao clicar no vulto.** Volte ao 8º close e clique no vulto do verso. A câmera viaja até o verso, e no caminho o close gira e mostra o verso, como quando você rola. Amplie o 8º close e feche: o vulto some enquanto a tela está ampliada e volta aos poucos depois, sem piscar.
+17. **As imagens baixadas em segundo plano.** Recarregue no topo, espere a abertura terminar e deixe a página parada uns 30 segundos. Depois role por algumas obras e amplie uma delas: as pinturas que você vê paradas ou rolando devem estar nítidas, e a ampliação abre nítida sem espera. Quando uma pintura chega depois, ela passa do borrado ao nítido esmaecendo, sem troca brusca.
+18. **A viagem longa.** Na capa, aperte End. A chegada ao verso deve estar nítida. As telas do caminho passam borradas; isso foi decidido durante a execução (veja "Decisões tomadas durante a execução", abaixo).
+
+### O que eu medi
+
+Medidas feitas no painel de navegador do meu ambiente, em janela de 1440×900, salvo onde está dito outra coisa.
+
+- **Reserva das imagens.** Depois da abertura, o site baixou 63 arquivos em segundo plano, 38,3 MB, na largura que essa janela pede; com o que a janela de carregamento já tinha pedido, foram 41,7 MB em 71 arquivos de imagem. Na rede local, a reserva terminou cerca de 0,1 s depois do fim da abertura. Ela também começa quando a página é recarregada no meio do site, sem abertura. Nenhum pedido foi a outro endereço.
+- **Telas nítidas ao mesmo tempo.** O máximo foi de 7 das 65, durante a viagem com End (a janela da partida e a da chegada). O limite de memória de vídeo continua o de antes.
+- **Altura da fileira.** Em repouso, a coluna mede 367 px em 1440×900 (antes, cerca de 800 px). Com a lente aberta na pior posição, ela vai de 235 a 665 px, dentro da janela. Em 1280×700 e 1024×768 a coluna também fica inteira dentro da janela.
+- **A lente.** Medi a saída em 0,25 s e a entrada em 0,24 s, com o fator da marca sob o ponteiro indo de 1 a 0 e de volta sem saltos.
+- **O botão de som.** A passagem da margem para a direita do nome levou 0,49 s, de 28,6 a 174,1 px, sem salto; a volta também. Fora da capa, as barras ficam a 18 px do nome. Com uma tela ampliada, o botão fica a 58 px do "voltar" e continua clicável.
+- **A marca de destaque.** Os três anéis começam quando a tela termina de abrir, duram 0,9 s cada e se sucedem a cada 0,65 s; o último termina cerca de 2,2 s depois do primeiro.
+- **O vulto do verso.** Ao ampliar o último close, ele some em 0,6 s; ao fechar, espera a volta terminar e reaparece em 0,6 s, sem salto.
+- **O custo da tinta.** Numa bancada separada, que só reproduz as duas passadas de tela cheia da tinta, a mediana foi de 0,56 ms por quadro com o traço na resolução de antes e de 1,13 ms na resolução cheia de um monitor de 3440×1440 em densidade 1: cerca de 0,6 ms a mais, num quadro de 16,7 ms. Isso não prova fluidez: a bancada não inclui o resto da cena nem o seu monitor, e a densidade 1 foi só emulada. Na tela retina o custo não muda, porque o tamanho do traço já era esse.
+- **O ímã.** Na roda simulada, a partir de "Foyer de la Danse", 20% do caminho volta e 30% avança; entre closes, 15% já avança. A regra é avançar a partir de 25% do caminho no sentido da rolada.
+- **Legendas.** Em 1440×900, 1024×768 e 900×900, nenhuma das 29 legendas cobre a pintura da própria parada nem o vulto da seguinte.
+
+### Decisões tomadas durante a execução
+
+Estas decisões não estavam escritas no pedido. Se discordar de alguma, diga qual.
+
+1. **A margem dos controles conta da borda do pincel.** O pedido dizia "10 px de margem e 24 px de rampa". Contados do centro do pincel, que tem 46 px de largura, as cerdas ainda passavam sob o controle. Por isso a margem passou a contar da borda do traço: a zona sem tinta em volta do nome, do botão de som, da fileira e da linha "DETALHES" ficou cerca de 23 px maior.
+2. **Duas legendas descem um pouco para não cobrir o vulto.** A legenda de "Cartografia do Íntimo" cobriria o vulto do primeiro close; ela desce 33 px abaixo da base da pintura em 1440×900, 62 px em 1024×768 e 69 px em 900×900. A de "Dúvidei" desce 29 px em 1024×768 e 36 px em 900×900. As outras legendas continuam alinhadas pela base.
+3. **Na viagem longa, só a chegada fica nítida.** O pedido dizia "nenhuma tela borrada no caminho". Uma viagem com End cruza umas 24 paradas por segundo; deixar todas nítidas pelo caminho estouraria o limite de memória de vídeo que você aceitou manter, e decodificar uma a uma no voo provavelmente travaria a viagem. As telas do caminho passam borradas, como antes; a chegada é nítida. A alternativa possível é carregar numa largura menor a parada por onde se passa, durante a viagem; ela precisa de medida de fluidez fora do meu ambiente.
+4. **O primeiro trecho de closes trocou de lado.** Para que o vulto de "Entre Nós" aparecesse livre atrás do último close, o 16º close passou para a esquerda e, alternando a partir dele, o 1º close passou para a direita. Visto do foco de "Dúvidei", que também fica à direita, o vulto do 1º close aparece colado ao lado esquerdo da pintura e parcialmente atrás dela. O segundo trecho não mudou.
+
+### Perguntas da segunda rodada
+
+Para cada uma, responda "está bom", "mais" ou "menos", ou diga o que prefere.
+
+1. **Limiar do ímã.** Avançar a partir de um quarto do caminho está bom, ou o ímã deveria avançar com menos (ou mais) rolada?
+2. **Formato da lente.** A lente abre umas três marcas para cada lado do ponteiro. Está bom, ou prefere uma lente mais larga ou mais estreita, ou a fileira sempre cheia?
+3. **O convite do som.** O texto "LIGAR O SOM" e o lugar dele, ao lado do nome, estão bons? Prefere outro texto, ou só as barras?
+4. **A marca de destaque.** O tamanho novo e os três anéis ao abrir estão bons, ou chamam atenção demais (ou de menos)?
+5. **A linha "DETALHES".** A linha na legenda ajuda a achar os closes? O texto e o anel estão bons?
+6. **O lado dos closes.** No primeiro trecho, o 1º close agora fica do lado oposto ao de antes. Isso incomoda?
+7. **As legendas deslocadas.** A legenda de "Cartografia do Íntimo" fica um pouco abaixo da base da pintura, para não cobrir o vulto. Isso incomoda, ou prefere que ela se afaste para o lado?
+8. **A viagem longa.** As telas borradas no caminho de uma viagem com End incomodam? Se sim, vale tentar a alternativa da decisão 3.
+
+### O que só você pode conferir
+
+Estes pontos eu não consegui conferir de verdade no meu ambiente, onde o painel do navegador fica oculto e a animação só anda a pedido.
+
+1. **O traço no monitor externo (3440×1440).** Compare o traço com o da tela do notebook: a definição (ele deve estar tão fino quanto na tela retina), a curva (sem quinas nos gestos rápidos) e a textura das cerdas, que eu só pude ver em densidade emulada. Diga se a textura mudou.
+2. **A fluidez com tinta viva nesse monitor.** Pinte bastante no fundo enquanto rola. Se o movimento engasgar, avise.
+3. **O ímã com a roda e o trackpad de verdade.** Eu só usei rolada simulada. Diga se a rolada curta avança quando você espera que avance, e se o trackpad, que solta a página aos poucos, não avança sem querer.
+4. **A entrada e a saída da lente.** Eu medi os tempos, mas não vi o movimento. Diga se ele é macio e se a lente atrapalha ou ajuda a clicar.
+5. **O pulso da marca.** Eu medi os anéis, mas não os vi se expandindo. Diga se o pulso fica bonito.
+6. **O convite do som e a música.** Confira o convite, a primeira entrada da música e o botão ao longo do site, com o som do seu computador.
+7. **O Safari.** Repita os passos desta seção no Safari, em especial a lente, o pulso, o botão de som e a tinta.
+
+### O que eu encontrei na conferência
+
+Estes pontos apareceram na conferência geral e ainda não foram consertados; estão também em `docs/pendencias-do-piloto.md`.
+
+- **A barra de espaço depois da linha "DETALHES".** Se você amplia uma obra pela linha "DETALHES" e fecha com Esc ou "voltar", o foco do teclado volta para essa linha. Apertar a barra de espaço, então, amplia a obra de novo em vez de ir à parada seguinte. As setas continuam funcionando.
+- **O botão de som sobre os closes da esquerda.** Nos closes que ficam à esquerda (por exemplo o 14º e o 16º do primeiro trecho), a pintura chega ao canto superior esquerdo, e as barras do som, e o convite enquanto ele aparece, ficam por cima dela, escuras sobre escuro. O nome já encostava nesses closes antes desta rodada.
 
 ## O que entrou em 15/11/2026: as 58 páginas
 
@@ -24,14 +105,14 @@ Se o site ainda não está aberto, siga primeiro a seção 1, mais abaixo. Para 
 Algumas palavras deste trecho:
 
 - **Close**: uma página de "Detalhes" do PDF, com um pedaço de uma pintura visto de muito perto. No site, cada close é uma tela grande, que alterna entre a esquerda e a direita. Parado, o close é mais alto que a janela e fica cortado em cima e embaixo; só ampliado (clicando nele) ele aparece inteiro.
-- **Travessia pela pintura**: no fim de cada série, a câmera desliza para o lado da última pintura e passa por dentro dela para entrar nos closes. Ao sair dos closes, ela atravessa o último close do mesmo jeito.
+- **Travessia pela pintura**: não existe mais. Na primeira versão das 58 páginas, a câmera passava por dentro da última pintura de cada série para entrar nos closes; na segunda rodada ela voltou a andar em linha reta, como no resto do site (veja "O que mudou na segunda rodada").
 - **Giro final**: o último close do segundo trecho se vira como uma tela de verdade e mostra o verso, com a assinatura.
 
 ### Os dois trechos de "Detalhes"
 
 1. Na fileira, clique na marca de DÚVIDEI (a última obra de A Bailarina). Espere a câmera parar.
-2. Role devagar para baixo. Você deve ver a câmera ir para o lado da pintura, passar por dentro dela e sair do outro lado já diante do primeiro close. O título e a ficha de "Dúvidei" somem enquanto a câmera está deslocada; é de propósito.
-3. Continue rolando devagar. Pouco antes de o primeiro close parar, a palavra "DETALHES" aparece sobre ele. Os closes seguintes vêm um atrás do outro, alternando de lado. Pare de rolar no meio do caminho entre dois closes: o ímã deve levar ao close mais próximo.
+2. Role devagar para baixo. A câmera anda em linha reta até o primeiro close, que já aparecia como vulto ao lado de "Dúvidei". (Até a segunda rodada, a câmera ia para o lado e passava por dentro da pintura; isso saiu.)
+3. Continue rolando devagar. A palavra "DETALHES" aparece sobre o primeiro close quando ele chega, como qualquer título. Os closes seguintes vêm um atrás do outro, alternando de lado. Pare de rolar no meio do caminho entre dois closes: o ímã deve seguir o sentido da rolada (veja o passo 6 de "O que mudou na segunda rodada").
 4. Olhe a fileira enquanto passa pelos closes. Há uma única marca "DETALHES" para o trecho inteiro, e ela fica comprida (marcada como atual) em qualquer close do trecho.
 5. Passe o mouse no branco ao lado de um close. A tinta do pincel deve aparecer no branco e nunca sobre a pintura.
 6. Clique num close parado. Ele amplia como uma obra, só com o botão "voltar". Saia com Esc.
@@ -39,19 +120,17 @@ Algumas palavras deste trecho:
 
 ### A travessia pela pintura
 
-1. Volte a DÚVIDEI pela fileira. Role para baixo devagar até entrar nos closes e, sem parar, role para cima de novo. A câmera deve refazer o caminho ao contrário, saindo do close, passando pela pintura e voltando a "Dúvidei" no centro, sem saltos.
-2. Faça o mesmo em CARTOGRAFIA DO ÍNTIMO. Repare se a legenda dela encosta no close que aparece claro atrás da pintura.
-3. Com a câmera ainda deslocada (no meio da travessia), clique na pintura de "Dúvidei". Ela não deve ampliar: a câmera deve voltar ao ponto em que a obra fica no centro. Um segundo clique, aí sim, amplia.
+Esta parte saiu na segunda rodada: a câmera não passa mais por dentro da pintura. Os passos que a substituem são o 11 e o 14 de "O que mudou na segunda rodada". Continua valendo conferir, em CARTOGRAFIA DO ÍNTIMO, se a legenda encosta no vulto do primeiro close (agora ela desce um pouco para não cobri-lo; veja a decisão 2 daquela seção).
 
 ### A saída do primeiro trecho para "Entre Nós"
 
 1. Na fileira, clique na marca "DETALHES" do primeiro trecho. Ela leva ao primeiro close; aperte a seta para baixo 15 vezes para chegar ao último (o 16º).
-2. Role devagar para baixo. A câmera atravessa esse último close e encontra a abertura de "Entre Nós", com o título e o texto.
+2. Role devagar para baixo. A câmera anda em linha reta até a abertura de "Entre Nós", que já aparecia como vulto à direita do último close (segunda rodada; antes a câmera atravessava o close).
 3. Role para cima devagar. O último close deve reaparecer primeiro claro, quase branco, e depois em cor, sem salto.
 
 ### O giro final e o verso
 
-1. Na fileira, clique na marca de CARTOGRAFIA DO ÍNTIMO e role até o último close do segundo trecho (o 8º).
+1. Na fileira, clique na marca de CARTOGRAFIA DO ÍNTIMO e role até o último close do segundo trecho (o 8º). Desde a segunda rodada, à esquerda dele aparece o vulto do verso (passos 15 e 16 de "O que mudou na segunda rodada").
 2. Role devagar para baixo. O close vem para o centro, diminui um pouco e gira meia volta, como quando se vira uma tela na mão. Do outro lado aparece o verso: o chassi de madeira, a tela e a assinatura "MARCELA DE LUNA", que não deve aparecer espelhada.
 3. Pare de rolar no meio do giro. O ímã deve levar ao verso ou de volta ao último close, nunca deixar a tela parada de perfil.
 4. Clique no verso parado: ele amplia como as obras.
@@ -61,16 +140,16 @@ Algumas palavras deste trecho:
 ### A viagem longa
 
 1. Volte à capa (clique em "MARCELA DE LUNA" no canto) e espere a abertura terminar.
-2. Aperte a tecla End. A câmera viaja da capa até o verso em poucos segundos. Pelo caminho, as pinturas aparecem borradas, porque o site só baixa as imagens da partida e da chegada; ao chegar, o verso deve estar nítido, em foco, e nunca deve aparecer uma tela preta ou um plano vazio.
+2. Aperte a tecla End. A câmera viaja da capa até o verso em poucos segundos. Pelo caminho, as pinturas aparecem borradas; ao chegar, o verso deve estar nítido, em foco, e nunca deve aparecer uma tela preta ou um plano vazio. (Desde a segunda rodada o site baixa todas as imagens em segundo plano, mas só decodifica as da partida e da chegada; veja a decisão 3 de "O que mudou na segunda rodada".)
 3. Aperte Home: a viagem volta à capa do mesmo jeito.
 4. Pela fileira, clique na marca do verso estando na capa, e depois numa obra do meio. A câmera deve parar sempre na parada escolhida.
 5. Recarregue a página, aperte End enquanto a capa ainda está surgindo e veja se a viagem acontece e se a capa volta com a pintura quando você retornar a ela.
-6. Durante as viagens, a câmera passa depressa pelos trechos em que atravessa uma pintura (a entrada e a saída dos closes). Repare se ali ela dá um solavanco para o lado. Se incomodar, avise.
+6. Este passo saiu na segunda rodada: a câmera não se desvia mais para o lado nas entradas e saídas dos closes, nem durante as viagens.
 
 ### O que eu medi
 
 - Até a pintura da capa chegar, o site baixa cerca de 1,6 MB (o limite combinado é 2 MB).
-- Ao longo de uma travessia completa, no máximo 9 das 65 telas ficam com a imagem nítida ao mesmo tempo; as outras ficam na versão borrada, que já vem com a página.
+- Ao longo de uma travessia completa, no máximo 9 das 65 telas ficam com a imagem nítida ao mesmo tempo; as outras ficam na versão borrada, que já vem com a página. (Medida da primeira versão; a da segunda rodada está em "O que mudou na segunda rodada".)
 - O texto das 58 páginas no site confere com o do PDF, palavra por palavra e na mesma ordem. A única diferença são os três subtítulos e o nome da capa, que no PDF estão desenhados e não saem como texto; eles foram transcritos à mão. "DÚVIDEI" está com a grafia do PDF.
 - Os 18 closes que têm marca abrem na obra certa.
 
@@ -80,11 +159,11 @@ Para cada uma, responda "está bom", "mais" ou "menos", e, se puder, diga por qu
 
 1. **Ritmo dos closes.** Os closes passam depressa demais, devagar demais ou na medida? Cada um fica tempo suficiente parado?
 2. **Tamanho dos closes.** Parado, cada close é mais alto que a janela e fica cortado em cima e embaixo; só ampliado ele aparece inteiro. Prefere assim, ou o close inteiro dentro da janela, mesmo que fique menor?
-3. **A travessia pela pintura.** A câmera passar por dentro da última pintura para entrar nos closes funciona para você? Fica bonito, estranho ou confuso?
+3. **A travessia pela pintura.** Respondida: você não gostou, e na segunda rodada a câmera voltou a andar em linha reta.
 4. **O giro final.** A velocidade do giro e o tamanho do verso estão bons? O verso deveria ficar mais tempo na tela?
 5. **A abertura de "Entre Nós".** No PDF, a imagem dessa página sai pelo alto da folha. No site ela ficou inteira, à direita do texto, sem sair pelo topo. Prefere assim ou mais parecida com o PDF?
 6. **As obras quadradas.** "Impermanência" e "Íntima" são quadradas e mais largas que as outras; para caberem inteiras na janela, elas ficam um pouco mais perto do centro do que as demais obras. Isso incomoda?
-7. **O texto que espera a câmera.** O título e a ficha de cada parada só aparecem quando a câmera volta ao centro. Por isso, "DETALHES" entra pouco antes de o primeiro close parar, e a legenda de "Dúvidei" e de "Cartografia do Íntimo" some durante a travessia. Isso parece natural ou o texto deveria aparecer antes?
+7. **O texto que espera a câmera.** Não vale mais: sem a travessia pela pintura, os textos de todas as paradas, inclusive "DETALHES" e as legendas de "Dúvidei" e "Cartografia do Íntimo", entram e saem como em qualquer outra parada (segunda rodada).
 
 ### O que só você pode conferir
 
@@ -92,9 +171,9 @@ Estes pontos eu não consegui testar de verdade no meu ambiente:
 
 1. **Safari.** Repita no Safari os passos desta seção, além dos da seção 4.
 2. **Fluidez real da rolagem contínua.** Rolar sem parar do topo ao fim, passando pelos closes e pelo giro, deve parecer macio, sem engasgos (veja "Como medir a fluidez", no fim).
-3. **O ímã nos closes.** Pare de rolar entre dois closes e diga se o deslize até o mais próximo vem no tempo certo e na direção esperada.
+3. **O ímã nos closes.** Pare de rolar entre dois closes e diga se o deslize vem no tempo certo e na direção esperada. Desde a segunda rodada o ímã segue o sentido da rolada; o item 3 de "O que só você pode conferir", na seção da segunda rodada, substitui este.
 4. **A barra de rolagem no meio de uma viagem.** Aperte End e, enquanto a câmera viaja, agarre a barra de rolagem à direita e arraste. A viagem deve parar e a página seguir a sua mão, sem pulo.
-5. **A música.** Ligue o som pelo botão do canto e percorra o site inteiro. A música deve continuar sem cortes nem saltos de volume, inclusive nas viagens longas e no giro final.
+5. **A música.** Ligue o som pelo botão ao lado do nome, no canto superior esquerdo (lugar novo desde a segunda rodada), e percorra o site inteiro. A música deve continuar sem cortes nem saltos de volume, inclusive nas viagens longas e no giro final.
 
 
 ## 1. Como abrir
@@ -132,7 +211,7 @@ Faça com calma. Se algo parecer estranho, anote o que você fez e o que viu.
 6. **Clicar numa tela.** Com uma obra em foco, clique nela. O "mergulho" é isso: a câmera chega bem perto até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse (ou a pinça no trackpad) para aproximar e arraste para mover a pintura. A pintura da capa, os recortes da Pesquisa Artística e de A Bailarina, os closes e o verso também ampliam assim quando estão em foco; nesses casos não há legenda, só o botão "voltar". Clicar numa tela que está ao longe leva até ela.
 7. **Abrir um close.** Com uma obra ampliada, uma pequena marca sobre a pintura indica que há um close daquele trecho. Em A Dança é por Ela há uma. Clique na marca: abre o close em alta resolução. Aperte **Esc** uma vez para voltar à tela e **Esc** de novo para voltar à travessia, no mesmo ponto onde você estava. Cada Esc volta um nível: do close para a tela, da tela para a travessia; na travessia, o Esc não faz nada. Agora 18 obras têm marca; a lista de todas as ligações entre closes e telas está em `docs/closes.md`. Confira algumas além de A Dança é por Ela (por exemplo Tensão, Presença e Cartografia do Íntimo).
 8. **Sair do mergulho de outros jeitos.** Entre de novo numa tela e saia pelo botão "voltar", depois rolando a roda para baixo sem ter aproximado, depois com a seta para baixo do teclado. Esc e "voltar" devolvem ao mesmo ponto; a seta para baixo fecha o mergulho e já leva à parada seguinte. Em todos os casos você não deve ficar preso.
-9. **A fileira de pinceladas.** Na borda direita há uma fileira vertical de marcas, uma por parada. Passe o mouse: aparece o título. Clique: a câmera viaja até lá. A marca da parada atual fica mais comprida. Clique em marcas diferentes com a página parada e também logo depois de rolar rápido, e diga se a câmera sempre parou na obra escolhida.
+9. **A fileira de pinceladas.** Na borda direita há uma fileira vertical de marcas, uma por parada. Passe o mouse: aparece o título. Clique: a câmera viaja até lá. A marca da parada atual fica mais comprida. Clique em marcas diferentes com a página parada e também logo depois de rolar rápido, e diga se a câmera sempre parou na obra escolhida. (Desde a segunda rodada a fileira fica contraída em repouso e abre como lente perto do ponteiro; veja os passos 4 e 5 de "O que mudou na segunda rodada".)
 10. **As setas e a barra de espaço.** Com a página em foco, use seta para baixo, seta para cima e barra de espaço: cada toque leva à parada seguinte ou anterior.
 11. **O nome no canto.** Clique em "MARCELA DE LUNA" no canto superior esquerdo: volta à capa.
 12. **Recarregar no meio.** Role até a metade, recarregue a página. Ela deve abrir na mesma parada, sem repetir a abertura por cima do conteúdo.
@@ -187,7 +266,7 @@ Estes eu encontrei ao conferir e ainda não foram consertados.
 - **Imagem da capa baixada duas vezes.** A capa pequena é carregada mais de uma vez ao abrir. Não se vê nada, mas gasta internet à toa.
 - **Legenda atrasada.** Logo depois de mudar de parada, a legenda da parada anterior pode ficar um instante na tela. Se durar, avise.
 - **Primeira tela de Intervalo perto do nome.** Em algumas janelas, a primeira pintura de Intervalo chega a poucos pixels de "MARCELA DE LUNA" no canto.
-- **Telas que ainda não chegaram.** Quando você salta para uma parada que ainda não carregou, as telas aparecem primeiro borradas e depois ficam nítidas, de uma vez, sem transição suave. É de propósito que venham borradas; se a troca para a nítida incomodar, avise. Se você enxergar um clarão branco inteiro durante um salto longo, avise também.
+- **Telas que ainda não chegaram.** Quando você salta para uma parada que ainda não carregou, as telas aparecem primeiro borradas e depois ficam nítidas. Desde a segunda rodada a passagem do borrado ao nítido esmaece em 0,35 s, e as imagens já baixadas em segundo plano chegam mais depressa. Se você enxergar um clarão branco inteiro durante um salto longo, avise.
 - **Página simples no computador.** Se a animação falhar e o site cair na página simples, a palavra "PORTFÓLIO" também sai cortada ali, como no celular. E, se você recarregar depois disso, o site volta à capa com a abertura, em vez de reabrir onde você estava.
 - **Fluidez ainda não medida.** Não consegui medir a fluidez do topo ao fim num notebook real. Veja o item abaixo.
 
