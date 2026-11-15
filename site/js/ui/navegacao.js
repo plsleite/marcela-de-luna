@@ -146,7 +146,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   let atualAnterior = null;
   let navVisivel = null;
   let topoVisivel = null;
-  // dt em ms; atual: id da parada em que o scroll está; oculta: abertura ou mergulho em curso.
+  // dt em ms; atual: id da parada em que o scroll está; oculta: abertura, mergulho ou a volta dele em curso.
   function quadro(dt, { atual, oculta }) {
     const y = scrollY;
     velocidade = dt > 0 ? ((y - yAnterior) / dt) * 1000 : 0;

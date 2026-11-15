@@ -14,6 +14,7 @@ const OCUPA = 0.92;     // fração da janela que a tela ocupa com zoom 1
 const ENTRA = 0.9;      // s
 const SAI = 0.7;        // s
 const DETALHE = 0.6;    // s: o close cresce da marca até a janela
+const DETALHE_FIRME = 300; // ms: cliques no detalhe recém-aberto não o fecham (duplo clique na marca)
 const SEGUE = 0.22;     // lerp por quadro de 60 Hz da vista exibida rumo à pedida (zoom e arrasto suaves)
 const GESTO = 200;      // ms sem roda: começa outro gesto
 const TETO_ENGOLIR = 400; // ms: depois de sair pela roda, ela só é contida até aqui, no máximo
@@ -323,15 +324,16 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     caixa.append(img);
     m.ui.before(caixa);
     m.ui.classList.add('com-detalhe');
-    m.detalhe = { caixa, img, marca: mk.el };
+    m.detalhe = { caixa, img, marca: mk.el, desde: performance.now() };
     estado.mergulho.close = id;
     const r = mk.el.getBoundingClientRect();
     gsap.fromTo(caixa, { opacity: 0 }, { opacity: 1, duration: DETALHE * 0.6, ease: 'power1.out' });
     gsap.fromTo(img,
       { x: r.left + r.width / 2 - innerWidth / 2, y: r.top + r.height / 2 - innerHeight / 2, scale: 0.03 },
       { x: 0, y: 0, scale: 1, duration: DETALHE, ease: 'power3.out' });
-    caixa.addEventListener('click', (ev) => { ev.stopPropagation(); recolher(); });
+    caixa.addEventListener('click', (ev) => { ev.stopPropagation(); if (!detalheRecente()) recolher(); });
   }
+  const detalheRecente = () => Boolean(m?.detalhe) && performance.now() - m.detalhe.desde < DETALHE_FIRME;
   function recolher() {
     const d = m?.detalhe;
     if (!d) return;
@@ -357,7 +359,7 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     if (e.button !== 0) return;
     if (m) {
       if (m.engolirClique) { m.engolirClique = false; return; }
-      if (m.detalhe) recolher();
+      if (m.detalhe && !detalheRecente()) recolher();
       return;
     }
     if (saida || e.target.closest?.('a, button, input, select, textarea, label')) return;
@@ -392,5 +394,6 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   // (senão a correção do scroll pareceria o visitante rolando a página e fecharia o mergulho).
   function reancorar() { if (m) m.y0 = scrollY; }
 
-  return { abrir, fechar, quadro, encerrar, reancorar, get aberto() { return m !== null; } };
+  // saindo: a volta animada (0,7 s) ainda não terminou; cabeçalho e fileira esperam por ela.
+  return { abrir, fechar, quadro, encerrar, reancorar, get aberto() { return m !== null; }, get saindo() { return saida !== null; } };
 }

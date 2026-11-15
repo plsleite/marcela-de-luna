@@ -327,7 +327,8 @@ async function iniciarTravessia(stops, images) {
       if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
       aplicarLuz(dt);
       legendas.atualizar(vh);
-      navegacao.quadro(dt, { atual: s.id, oculta: abertura?.estado !== 'fim' || Boolean(estado.mergulho) });
+      // Cabeçalho e fileira só voltam depois da volta do mergulho: o 2º clique em "voltar" cairia no cabeçalho.
+      navegacao.quadro(dt, { atual: s.id, oculta: abertura?.estado !== 'fim' || Boolean(estado.mergulho) || mergulho.saindo });
       if (s.indice !== indiceAtual) { indiceAtual = s.indice; carregarJanela(indiceAtual); }
     });
 
