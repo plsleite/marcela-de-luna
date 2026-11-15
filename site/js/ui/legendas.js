@@ -42,11 +42,22 @@ function posicionarLegenda(secao, rets, W, H) {
   secao.style.setProperty('--leg-y', `${Math.round(y)}px`);
 }
 
+// A legenda de obra só aparece mais perto do foco (fração 0,16 em vez de 0,3, classe com-legenda):
+// nas obras de duas telas, a segunda passa por cima dela a partir de foco + 18 vh.
+const FRACAO_DA_LEGENDA = 0.16;
+
 export function criarLegendas(raiz, linha) {
   const secoes = new Map([...raiz.querySelectorAll('.parada')].map((s) => [s.dataset.id, s]));
   let atual = null;
+  let comLegenda = null;
 
   function atualizar(vh) {
+    const l = emFoco(linha, vh, FRACAO_DA_LEGENDA);
+    if (l !== comLegenda) {
+      if (comLegenda) secoes.get(comLegenda)?.classList.remove('com-legenda');
+      comLegenda = l;
+      secoes.get(l)?.classList.add('com-legenda');
+    }
     const id = emFoco(linha, vh);
     if (id === atual) return;
     if (atual) secoes.get(atual)?.classList.remove('em-foco');

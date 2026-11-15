@@ -1,4 +1,4 @@
-import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
+import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo } from './core/camera.js';
@@ -68,7 +68,7 @@ async function iniciarTravessia(stops, images) {
 
   const estado = { id: stops[0].id, local: 0, mergulho: null };
   let lenis = null;
-  let pincel = null; // { tinta, preenchimento, soltar }
+  let pincel = null; // { tinta, preenchimento, limparObstaculos, encerrar }
   let abertura = null; // promessa de rodarAbertura, com .encerrar()
   let mergulho = null; // criarMergulho: abrir, fechar, quadro, encerrar
   let navegacao = null; // criarNavegacao: fileira, teclado, cabeçalho e irPara
@@ -91,7 +91,7 @@ async function iniciarTravessia(stops, images) {
     if (erro) console.error(erro);
     cadaUm([() => palco.parar(), ...encerramentos.reverse()]);
     cadaUm([
-      () => { for (const s of raiz.querySelectorAll('.em-foco')) s.classList.remove('em-foco'); },
+      () => { for (const s of raiz.querySelectorAll('.em-foco, .com-legenda')) s.classList.remove('em-foco', 'com-legenda'); },
       () => { raiz.style.removeProperty('--paralaxe-x'); raiz.style.removeProperty('--paralaxe-y'); },
     ]);
     ficarNaBase(); // sempre
@@ -342,14 +342,13 @@ function ficarNaBase() {
 
 try {
   const [{ stops }, images] = await Promise.all([json('./data/content.json'), json('./data/images.json')]);
-  const piloto = stops.filter((s) => s.pagina <= PILOTO_ULTIMA_PAGINA);
-  montarBase(raiz, piloto, images);
+  montarBase(raiz, stops, images);
   if (querTravessia()) {
     // A classe entra antes de montar o palco para a página base não piscar na abertura.
     html.classList.add('travessia');
     suspenderImagens(true);
     try {
-      if (!(await iniciarTravessia(piloto, images))) { ficarNaBase(); restaurarScroll(false); }
+      if (!(await iniciarTravessia(stops, images))) { ficarNaBase(); restaurarScroll(false); }
     } catch (erro) { // qualquer falha do modo imersivo deixa a página base intacta
       console.error(erro);
       ficarNaBase();

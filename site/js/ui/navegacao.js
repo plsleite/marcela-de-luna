@@ -4,7 +4,7 @@
 // a atual sem tranco (a nova parte na velocidade em que a página já ia).
 // Tudo o que este módulo cria (elementos e ouvintes) sai em encerrar().
 import { focoDe, emFoco } from '../core/timeline.js';
-import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira } from '../core/navegacao.js';
+import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira, marcaAtual, passoDaFileira } from '../core/navegacao.js';
 
 const FOLGA = 250; // ms depois do fim previsto em que a viagem ainda conta como em andamento
 
@@ -94,8 +94,9 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   const titulo = criar('span', 'navegacao-titulo');
   titulo.setAttribute('aria-hidden', 'true'); // o nome já está no aria-label de cada marca
   const lista = criar('ol', 'navegacao-lista');
-  const botoes = new Map();
-  for (const m of marcasDaFileira(stops, images)) {
+  const marcas = marcasDaFileira(stops, images);
+  const botoes = [];
+  for (const m of marcas) {
     const li = criar('li', m.novoGrupo ? 'novo-grupo' : '');
     const b = criar('button', 'navegacao-marca');
     b.type = 'button';
@@ -109,12 +110,12 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     b.addEventListener('click', (e) => { soltarFocoDoPonteiro(e); irPara(m.id); });
     li.append(b);
     lista.append(li);
-    botoes.set(m.id, b);
+    botoes.push(b);
   }
   nav.append(titulo, lista);
   antes.before(...(topo ? [topo] : []), nav);
 
-  // Título ao lado da marca: um só elemento fora da lista (a lista pode rolar, e cortaria o texto).
+  // Título ao lado da marca: um só elemento fora da lista.
   function mostrarTitulo(b) {
     titulo.textContent = b.dataset.titulo;
     const r = b.getBoundingClientRect();
@@ -132,19 +133,14 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   lista.addEventListener('focusin', (e) => { const b = marcaDe(e.target); if (b?.matches(':focus-visible')) mostrarTitulo(b); });
   lista.addEventListener('focusout', (e) => { if (!marcaDe(e.relatedTarget)) nav.classList.remove('com-titulo'); });
 
-  // Em janelas baixas (ou com muitas paradas) a lista rola por dentro, com as pontas esmaecidas,
-  // e acompanha a marca atual.
-  function medir() { lista.classList.toggle('transborda', lista.scrollHeight > lista.clientHeight + 1); }
+  // A fileira cabe inteira na janela, sem rolagem: a altura de cada marca sai da altura da janela.
+  function medir() { nav.style.setProperty('--passo', `${passoDaFileira(innerHeight, marcas.length).toFixed(2)}px`); }
   medir();
   addEventListener('resize', medir);
-  function trazerAVista(b) {
-    if (!lista.classList.contains('transborda')) return;
-    const li = b.parentElement;
-    lista.scrollTo({ top: li.offsetTop - (lista.clientHeight - li.offsetHeight) / 2, behavior: 'smooth' });
-  }
 
   // ---------- a cada quadro ----------
-  let atualAnterior = null;
+  let atualAnterior = null; // id da parada do quadro anterior
+  let marcaAnterior = -1;   // índice da marca atual
   let navVisivel = null;
   let topoVisivel = null;
   // dt em ms; atual: id da parada em que o scroll está; oculta: abertura, mergulho ou a volta dele em curso.
@@ -153,10 +149,13 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     velocidade = dt > 0 ? ((y - yAnterior) / dt) * 1000 : 0;
     yAnterior = y;
     if (atual !== atualAnterior) {
-      botoes.get(atualAnterior)?.removeAttribute('aria-current');
-      const b = botoes.get(atual);
-      if (b) { b.setAttribute('aria-current', 'true'); trazerAVista(b); }
       atualAnterior = atual;
+      const i = marcaAtual(marcas, atual); // um trecho de closes é uma marca só
+      if (i !== marcaAnterior) {
+        botoes[marcaAnterior]?.removeAttribute('aria-current');
+        botoes[i]?.setAttribute('aria-current', 'true');
+        marcaAnterior = i;
+      }
     }
     if (navVisivel !== !oculta) {
       navVisivel = !oculta;

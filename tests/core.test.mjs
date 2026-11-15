@@ -10,7 +10,7 @@ const linha = criarLinha(stops);
 const images = { a:{w:3000,h:4000}, b:{w:2000,h:2000}, c:{w:2000,h:2000} };
 
 test('config', () => {
-  assert.equal(cfg.PILOTO_ULTIMA_PAGINA, 6);
+  assert.equal('PILOTO_ULTIMA_PAGINA' in cfg, false);
   assert.deepEqual(cfg.DURACAO, { capa: 100, texto: 160, abertura: 140, obra: 100, detalhe: 45, verso: 100 });
   assert.deepEqual([cfg.UNIDADES_POR_VH, cfg.DIST_FOCO, cfg.FOV, cfg.RELEVO], [0.14, 8, 35, 0.12]);
 });
@@ -24,6 +24,9 @@ test('linha do tempo', () => {
   assert.equal(situar(linha, -50).local, 0); assert.equal(situar(linha, 9999).local, 1);
   assert.equal(focoDe(linha, 'o1'), 260);
   assert.equal(emFoco(linha, 0), 'capa'); assert.equal(emFoco(linha, 260), 'o1'); assert.equal(emFoco(linha, 205), null);
+  assert.equal(emFoco(linha, 280, 0.16), null);          // o1 tem foco 260 e dur 100
+  assert.equal(emFoco(linha, 280), 'o1');
+  assert.equal(emFoco(linha, 270, 0.16), 'o1');
   assert.equal(alturaDaPagina(linha), 460);
   assert.equal(vizinho(linha, 'capa', -1), 'capa'); assert.equal(vizinho(linha, 'o1', 1), 'o2');
   assert.equal(vizinho(linha, 'o2', 1), 'o2'); assert.equal(vizinho(linha, 'o1', -1), 't');
@@ -78,10 +81,9 @@ test('dados reais: linha cobre as 58 paradas e planos resolvem', () => {
   const imgs = JSON.parse(readFileSync('site/data/images.json', 'utf8'));
   const l = criarLinha(reais);
   assert.equal(l.itens.length, 58);
-  let n = 0;
+  const ind = indicesPorTipo(reais);
   for (const s of reais) {
-    const o = s.tipo === 'obra' ? n++ : 0;
-    const ps = planosDoStop(s, o, imgs, l);
+    const ps = planosDoStop(s, ind.get(s.id), imgs, l);
     for (const p of ps) assert.ok(p.largura > 0, `${s.id}/${p.imagem}`);
     if (s.tipo === 'detalhe' || s.tipo === 'verso') assert.equal(ps.length, 1, s.id);
   }

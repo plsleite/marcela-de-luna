@@ -31,8 +31,10 @@ export function focoDe(linha, id) {
   return it.foco;
 }
 
-export function emFoco(linha, vh) {
-  const it = linha.itens.find(x => Math.abs(vh - x.foco) <= 0.3 * x.dur);
+// Parada cujo foco está a até `fracao` da sua duração do scroll. A legenda de obra usa 0,16: nas
+// obras de duas telas, a segunda passa por cima da legenda a partir de foco + 18 vh.
+export function emFoco(linha, vh, fracao = 0.3) {
+  const it = linha.itens.find(x => Math.abs(vh - x.foco) <= fracao * x.dur);
   return it ? it.id : null;
 }
 

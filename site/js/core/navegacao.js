@@ -55,18 +55,37 @@ export function destinoDaTecla(linha, atual, { key, shift = false, modificador =
 }
 
 // Uma marca por parada: obras como pinceladas no acento da primeira tela (reserva: cor; o `cor`
-// destas pinturas é acinzentado); capa, textos e aberturas como traços finos. novoGrupo marca
-// a troca de série (espaço maior antes da marca).
+// destas pinturas é acinzentado); capa, textos, aberturas e verso como traços finos. Cada trecho
+// de closes ("Detalhes") vira um traço só: `id` é o primeiro close (destino do clique), `ids` são
+// todos os do trecho, e o título vem do primeiro close. O verso leva o nome da artista (o da
+// capa). novoGrupo marca a troca de série (espaço maior antes da marca).
 export function marcasDaFileira(stops, images) {
-  return stops.map((s, i) => {
+  const nome = stops.find((s) => s.tipo === 'capa')?.nome ?? '';
+  const marcas = [];
+  stops.forEach((s, i) => {
+    if (s.tipo === 'detalhe' && stops[i - 1]?.tipo === 'detalhe') { marcas.at(-1).ids.push(s.id); return; }
     const obra = s.tipo === 'obra';
     const tela = obra ? images[s.telas?.[0]] : null;
-    return {
+    const titulo = s.tipo === 'detalhe' ? (s.titulo ?? 'DETALHES') : s.tipo === 'verso' ? nome : (s.titulo ?? '');
+    marcas.push({
+      ids: [s.id],
       id: s.id,
-      titulo: s.titulo ?? '',
+      titulo,
       forma: obra ? 'pincelada' : 'traco',
       cor: tela?.acento ?? tela?.cor ?? null,
       novoGrupo: i > 0 && (s.serie ?? null) !== (stops[i - 1].serie ?? null),
-    };
+    });
   });
+  return marcas;
+}
+
+// Índice da marca que contém a parada `id` (−1 se nenhuma).
+export function marcaAtual(marcas, id) {
+  return marcas.findIndex((m) => m.ids.includes(id));
+}
+
+// Altura de cada marca (px) para a fileira caber inteira na janela, sem rolagem: 160 px ficam
+// para as margens e os espaços entre séries; entre 12 e 24 px.
+export function passoDaFileira(alturaDaJanela, n) {
+  return Math.min(24, Math.max(12, (alturaDaJanela - 160) / n));
 }

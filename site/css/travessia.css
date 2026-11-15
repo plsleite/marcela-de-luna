@@ -17,7 +17,8 @@ html.travessia .parada.em-foco a { pointer-events: auto; }
 /* As <img> continuam no DOM para leitores de tela; quem desenha as pinturas é o palco. */
 html.travessia .capa-pintura,
 html.travessia .planos,
-html.travessia .telas {
+html.travessia .telas,
+html.travessia .closes {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
@@ -72,9 +73,24 @@ html.travessia .parada--obra .legenda {
   position: absolute; margin: 0;
   left: var(--leg-x, 60vw); top: var(--leg-y, 45vh);
   width: max-content; min-width: clamp(12rem, 15vw, 16rem);
+  opacity: 0; transition: opacity 0.45s ease;
 }
+/* a legenda só aparece mais perto do foco (com-legenda, legendas.js): nas obras de duas telas,
+   a segunda passa por cima dela a partir de foco + 18 vh */
+html.travessia .parada--obra.com-legenda .legenda { opacity: 1; transition-duration: 0.7s; }
 /* título da obra numa linha só, como no PDF */
 html.travessia .obra-titulo { white-space: nowrap; }
+
+/* ---------- closes ----------
+   "DETALHES": branco sobre o primeiro close de cada trecho, no canto inferior esquerdo da tela,
+   sem sair da janela (o close é mais alto que ela). Fora das letras com tinta, como o da capa. */
+html.travessia .parada--detalhe .titulo-secao {
+  position: absolute; margin: 0; color: #fff;
+  left: max(var(--tela-esq), 0px); bottom: max(0px, calc(100vh - var(--tela-base)));
+  padding: 0 0 clamp(1.4rem, 6vh, 3.6rem) clamp(1.2rem, 2.6vw, 2.6rem);
+  font-size: min(6vw, 11vh);
+  text-shadow: 0 0 0.6em rgb(0 0 0 / 0.18);
+}
 
 /* ---------- letras que se enchem de tinta (preenchimento.js) ----------
    Duas camadas recortadas no texto: por cima, uma pincelada preta (--pincelada-*, SVG gerado
@@ -121,7 +137,7 @@ html.travessia .parada--capa .nome.abertura-enche {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.travessia .parada, html.travessia .corpo .palavra { transition: none; }
+  html.travessia .parada, html.travessia .corpo .palavra, html.travessia .parada--obra .legenda { transition: none; }
 }
 
 /* ---------- mergulho (mergulho-ui.js) ----------
@@ -200,22 +216,14 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
   position: fixed; right: 0; top: 50%; translate: 0 -50%; z-index: 3;
   pointer-events: none; /* só as marcas recebem o ponteiro; o resto é o palco */
 }
-.navegacao-lista {
-  position: relative; list-style: none; margin: 0; padding: 6px 0;
-  max-height: calc(100vh - 7rem); overflow: hidden auto; overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-.navegacao-lista::-webkit-scrollbar { display: none; }
-.navegacao-lista.transborda {
-  -webkit-mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 28px), transparent);
-  mask-image: linear-gradient(transparent, #000 28px, #000 calc(100% - 28px), transparent);
-}
+/* cabe inteira na janela, sem rolagem: cada marca mede --passo (navegacao.js) */
+.navegacao-lista { position: relative; list-style: none; margin: 0; padding: 6px 0; }
 .navegacao li { margin: 0; }
 .navegacao li.novo-grupo { margin-top: 12px; }
-/* área de clique 64 × 24 px; o desenho fica rente à direita */
+/* área de clique 64 × --passo px (12 a 24); o desenho fica rente à direita */
 .navegacao-marca {
   pointer-events: auto; display: flex; align-items: center; justify-content: flex-end;
-  width: calc(36px + var(--margem)); height: 24px; padding: 0 var(--margem) 0 0; margin: 0;
+  width: calc(36px + var(--margem)); height: var(--passo, 24px); padding: 0 var(--margem) 0 0; margin: 0;
   border: 0; border-radius: 3px; background: none; color: inherit; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }

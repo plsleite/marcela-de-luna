@@ -1,6 +1,7 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { criarLinha } from '../site/js/core/timeline.js';
-import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira } from '../site/js/core/navegacao.js';
+import { duracaoDaViagem, curvaDaViagem, impulsoDaRoda, paradaMaisProxima, destinoDaTecla, marcasDaFileira, marcaAtual, passoDaFileira } from '../site/js/core/navegacao.js';
 
 const perto = (a, b, tol = 1e-9) => Math.abs(a - b) < tol;
 
@@ -87,6 +88,29 @@ test('marcasDaFileira: uma marca por parada, pinceladas nas obras, grupos por s�
   assert.deepEqual(m.map((x) => x.forma), ['traco', 'traco', 'traco', 'pincelada', 'pincelada', 'pincelada']);
   assert.deepEqual(m.map((x) => x.cor), [null, null, null, '#aa0000', '#333333', null]); // acento da 1ª tela; reserva: cor
   assert.deepEqual(m.map((x) => x.novoGrupo), [false, false, true, false, false, true]);
+  assert.deepEqual(m.map((x) => x.ids), [['capa'], ['t'], ['ab'], ['o1'], ['o2'], ['o3']]);
+});
+
+test('marcasDaFileira com os dados reais: um traço por trecho de "Detalhes" e o verso no fim', () => {
+  const { stops: reais } = JSON.parse(readFileSync('site/data/content.json', 'utf8'));
+  const images = JSON.parse(readFileSync('site/data/images.json', 'utf8'));
+  const marcas = marcasDaFileira(reais, images);
+  assert.equal(marcas.length, 36);                       // 1 capa + 1 texto + 2 aberturas + 29 obras + 2 trechos + 1 verso
+  const det = marcas.filter(m => m.titulo === 'DETALHES');
+  assert.deepEqual(det.map(m => m.ids.length), [16, 8]);
+  assert.equal(det[0].id, 'detalhes-1-01'); assert.equal(det[0].forma, 'traco');
+  assert.equal(marcas.at(-1).id, 'verso'); assert.equal(marcas.at(-1).titulo, 'MARCELA DE LUNA');
+  assert.equal(marcas.at(-1).forma, 'traco');
+  assert.equal(marcas[marcaAtual(marcas, 'detalhes-1-09')].id, 'detalhes-1-01');
+  assert.equal(marcas[marcaAtual(marcas, 'duvidei')].id, 'duvidei');
+  assert.equal(marcaAtual(marcas, 'nao-existe'), -1);
+});
+
+test('passoDaFileira: (altura − 160) / n, entre 12 e 24 px', () => {
+  assert.equal(passoDaFileira(900, 36), (900 - 160) / 36);
+  assert.equal(passoDaFileira(700, 36), 15);
+  assert.equal(passoDaFileira(500, 36), 12);
+  assert.equal(passoDaFileira(1200, 6), 24);
 });
 
 test('impulsoDaRoda: só soma o impulso da viagem quando a roda vai no mesmo sentido', () => {

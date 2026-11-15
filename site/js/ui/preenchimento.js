@@ -1,5 +1,5 @@
-// Títulos grandes que se enchem de tinta: cada letra de .titulo-secao (menos a da capa, branca
-// sobre a pintura) vira um <span class="letra">; quando o pincel passa a menos de 40 px, ela ganha
+// Títulos grandes que se enchem de tinta: cada letra de .titulo-secao (menos a da capa e o
+// "DETALHES" dos closes, brancos sobre a pintura) vira um <span class="letra">; quando o pincel passa a menos de 40 px, ela ganha
 // .pintada e a pintura aparece por trás de uma pincelada que corre no sentido do gesto (450 ms,
 // em travessia.css). A letra fica pintada. O título inteiro segue no aria-label.
 import { carimbosEntre, distanciaAoRetangulo } from '../core/pincel.js';
@@ -7,7 +7,7 @@ import { carimbosEntre, distanciaAoRetangulo } from '../core/pincel.js';
 const RAIO = 40;     // px do ponteiro à letra
 const AMOSTRA = 10;  // px entre pontos testados num movimento rápido
 const SALTO = 320;   // px: o ponteiro "pulou" (não passou pelo meio)
-const SELETOR = '.parada--texto .titulo-secao, .parada--abertura .titulo-secao, .parada--detalhe .titulo-secao';
+const SELETOR = '.parada--texto .titulo-secao, .parada--abertura .titulo-secao';
 
 // Pincelada (SVG embutido, 300×100, estica sobre a letra): tinta preta de um lado, borda de
 // cerdas irregular, transparente do outro. Deslizada sobre a letra, revela a pintura de baixo.
