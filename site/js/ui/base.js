@@ -8,7 +8,7 @@ const SIZES = '(min-width: 900px) 45vw, 92vw';
 
 function img(id, images, { alt = '', lazy = true, sizes = SIZES } = {}) {
   const m = images[id];
-  if (!m) return '';
+  if (!m) throw new Error(`Imagem ausente em images.json: ${id}`);
   const srcset = m.larguras.map((w) => `./assets/img/${id}-${w}.webp ${w}w`).join(', ');
   const src = `./assets/img/${id}-${m.larguras[Math.min(1, m.larguras.length - 1)]}.webp`;
   return `<img class="tela" src="${src}" srcset="${srcset}" sizes="${sizes}" width="${m.w}" height="${m.h}" alt="${esc(alt)}"${lazy ? ' loading="lazy" decoding="async"' : ''}>`;
@@ -25,7 +25,7 @@ export function htmlDaParada(stop, images) {
       const c = stop.contato ?? {};
       const insta = String(c.instagram ?? '').replace(/^@/, '');
       dentro = `
-<figure class="capa-pintura">${stop.imagens.map((id) => img(id, images, { alt: 'Pintura de bailarina, acrílica sobre tela, capa do portfólio', lazy: false, sizes: '(min-width: 900px) 55vw, 100vw' })).join('')}</figure>
+<figure class="capa-pintura">${stop.imagens.map((id) => img(id, images, { alt: `${stop.nome} — ${stop.titulo} ${stop.ano}`, lazy: false, sizes: '(min-width: 900px) 55vw, 100vw' })).join('')}</figure>
 <h1 class="titulo-secao capa-titulo">${esc(stop.titulo)}</h1>
 <div class="capa-assinatura"><span class="nome">${esc(stop.nome)}</span><span class="ano">${esc(stop.ano)}</span></div>
 <address class="contato">
@@ -54,11 +54,13 @@ ${corpo(stop.paragrafos ?? [])}`;
     }
     case 'detalhe':
       dentro = `${stop.titulo ? `<h2 class="titulo-secao">${esc(stop.titulo)}</h2>` : ''}
-<div class="closes">${stop.imagens.map((id) => img(id, images, { alt: 'Detalhe de pintura, acrílica sobre tela', sizes: '(min-width: 900px) 70vw, 100vw' })).join('')}</div>`;
+<div class="closes">${stop.imagens.map((id) => img(id, images, { alt: 'DETALHES', sizes: '(min-width: 900px) 70vw, 100vw' })).join('')}</div>`;
       break;
     case 'verso':
-      dentro = `<div class="closes">${stop.imagens.map((id) => img(id, images, { alt: 'Verso da tela, com a assinatura da artista', sizes: '(min-width: 900px) 55vw, 100vw' })).join('')}</div>`;
+      dentro = `<div class="closes">${stop.imagens.map((id) => img(id, images, { alt: 'MARCELA DE LUNA', sizes: '(min-width: 900px) 55vw, 100vw' })).join('')}</div>`;
       break;
+    default:
+      throw new Error(`Tipo de parada desconhecido: ${stop.tipo} (${stop.id})`);
   }
   return `${abre}${dentro}\n</section>`;
 }

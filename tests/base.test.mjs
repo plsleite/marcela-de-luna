@@ -27,3 +27,19 @@ test('htmlDaParada escapa & < > e aspas', () => {
   assert.match(h, /A &amp; &lt;B&gt; &quot;C&quot;/);
   assert.match(h, /a &lt; b &amp; &quot;c&quot;/);
 });
+
+test('alt de capa, detalhe e verso vêm só do PDF', () => {
+  assert.match(htmlDaParada(stops[0], imgs), /alt="MARCELA DE LUNA — PORTFÓLIO 2026"/);
+  const det = stops.find((s) => s.tipo === 'detalhe');
+  const ver = stops.find((s) => s.tipo === 'verso');
+  const hd = htmlDaParada(det, imgs);
+  assert.match(hd, /alt="DETALHES"/);
+  assert.doesNotMatch(hd, /alt="(?!DETALHES)/);
+  assert.match(htmlDaParada(ver, imgs), /alt="MARCELA DE LUNA"/);
+  assert.match(htmlDaParada(stops[1], imgs), /alt=""/);
+});
+
+test('erro para id de imagem ausente e para tipo desconhecido', () => {
+  assert.throws(() => htmlDaParada({ ...stops[3], telas: ['nao-existe'] }, imgs), /nao-existe/);
+  assert.throws(() => htmlDaParada({ id: 'z', tipo: 'xyz', pagina: 1 }, imgs), /xyz/);
+});
