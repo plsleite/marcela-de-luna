@@ -6,8 +6,9 @@ export const DIST_FOCO = 8;
 export const FOV = 35;
 export const RELEVO = 0.12;
 // Pintura da capa (unidades de mundo): um pouco abaixo do centro, para o convite do som, no alto
-// à esquerda, não encostar nela.
-export const CAPA = { x: -2.0, y: -0.03, altura: 4.5 };
+// à esquerda, não encostar nela. A borda de baixo (y − altura/2 = −2,30) fica onde estava com
+// altura 4,6 e y 0: a folga se abre só em cima.
+export const CAPA = { x: -2.0, y: -0.05, altura: 4.5 };
 // Distâncias (unidades de mundo, da câmera à tela) em que uma tela é visível: surge de
 // transparente entre surge[0] e surge[1] (rente à câmera); ao longe embranquece entre branco[0] e
 // branco[1] até virar um vulto que conserva `residuo` da pintura, e some (alfa 0) entre some[0] e

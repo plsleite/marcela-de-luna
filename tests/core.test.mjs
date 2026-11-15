@@ -13,7 +13,7 @@ test('config', () => {
   assert.equal('PILOTO_ULTIMA_PAGINA' in cfg, false);
   assert.deepEqual(cfg.DURACAO, { capa: 100, texto: 160, abertura: 140, obra: 100, detalhe: 45, verso: 100 });
   assert.deepEqual([cfg.UNIDADES_POR_VH, cfg.DIST_FOCO, cfg.FOV, cfg.RELEVO], [0.14, 8, 35, 0.12]);
-  assert.deepEqual(cfg.CAPA, { x: -2.0, y: -0.03, altura: 4.5 });
+  assert.deepEqual(cfg.CAPA, { x: -2.0, y: -0.05, altura: 4.5 });
 });
 
 test('linha do tempo', () => {
@@ -55,7 +55,7 @@ test('planos de capa, texto e abertura', () => {
   const imgs = { c1:{w:1000,h:500}, p:{w:100,h:200} };
   const l = criarLinha([{ id:'capa', tipo:'capa' }, { id:'t', tipo:'texto' }]);
   const [c] = planosDoStop({ id:'capa', tipo:'capa', imagens:['c1'] }, 0, imgs, l);
-  assert.deepEqual([c.imagem, c.x, c.y, c.z, c.altura, c.largura], ['c1', -2.0, -0.03, 0, 4.5, 9]);
+  assert.deepEqual([c.imagem, c.x, c.y, c.z, c.altura, c.largura], ['c1', -2.0, -0.05, 0, 4.5, 9]);
   const t = { id:'t', tipo:'texto', planos:[{ imagem:'p', x:-1.6, y:1.1, z:-0.6, altura:3.4 }] };
   const [q] = planosDoStop(t, 0, imgs, l);
   const z = zDoStop(l, 't');
