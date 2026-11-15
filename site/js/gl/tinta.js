@@ -1,4 +1,4 @@
-// Camada de tinta do pincel: um alvo de renderização com um ponto de tinta por ponto de tela
+// Camada de tinta do pincel: um alvo de renderização com um ponto de tinta por pixel do canvas
 // (tamanhoDoAlvo), em espaço de janela
 // (não acompanha câmera nem scroll), desenhado como fundo da cena — antes das telas e sem teste
 // de profundidade, de modo que pinturas e texto sempre fiquem por cima.
@@ -20,11 +20,13 @@ const FECHO = 90;       // ms sem movimento: o traço vai até o mouse
 const MAX = 512;        // carimbos por desenho
 
 // Textura das cerdas (canvas 2D): x ao longo do gesto, y através do pincel. Cada linha é uma
-// cerda com força própria; algumas falham; as bordas são mais ralas e irregulares.
-function texturaDeCerdas() {
+// cerda com força própria; algumas falham; as bordas são mais ralas e irregulares. O desenho é
+// sempre o de 64×40; com `fator` 2 cada ponto vira um bloco de 2×2 (mesmas cerdas, bordas mais
+// nítidas quando o alvo tem mais de um ponto de tinta por ponto de tela).
+function texturaDeCerdas(fator = 1) {
   const W = 64, H = 40;
   const cv = document.createElement('canvas');
-  cv.width = W; cv.height = H;
+  cv.width = W * fator; cv.height = H * fator;
   const ctx = cv.getContext('2d');
   let s = 21;
   const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
@@ -41,13 +43,17 @@ function texturaDeCerdas() {
     if (borda < 1) f *= borda * (rnd() < 0.35 ? 0.2 : 0.6 + 0.4 * rnd()); // …e irregular
     linhas.push(Math.max(0, Math.min(1, f)));
   }
-  const img = ctx.createImageData(W, H);
+  const img = ctx.createImageData(W * fator, H * fator);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const g = Math.round(255 * linhas[y] * (0.88 + 0.12 * rnd())); // leve grão ao longo
-      const i = (y * W + x) * 4;
-      img.data[i] = img.data[i + 1] = img.data[i + 2] = g;
-      img.data[i + 3] = 255;
+      for (let yy = y * fator; yy < (y + 1) * fator; yy++) {
+        for (let xx = x * fator; xx < (x + 1) * fator; xx++) {
+          const i = (yy * W * fator + xx) * 4;
+          img.data[i] = img.data[i + 1] = img.data[i + 2] = g;
+          img.data[i + 3] = 255;
+        }
+      }
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -150,7 +156,7 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
   // Em 8 bits a perda por quadro some no arredondamento: acumula até dar dois degraus.
   const perdaMinima = flutuante ? 0 : 2 / 255;
 
-  const cerdas = texturaDeCerdas();
+  let cerdas = null, fatorCerdas = 0; // a textura acompanha a resolução do alvo
   const quad = new THREE.PlaneGeometry(1, 1);
   const camOrto = new THREE.OrthographicCamera(0, 1, 1, 0, -1, 1);
 
@@ -165,7 +171,7 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
   geo.instanceCount = 0;
   const matCarimbo = preMultiplicado(new THREE.ShaderMaterial({
     vertexShader: vertCarimbo, fragmentShader: fragCarimbo,
-    uniforms: { uCerdas: { value: cerdas } }, depthTest: false, depthWrite: false, transparent: true,
+    uniforms: { uCerdas: { value: null } }, depthTest: false, depthWrite: false, transparent: true,
   }));
   const carimbos = new THREE.Mesh(geo, matCarimbo);
   carimbos.frustumCulled = false;
@@ -211,6 +217,13 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
     const tam = renderer.getSize(new THREE.Vector2());
     const { w, h } = tamanhoDoAlvo(tam.x, tam.y, renderer.getPixelRatio());
     escala = w / innerWidth;
+    const fator = escala > 1 ? 2 : 1;
+    if (fator !== fatorCerdas) {
+      cerdas?.dispose();
+      cerdas = texturaDeCerdas(fator);
+      fatorCerdas = fator;
+      matCarimbo.uniforms.uCerdas.value = cerdas;
+    }
     alvos = [0, 1].map(() => new THREE.WebGLRenderTarget(w, h, {
       type: flutuante ? THREE.HalfFloatType : THREE.UnsignedByteType,
       minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
@@ -299,7 +312,8 @@ export function criarTinta(palco, { forca = () => 1 } = {}) {
       alvos = [];
       [geo, quad].forEach((g) => g.dispose());
       [matCarimbo, matPerda, matExibe].forEach((m) => m.dispose());
-      cerdas.dispose();
+      cerdas?.dispose();
+      cerdas = null; fatorCerdas = 0;
     },
   };
 
