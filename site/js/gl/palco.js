@@ -21,6 +21,9 @@ export function criarPalco(canvas) {
 
   const fns = [];
   const aoQuadro = (fn) => { fns.push(fn); };
+  const erros = [];
+  const aoErro = (fn) => { erros.push(fn); };
+  const parar = () => renderer.setAnimationLoop(null);
 
   function redimensionar() {
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -30,10 +33,16 @@ export function criarPalco(canvas) {
   }
   redimensionar();
 
+  // Um erro num quadro para o laço e avisa quem se registrou em aoErro (a travessia se desmonta).
   renderer.setAnimationLoop((t) => {
-    for (const fn of fns) fn(t);
-    renderer.render(cena, camera);
+    try {
+      for (const fn of fns) fn(t);
+      renderer.render(cena, camera);
+    } catch (erro) {
+      parar();
+      for (const fn of erros) fn(erro);
+    }
   });
 
-  return { cena, camera, renderer, aoQuadro, redimensionar, parar: () => renderer.setAnimationLoop(null) };
+  return { cena, camera, renderer, aoQuadro, aoErro, redimensionar, parar };
 }

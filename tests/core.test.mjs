@@ -42,7 +42,7 @@ test('planos de capa, texto e abertura', () => {
   const imgs = { c1:{w:1000,h:500}, p:{w:100,h:200} };
   const l = criarLinha([{ id:'capa', tipo:'capa' }, { id:'t', tipo:'texto' }]);
   const [c] = planosDoStop({ id:'capa', tipo:'capa', imagens:['c1'] }, 0, imgs, l);
-  assert.deepEqual([c.imagem, c.x, c.y, c.z, c.altura, c.largura], ['c1', -3.2, 0, 0, 5.2, 10.4]);
+  assert.deepEqual([c.imagem, c.x, c.y, c.z, c.altura, c.largura], ['c1', -2.0, 0, 0, 4.6, 9.2]);
   const t = { id:'t', tipo:'texto', planos:[{ imagem:'p', x:-1.6, y:1.1, z:-0.6, altura:3.4 }] };
   const [q] = planosDoStop(t, 0, imgs, l);
   const z = zDoStop(l, 't');

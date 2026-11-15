@@ -26,7 +26,7 @@ varying float vDist;
 void main() {
   vec3 cor = uCor;
   if (uTemMapa > 0.0) cor = mix(uCor, texture2D(uMapa, vUv).rgb, uTemMapa);
-  cor = mix(cor, vec3(1.0), smoothstep(22.0, 40.0, vDist));
+  cor = mix(cor, vec3(1.0), smoothstep(14.0, 28.0, vDist));
   float alfa = uOpacidade * uRevela * smoothstep(1.5, 3.0, vDist);
   gl_FragColor = vec4(cor, alfa);
   #include <colorspace_fragment>

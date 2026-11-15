@@ -14,7 +14,7 @@ export function planosDoStop(stop, indiceDaObra, images, linha) {
   };
   switch (stop.tipo) {
     case 'capa':
-      return [plano(stop.imagens[0], -3.2, 0, z0, 5.2)];
+      return [plano(stop.imagens[0], -2.0, 0, z0, 4.6)];
     case 'obra': {
       const [a, b] = stop.telas;
       if (b === undefined) return [plano(a, indiceDaObra % 2 === 0 ? -2.4 : 2.4, 0, z0, 4)];

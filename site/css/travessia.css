@@ -69,9 +69,10 @@ html.travessia .em-foco .corpo .palavra {
 html.travessia .parada--obra .legenda {
   position: absolute; margin: 0;
   left: var(--leg-x, 60vw); top: var(--leg-y, 45vh);
-  width: clamp(13rem, 17vw, 18rem);
+  width: max-content; min-width: clamp(12rem, 15vw, 16rem);
 }
-html.travessia .obra-titulo { text-wrap: balance; }
+/* título da obra numa linha só, como no PDF */
+html.travessia .obra-titulo { white-space: nowrap; }
 
 @media (prefers-reduced-motion: reduce) {
   html.travessia .parada, html.travessia .corpo .palavra { transition: none; }

@@ -36,31 +36,27 @@ function prepararEntrada(secao) {
 
 const sobrepoe = (a, b) => a.esq < b.dir && a.dir > b.esq && a.topo < b.base && a.base > b.topo;
 
-// Legenda de obra: com uma tela, no lado oposto, espelhada em relação ao centro da janela;
-// com duas, embaixo ao centro — ou, se não couber sem cobrir uma tela, sob a tela de cima.
-function posicionarLegenda(secao, rets, W, H) {
+// Legenda de obra ao lado das telas, centralizada na vertical. Com uma tela, no lado oposto,
+// espelhada em relação ao centro da janela (ou no meio do espaço livre, se o espelho tocar a tela);
+// com duas, à direita do par, no meio do espaço livre.
+function posicionarLegenda(secao, rets, W) {
   const leg = secao.querySelector('.legenda');
   if (!leg) return;
   const lw = leg.offsetWidth, lh = leg.offsetHeight;
   const caixa = (cx, topo) => ({ esq: cx - lw / 2, dir: cx + lw / 2, topo, base: topo + lh });
   const folgada = (c) => ({ esq: c.esq - MARGEM, dir: c.dir + MARGEM, topo: c.topo - MARGEM, base: c.base + MARGEM });
-  const livre = (c) => c.esq >= MARGEM && c.dir <= W - MARGEM && c.topo >= MARGEM && c.base <= H - MARGEM
-    && rets.every((r) => !sobrepoe(folgada(c), r));
-  let c;
+  const livre = (c) => c.esq >= MARGEM && c.dir <= W - MARGEM && rets.every((r) => !sobrepoe(folgada(c), r));
+  const u = {
+    esq: Math.min(...rets.map((r) => r.esq)), dir: Math.max(...rets.map((r) => r.dir)),
+    topo: Math.min(...rets.map((r) => r.topo)), base: Math.max(...rets.map((r) => r.base)),
+  };
+  const topo = (u.topo + u.base) / 2 - lh / 2;
+  const ladoDir = rets.length > 1 || (u.esq + u.dir) / 2 < W / 2;
+  const noVao = caixa(ladoDir ? (u.dir + W) / 2 : u.esq / 2, topo);
+  let c = noVao;
   if (rets.length === 1) {
-    const [r] = rets;
-    c = caixa(W - (r.esq + r.dir) / 2, (r.topo + r.base) / 2 - lh / 2);
-    if (!livre(c)) { // centro do espaço livre ao lado da tela
-      const ladoDir = (r.esq + r.dir) / 2 < W / 2;
-      c = caixa(ladoDir ? (r.dir + W) / 2 : r.esq / 2, (r.topo + r.base) / 2 - lh / 2);
-    }
-  } else {
-    const baseMax = Math.max(...rets.map((r) => r.base));
-    c = caixa(W / 2, (baseMax + H - lh) / 2); // no meio da faixa sob a tela mais baixa
-    if (!livre(c)) {
-      const [cima] = [...rets].sort((a, b) => a.topo - b.topo);
-      c = caixa((Math.max(cima.esq, 0) + cima.dir) / 2, cima.base + MARGEM * 1.5);
-    }
+    const espelho = caixa(W - (u.esq + u.dir) / 2, topo);
+    if (livre(espelho)) c = espelho;
   }
   secao.style.setProperty('--leg-x', `${Math.round(c.esq)}px`);
   secao.style.setProperty('--leg-y', `${Math.round(c.topo)}px`);
@@ -85,7 +81,7 @@ export function criarLegendas(raiz, linha) {
 
   // retangulos: Map id → [{ esq, dir, topo, base }] em px, das telas projetadas no foco.
   function posicionar(retangulos) {
-    const W = innerWidth, H = innerHeight;
+    const W = innerWidth;
     for (const [id, rets] of retangulos) {
       const s = secoes.get(id);
       if (!s || !rets.length) continue;
@@ -95,7 +91,7 @@ export function criarLegendas(raiz, linha) {
       };
       for (const k of ['esq', 'dir', 'topo', 'base']) s.style.setProperty(`--tela-${k}`, `${Math.round(u[k])}px`);
       s.style.setProperty('--tela-larg', `${Math.round(u.dir - u.esq)}px`);
-      if (s.classList.contains('parada--obra')) posicionarLegenda(s, rets, W, H);
+      if (s.classList.contains('parada--obra')) posicionarLegenda(s, rets, W);
     }
     // Se a janela mudou com um texto em foco, as linhas mudaram: recalcula os atrasos.
     const s = atual && secoes.get(atual);
