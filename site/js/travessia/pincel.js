@@ -35,7 +35,8 @@ export function montarPincel({ palco, raiz, telas, porId, images, estado, criarT
     return { telasNaJanela, paragrafos, controles };
   }
   function visivel(el) {
-    if (el.checkVisibility) return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+    // os nomes antigos das opções também: Chrome 105–120 e Firefox 106–124 só conhecem esses
+    if (el.checkVisibility) return el.checkVisibility({ opacityProperty: true, visibilityProperty: true, checkOpacity: true, checkVisibilityCSS: true });
     const cs = getComputedStyle(el);
     return cs.visibility === 'visible' && cs.display !== 'none' && Number(cs.opacity) > 0;
   }
