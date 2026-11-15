@@ -1,11 +1,10 @@
-import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE, TRILHO_FOLGA_TEXTO } from './config.js';
+import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, focoDe, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo } from './core/camera.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
-import { criarTrilho, textoVale } from './core/trilho.js';
 import { cartaoFinal, noMeioDoGiro } from './core/final.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
@@ -140,12 +139,6 @@ async function iniciarTravessia(stops, images) {
       const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, mesh.userData.stopId) + DIST_FOCO, aspecto, fovPara(aspecto));
       return { esq: r.esq * innerWidth, dir: r.dir * innerWidth, topo: r.topo * innerHeight, base: r.base * innerHeight };
     };
-    // Trilho (core/trilho.js): o x da câmera atravessa a última pintura de cada série e o último
-    // close do trecho. x de uma parada = o do seu primeiro plano. Os textos das paradas só valem
-    // com ele perto de 0 (ui/legendas.js).
-    const trilho = criarTrilho(linha, stops,
-      (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0).userData.plano.x);
-
     // Final (core/final.js): se as duas últimas paradas são o último close e o verso, as duas telas
     // formam um cartão que acompanha a câmera entre os dois focos, centraliza e gira meia volta.
     // Face única (gl/tela.js): a tela do verso nasce de costas (giro − π) e não aparece nem
@@ -178,12 +171,11 @@ async function iniciarTravessia(stops, images) {
       }
       cartao.giro = c.giro;
     }
-    // Parada clicável como "em foco": não com o trilho fora da folga nem com o cartão no meio do
-    // giro (aí a tela da parada leva ao foco dela, em vez de ampliar).
-    const emFocoParaClique = (vh) => (textoVale(trilho(vh), TRILHO_FOLGA_TEXTO)
-      && !(cartao && noMeioDoGiro(cartao.giro)) ? emFoco(linha, vh) : null);
+    // Parada clicável como "em foco": não com o cartão no meio do giro (aí a tela da parada leva
+    // ao foco dela, em vez de ampliar).
+    const emFocoParaClique = (vh) => (cartao && noMeioDoGiro(cartao.giro) ? null : emFoco(linha, vh));
 
-    const legendas = criarLegendas(raiz, linha, trilho);
+    const legendas = criarLegendas(raiz, linha);
     const posicionar = () => {
       const rets = new Map();
       for (const m of telas) {
@@ -235,11 +227,11 @@ async function iniciarTravessia(stops, images) {
       fecharMergulho() { mergulho?.fechar(); },
     };
 
-    // Paralaxe: a câmera fica no z do scroll (e no x do trilho) e ganha por cima o deslocamento
-    // do ponteiro; os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
+    // Paralaxe: a câmera fica no z do scroll e ganha por cima o deslocamento do ponteiro;
+    // os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
     let textoAnterior = '';
     function poseDoScroll(vh = vhDe(scrollY, innerHeight), p = paralaxe(palco.ponteiro)) {
-      return { x: trilho(vh) + p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: fovPara(innerWidth / innerHeight) };
+      return { x: p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: fovPara(innerWidth / innerHeight) };
     }
     function aplicarParalaxe(vh) {
       const p = paralaxe(palco.ponteiro);

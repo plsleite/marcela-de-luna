@@ -1,8 +1,8 @@
 // Luz rasante e realce dos vultos. Recebe tudo por parâmetro: palco (gl/palco.js), telas,
 // pontoNaTela (gl/tela.js), emFoco(vh) → id da parada em foco para o clique (o mesmo predicado
-// do clique, em main.js: null com o trilho fora da folga ou o cartão no meio do giro) e vale() →
-// true com a abertura terminada, sem tela ampliada e fora da volta dela (condição do realce).
-// Os ouvintes do mouse saem em encerrar().
+// do clique, em main.js: null com o cartão no meio do giro) e vale() → true com a abertura
+// terminada, sem tela ampliada e fora da volta dela (condição do realce). Os ouvintes do mouse
+// saem em encerrar().
 import { suavizar } from '../core/paralaxe.js';
 import { aoAlcance } from '../core/janela.js';
 
@@ -17,8 +17,8 @@ const FORCA_SOB = 1;
 const FORCA_DEMAIS = 0.35;
 // Realce dos vultos: com o ponteiro sobre uma tela que não é da parada em foco, o uRealce
 // dela vai a 1 em ~200 ms (o vulto ganha um esmaecido mais visível) e volta a 0 ao sair. A tela
-// da parada em foco não muda; nada disso vale na abertura nem com uma tela ampliada. Com o trilho
-// fora da folga ou no meio do giro, a tela da parada também é vulto: o clique nela viaja.
+// da parada em foco não muda; nada disso vale na abertura nem com uma tela ampliada. No meio do
+// giro final, a tela da parada também é vulto: o clique nela viaja.
 const REALCE_MS = 200;
 
 export function criarLuz({ palco, telas, pontoNaTela, emFoco, vale }) {
