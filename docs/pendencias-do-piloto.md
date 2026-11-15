@@ -59,7 +59,7 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 
 - Ímã: se a barra de rolagem for solta sem o evento chegar à página, o ímã só volta a agir quando o mouse se mexe; um clique cujo alvo seja o `<html>` arma o ímã sem a página ter rolado; espaço com o foco no botão de som também arma.
 - Ímã: arrasto real da barra de rolagem, toque real, roda real e trackpad real não foram testados (só eventos simulados); o limiar de 25% foi conferido só com roda simulada.
-- Ampliação: a classe do cursor "fora da tela" só é recalculada ao mover o mouse; com um close aberto o cursor mostra `zoom-out`, mas o clique só recolhe o close.
+- Ampliação: a classe do cursor "fora da tela" só é recalculada ao mover o mouse; com um close aberto o cursor mostra `zoom-out` no zoom 1 e `grab` com zoom, e o clique só recolhe o close.
 - Linha "DETALHES": o alvo de clique tem cerca de 26 px de altura; a transição de 0,2 s do anel não é desligada com movimento reduzido.
 - Fileira: em repouso, a área da barreira de tinta (`.navegacao-barreira`) é maior que a coluna, porque cobre a extensão da lente aberta; a tinta para antes da coluna mesmo quando a lente está fechada.
 - Fileira: um clique feito no mesmo quadro de um salto do ponteiro dentro da lente aberta usa o desenho do quadro anterior e pode cair na marca vizinha. Só aconteceu com o ponteiro teletransportado pela ferramenta de conferência; com um mouse de verdade, que passa por todos os pontos, não deve acontecer.
@@ -79,6 +79,8 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Capa em 1280×700: o fundo translúcido do botão de som cobre cerca de 4 px do alto do canto esquerdo da pintura.
 - Close: a entrada e o recolhimento (`abrirDetalhe` e `recolher` em `ui/mergulho-ui.js`) contam o centro por `innerWidth`, mas a caixa do close não inclui a barra de rolagem clássica (onde ela existe): a imagem nasce e volta cerca de 7 px à direita da marca. O zoom do close (`ui/detalhe.js`) já mede pela caixa. Anterior à rodada.
 - Close: rolar para baixo no zoom 1 recolhe o close e engole o resto do gesto por 400 ms, como a saída da tela ampliada; uma inércia de trackpad mais longa que isso, no mesmo gesto, afasta a tela ampliada que estiver aproximada (nunca a fecha).
+- O estado "close ainda entrando" (`d.vista === null`) é testado em cinco lugares de `ui/mergulho-ui.js`, com formas diferentes (`d && !d.vista`, `d.vista?.zoom`, `m.detalhe.vista?.zoom`, `!p.zoom0`, `m.detalhe && !m.detalhe.vista`); um nome só (por exemplo `closePronto()`) deixaria a regra num lugar.
+- Os testes de `zoomNaImagem` (`tests/mergulho.test.mjs`) usam `vistaDaImagem` do próprio módulo para conferir onde o ponto foi parar; falta um caso com valores calculados à mão.
 - `ui/detalhe.js` sem teste automático (depende de DOM e gsap): a conta é testada em `core/mergulho.js`, mas a convivência com os tweens de entrada e saída só foi conferida no navegador.
 - Pendente com a Marcela: se ela quer alguma alteração na lente da fileira.
 

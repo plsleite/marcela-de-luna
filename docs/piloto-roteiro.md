@@ -27,26 +27,26 @@ Registro aqui o que você respondeu, uma linha por pergunta.
 
 - **Limiar do ímã** (pergunta 1): está bom.
 - **Formato da lente** (pergunta 2): está bom; fica pendente perguntar à Marcela se ela quer alguma alteração.
-- **O convite do som** (pergunta 3): sem resposta registrada.
+- **O convite do som** (pergunta 3): no MacBook de 14" o convite ficava sobre a pintura da capa, e faltava ali o fundo translúcido (passos 1 e 2 abaixo).
 - **A marca de destaque** (pergunta 4): está bom.
 - **A linha "DETALHES"** (pergunta 5): está bom.
 - **O lado dos closes** (pergunta 6): está bom.
 - **As legendas deslocadas** (pergunta 7): está bom.
 - **A viagem longa** (pergunta 8): fica como está, por ora.
 - **O fundo atrás do nome e do botão** (pergunta 9): fica bem, mas faltava no botão de som na capa (passo 2 abaixo).
-- **O que só você podia conferir:** o traço no monitor externo, a fluidez, o ímã com a roda, a lente, o pulso da marca e o Safari foram conferidos por você, sem problema; o convite do som e a música ficaram sem resposta registrada.
+- **O que só você podia conferir:** o traço no monitor externo, a fluidez, o ímã com a roda, a lente, o pulso da marca e o Safari foram conferidos por você, sem problema; a música ao longo do site ficou sem resposta registrada.
 
 ### Os passos
 
 1. **O convite do som acima da pintura da capa.** No MacBook de 14", recarregue a página no topo e espere a abertura terminar. O texto "LIGAR O SOM" deve ficar inteiro sobre o branco, acima do canto superior esquerdo da pintura, sem encostar nela. A pintura ficou um pouco menor (2%) e o alto dela desceu (cerca de 16 px nessa janela); a borda de baixo ficou onde estava. "PORTFÓLIO", o nome, o ano, o contato e o rodapé continuam alinhados com a pintura, e as pinceladas da abertura cobrem a pintura inteira.
 2. **O fundo do botão na capa.** Ainda na capa, olhe o botão de som. Ele tem agora o mesmo fundo branco translúcido que já tinha fora da capa; sobre o branco, o fundo não aparece. Se você deixar a janela bem baixa, a pintura sobe até o botão, e o fundo mantém o convite legível sobre ela.
-3. **O close abre como antes.** Amplie "A Dança é por Ela" e clique na marca de destaque. O close cresce a partir da marca e ocupa a janela, como antes; o cursor é a lupa com o sinal de menos.
+3. **O close abre como antes.** Vá a "A Dança é por Ela", pela fileira de marcas na borda direita (passe o mouse para ver o título e clique) ou rolando até a obra. Clique na pintura para ampliá-la e, com ela ampliada, clique na marca de destaque. O close cresce a partir da marca e ocupa a janela, como antes; o cursor é a lupa com o sinal de menos.
 4. **Aproximar o close.** Com o close aberto, gire a roda para cima (ou faça a pinça no trackpad) com o ponteiro sobre um detalhe fora do centro. A imagem aproxima em torno do ponteiro: o detalhe sob ele não sai do lugar. O zoom vai até 6 vezes, como na tela ampliada, e o cursor vira a mãozinha.
-5. **Arrastar o close.** Com o close aproximado, arraste a imagem. Ela acompanha o ponteiro, e o cursor vira a mão fechada durante o arrasto. Arraste até o fim em cada direção: a borda da imagem para na borda da janela, sem mostrar branco além dela. Soltar depois de um arrasto não fecha o close.
+5. **Arrastar o close.** Com o close aproximado, arraste a imagem. Ela acompanha o ponteiro, e o cursor vira a mão fechada durante o arrasto. Arraste até o fim em cada direção: a borda da imagem para na borda da janela. Enquanto a imagem for mais estreita (ou mais baixa) que a janela, ela fica centrada nesse sentido, com branco dos lados, e não anda nele; aproxime mais para que ela passe da janela. Soltar depois de um arrasto não fecha o close.
 6. **Recolher pelo clique.** Com o close aproximado, clique sem arrastar. Ele volta à marca a partir do zoom e da posição em que estava, sem salto, e a tela ampliada continua aberta. Abra o close de novo: ele começa sem zoom.
 7. **Recolher pelo Esc.** Abra o close, aproxime e aperte Esc. O close recolhe e a tela ampliada continua aberta. Um segundo Esc fecha a tela ampliada.
 8. **Recolher pela roda.** Abra o close sem aproximar e role a roda para baixo. O close recolhe, a tela ampliada continua aberta e a página não rola. Se você tinha aproximado o close e afasta até o zoom 1 no mesmo gesto, ele não recolhe: é preciso parar e rolar para baixo de novo, como na tela ampliada.
-9. **Mudar o tamanho da janela.** Com o close aproximado, mude o tamanho da janela. A imagem continua cobrindo a janela, sem sair dela.
+9. **Mudar o tamanho da janela.** Com o close aproximado, mude o tamanho da janela. A imagem não sai da janela: onde ela é maior que a janela, a borda continua na borda da janela; onde é mais estreita, ela fica centrada, com branco dos lados.
 10. **A tela ampliada não mudou.** Feche o close e confira na tela ampliada o zoom, o arrasto e as saídas de sempre (clique fora, "voltar", Esc e roda para baixo).
 
 ### O que eu medi
