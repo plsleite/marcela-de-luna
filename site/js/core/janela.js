@@ -34,3 +34,12 @@ export function aoAlcance(distancia, perto, alcance) {
 export function naVista(distancia, alcance) {
   return distancia > -1 && distancia < alcance;
 }
+
+// Ordem da reserva (índices de parada): da atual até o fim, depois da atual para trás.
+export function filaDeReserva(stops, atual) {
+  const a = Math.min(Math.max(atual, 0), stops.length - 1);
+  const ordem = [];
+  for (let i = a; i < stops.length; i++) ordem.push(i);
+  for (let i = a - 1; i >= 0; i--) ordem.push(i);
+  return ordem;
+}
