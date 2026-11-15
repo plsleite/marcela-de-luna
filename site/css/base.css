@@ -17,7 +17,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-/* O canvas será ligado numa tarefa posterior: por ora não ocupa espaço nem cobre nada. */
+/* Fora da travessia (página base) o canvas não aparece; travessia.css o mostra. */
 #gl { display: none; }
 
 #paradas { display: block; }

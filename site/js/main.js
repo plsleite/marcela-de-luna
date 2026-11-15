@@ -1,4 +1,4 @@
-import { PILOTO_ULTIMA_PAGINA, DIST_FOCO } from './config.js';
+import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, VISIBILIDADE } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara } from './core/camera.js';
@@ -73,6 +73,15 @@ async function iniciarTravessia(stops, images) {
   let mergulho = null; // criarMergulho: abrir, fechar, quadro, encerrar
   let navegacao = null; // criarNavegacao: fileira, teclado, cabeçalho e irPara
   let ativo = true;
+  // Cada parte montada registra aqui como se desmonta; a desmontagem as percorre da última
+  // para a primeira, cada passo no seu try/catch: um passo que falha não impede os outros.
+  const encerramentos = [];
+  const aoDesmontar = (fn) => { encerramentos.push(fn); };
+  const cadaUm = (passos) => {
+    for (const passo of passos) {
+      try { passo(); } catch (e) { console.error(e); }
+    }
+  };
   // Único caminho de desmontagem (contexto perdido, erro num quadro ou erro na montagem):
   // para o laço, solta o scroll e mostra a página base na parada em que se estava.
   function desmontar(erro) {
@@ -80,16 +89,12 @@ async function iniciarTravessia(stops, images) {
     ativo = false;
     vhDaTravessia = null;
     if (erro) console.error(erro);
-    palco.parar();
-    try { mergulho?.encerrar(); } catch (e) { console.error(e); } // o resto da desmontagem roda sempre
-    try { navegacao?.encerrar(); } catch (e) { console.error(e); }
-    lenis?.destroy();
-    abertura?.encerrar();
-    if (pincel) { pincel.soltar(); pincel.tinta.liberar(); pincel.preenchimento.desfazer(); pincel = null; }
-    for (const s of raiz.querySelectorAll('.em-foco')) s.classList.remove('em-foco');
-    raiz.style.removeProperty('--paralaxe-x');
-    raiz.style.removeProperty('--paralaxe-y');
-    ficarNaBase();
+    cadaUm([() => palco.parar(), ...encerramentos.reverse()]);
+    cadaUm([
+      () => { for (const s of raiz.querySelectorAll('.em-foco')) s.classList.remove('em-foco'); },
+      () => { raiz.style.removeProperty('--paralaxe-x'); raiz.style.removeProperty('--paralaxe-y'); },
+    ]);
+    ficarNaBase(); // sempre
     document.getElementById(estado.id)?.scrollIntoView();
   }
   palco.aoErro(desmontar);
@@ -104,6 +109,7 @@ async function iniciarTravessia(stops, images) {
 
   function montarTravessia() {
     const linha = criarLinha(stops);
+    const porId = new Map(stops.map((s) => [s.id, s]));
     raiz.style.setProperty('--altura', `${alturaDaPagina(linha)}vh`);
     restaurarScroll(true); // antes do primeiro quadro: a câmera já nasce na parada certa
     // Altura da janela com que o vh guardado foi medido: entre a janela mudar e o resize ser
@@ -188,10 +194,12 @@ async function iniciarTravessia(stops, images) {
     // virtualScroll só intervém com uma viagem em andamento (a roda no mesmo sentido herda a
     // velocidade dela). Depende do Lenis 1.3.27 vendorizado ler data.deltaY depois do gancho.
     lenis = new Lenis({ lerp: LERP, virtualScroll: (dados) => { navegacao?.aoRolarVirtual(dados); } });
+    aoDesmontar(() => lenis.destroy());
     navegacao = criarNavegacao({
       linha, stops, images, lenis, amortecimento: LERP * 60, antes: raiz,
       fecharMergulho: () => mergulho?.fechar(), // toda navegação fecha o mergulho antes de agir
     });
+    aoDesmontar(() => navegacao.encerrar());
     window.__site = {
       linha, estado, telas, ponteiro: palco.ponteiro,
       get abertura() { return abertura?.estado ?? null; },
@@ -205,13 +213,12 @@ async function iniciarTravessia(stops, images) {
     // Paralaxe: a câmera fica no z do scroll e ganha por cima o deslocamento do ponteiro;
     // os textos andam até 8 px no sentido contrário (só escreve no DOM quando muda).
     let textoAnterior = '';
-    function poseDoScroll(vh = (scrollY / innerHeight) * 100) {
-      const p = paralaxe(palco.ponteiro);
+    function poseDoScroll(vh = vhDe(scrollY, innerHeight), p = paralaxe(palco.ponteiro)) {
       return { x: p.x, y: p.y, z: zDaCamera(vh), rx: p.giroX, ry: p.giroY, fov: fovPara(innerWidth / innerHeight) };
     }
     function aplicarParalaxe(vh) {
       const p = paralaxe(palco.ponteiro);
-      const c = poseDoScroll(vh);
+      const c = poseDoScroll(vh, p);
       palco.camera.position.set(c.x, c.y, c.z);
       palco.camera.rotation.set(c.rx, c.ry, 0);
       if (palco.camera.fov !== c.fov) { palco.camera.fov = c.fov; palco.camera.updateProjectionMatrix(); } // depois do mergulho
@@ -246,14 +253,13 @@ async function iniciarTravessia(stops, images) {
     // dos títulos que se enchem de pintura. Não deposita sobre as telas; passa por baixo de todo
     // texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura).
     function montarPincel() {
-      const porId = new Map(stops.map((s) => [s.id, s]));
       const p = { obstaculos: null };
       function obstaculos() {
         const telasNaJanela = [];
         const cz = palco.camera.position.z;
         for (const m of telas) {
           const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
-          if (d > 1.5 && d < 28) telasNaJanela.push(retanguloProjetado(m, palco.camera));
+          if (d > VISIBILIDADE.surge[0] && d < VISIBILIDADE.branco[1]) telasNaJanela.push(retanguloProjetado(m, palco.camera));
         }
         const paragrafos = [...raiz.querySelectorAll('.em-foco .corpo')].map((el) => {
           const b = el.getBoundingClientRect();
@@ -283,12 +289,16 @@ async function iniciarTravessia(stops, images) {
       return p;
     }
     pincel = montarPincel();
+    aoDesmontar(() => {
+      const p = pincel;
+      pincel = null;
+      cadaUm([() => p.soltar(), () => p.tinta.liberar(), () => p.preenchimento.desfazer()]);
+    });
 
     // Clique numa tela (quem decide é core/clique.js): só depois da abertura; a da obra em foco
     // abre o mergulho (capa e recortes de texto em foco não fazem nada), qualquer outra visível
     // leva até a sua parada. Durante uma viagem, toda tela leva até a sua parada. Dentro do mergulho o scroll suavizado para, o pincel descansa
     // e a pintura vem na maior largura.
-    const porId = new Map(stops.map((s) => [s.id, s]));
     mergulho = criarMergulho({
       palco, porId, images, telas, estado, poseDoScroll,
       destino: (mesh) => destinoDoClique({
@@ -318,6 +328,7 @@ async function iniciarTravessia(stops, images) {
         if (ativo && indiceAtual >= 0) carregarJanela(indiceAtual); // volta à largura da janela (não na desmontagem)
       },
     });
+    aoDesmontar(() => mergulho.encerrar()); // fecha o mergulho com o scroll e o pincel ainda vivos
 
     let indiceAtual = -1;
     palco.aoQuadro((t, dt) => {
@@ -363,6 +374,7 @@ async function iniciarTravessia(stops, images) {
     }
     const fundo = telas.filter((m) => m !== telaDaCapa);
     abertura = rodarAbertura({ telaDaCapa, pronto: Promise.all(etapas), etapas, fundo });
+    aoDesmontar(() => abertura.encerrar());
     if (capa) {
       Promise.race([capa, abertura]).catch(() => {}) // erro da capa já registrado acima
         .then(() => { if (ativo) carregarJanela(indiceAtual); })
@@ -371,6 +383,7 @@ async function iniciarTravessia(stops, images) {
     // Redimensionar não muda de parada: antes de tudo, o mesmo vh em px da altura nova (e o
     // mergulho aberto passa a contar a partir dele). As texturas esperam a janela assentar.
     let prazoTexturas = 0;
+    aoDesmontar(() => clearTimeout(prazoTexturas));
     addEventListener('resize', () => {
       if (!ativo) return;
       try {

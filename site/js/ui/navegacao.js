@@ -68,6 +68,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     });
     if (!id) return;
     e.preventDefault();
+    if (e.repeat) return; // segurar a tecla avança uma parada só
     irPara(id);
   }
   addEventListener('keydown', aoTeclar);

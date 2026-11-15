@@ -1,7 +1,7 @@
 // Palco three.js: cena branca, câmera em perspectiva olhando para −z, o laço de quadros
 // e o ponteiro do mouse (suavizado) para a paralaxe e a luz rasante.
 import * as THREE from 'three';
-import { DIST_FOCO } from '../config.js';
+import { DIST_FOCO, VISIBILIDADE } from '../config.js';
 import { fovPara } from '../core/camera.js';
 import { suavizar } from '../core/paralaxe.js';
 
@@ -59,7 +59,7 @@ export function criarPalco(canvas) {
       && o.material.uniforms?.uOpacidade?.value > 0);
     for (const hit of lancadorDoPonto.intersectObjects(telas, false)) {
       const dist = -_local.copy(hit.point).applyMatrix4(camera.matrixWorldInverse).z;
-      if (dist > 1.5 && dist < 28) return hit.object;
+      if (dist > VISIBILIDADE.surge[0] && dist < VISIBILIDADE.branco[1]) return hit.object;
     }
     return null;
   }

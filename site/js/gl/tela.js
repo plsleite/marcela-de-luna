@@ -2,7 +2,7 @@
 // que nasce do branco ao longe e some ao passar rente à câmera. Sem iluminação da cena:
 // a única luz é a rasante do cursor, que só multiplica a cor (luminância, nunca matiz).
 import * as THREE from 'three';
-import { RELEVO } from '../config.js';
+import { RELEVO, VISIBILIDADE as VIS } from '../config.js';
 import { ALTURA_LUZ, RAIO_LUZ, GANHO, PASSO_UV } from '../core/luz.js';
 import { PINCELADA as PC } from '../core/abertura.js';
 
@@ -90,12 +90,12 @@ void main() {
       fator = fatorDeLuz(gx, gy, uLuz - vUv, forca);
     }
   }
-  float branco = smoothstep(14.0, 28.0, vDist);
+  float branco = smoothstep(${f(VIS.branco[0])}, ${f(VIS.branco[1])}, vDist);
   cor = mix(cor, vec3(1.0), branco);
   fator = mix(fator, 1.0, branco); // o branco da distância não ganha relevo
   // Quase toda branca, a tela também fica transparente: sobre o branco não muda nada, e não
   // recorta um retângulo branco na tinta do pincel que está atrás.
-  float alfa = uOpacidade * revelacao(vUv, uRevela) * smoothstep(1.5, 3.0, vDist) * (1.0 - smoothstep(0.85, 1.0, branco));
+  float alfa = uOpacidade * revelacao(vUv, uRevela) * smoothstep(${f(VIS.surge[0])}, ${f(VIS.surge[1])}, vDist) * (1.0 - smoothstep(0.85, 1.0, branco));
   gl_FragColor = vec4(cor, alfa);
   #include <colorspace_fragment>
   // Depois da conversão para sRGB: o mesmo fator nos três canais da cor exibida mantém a

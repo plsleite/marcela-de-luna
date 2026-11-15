@@ -19,6 +19,7 @@ const SEGUE = 0.22;     // lerp por quadro de 60 Hz da vista exibida rumo à ped
 const GESTO = 200;      // ms sem roda: começa outro gesto
 const TETO_ENGOLIR = 400; // ms: depois de sair pela roda, ela só é contida até aqui, no máximo
 const ARRASTO_MIN = 4;  // px: abaixo disto foi clique, não arrasto
+const CLIQUE_MAX = 6;   // px: fora do mergulho, um clique que andou mais que isto foi arrasto
 const RODA = 0.002;     // ganho do zoom por px de roda
 const PINCA = 0.01;     // ganho da pinça do trackpad (ctrl + roda: deltas pequenos)
 const QUADRO = 1000 / 60;
@@ -381,6 +382,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
   }
 
   // ---------- sempre: clique numa tela e cursor ----------
+  // Onde o botão desceu: um clique que chega depois de arrastar (seleção, gesto) não viaja nem mergulha.
+  let descida = null;
+  function aoDescer(e) { descida = e.isPrimary ? { x: e.clientX, y: e.clientY } : descida; }
   function aoClicar(e) {
     if (e.button !== 0) return;
     if (m) {
@@ -389,6 +393,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
       return;
     }
     if (saida || e.target.closest?.('a, button, input, select, textarea, label')) return;
+    const d0 = descida;
+    descida = null;
+    if (d0 && Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > CLIQUE_MAX) return;
     const mesh = palco.telaSob(e.clientX, e.clientY);
     const d = mesh ? destino(mesh) : null;
     if (d === 'mergulho') abrir(mesh);
@@ -401,12 +408,14 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     const mesh = palco.telaSob(e.clientX, e.clientY);
     html.classList.toggle('tela-clicavel', Boolean(mesh && destino(mesh)));
   }
+  addEventListener('pointerdown', aoDescer, { passive: true });
   addEventListener('click', aoClicar);
   addEventListener('pointermove', aoPassar, { passive: true });
 
   // Desmontagem: os ouvintes saem sempre, mesmo se fechar lançar (o erro segue para quem chamou).
   function encerrar() {
     soltarEngolir();
+    removeEventListener('pointerdown', aoDescer, { passive: true });
     removeEventListener('click', aoClicar);
     removeEventListener('pointermove', aoPassar, { passive: true });
     try {
