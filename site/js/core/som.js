@@ -27,3 +27,7 @@ export function botaoDoSom(tocando) {
     ? { rotulo: 'Desligar o som', pressionado: true, barras: 'tocando' }
     : { rotulo: 'Ligar o som', pressionado: false, barras: 'paradas' };
 }
+
+// Convite "LIGAR O SOM": enquanto a música ainda não tocou nesta visita (memória, não vai para o
+// localStorage) e a escolha guardada não é 'desligado'.
+export const convite = ({ escolha, tocou }) => escolha !== 'desligado' && !tocou;

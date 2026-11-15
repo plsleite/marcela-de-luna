@@ -148,6 +148,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   let marcaAnterior = -1;   // índice da marca atual
   let navVisivel = null;
   let topoVisivel = null;
+  let foraDaCapa = null;
   let estavaViajando = false;
   // dt em ms; atual: id da parada em que o scroll está; oculta: abertura, mergulho ou a volta dele em curso.
   function quadro(dt, { atual, oculta }) {
@@ -172,6 +173,9 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
       if (!navVisivel) nav.classList.remove('com-titulo');
     }
     const t = !oculta && emFoco(linha, (y / innerHeight) * 100) !== capa?.id;
+    // o botão de som lê isto: fora da capa ele desliza para a direita do nome
+    const fora = emFoco(linha, (y / innerHeight) * 100) !== capa?.id;
+    if (foraDaCapa !== fora) { foraDaCapa = fora; document.documentElement.classList.toggle('fora-da-capa', fora); }
     if (topo && topoVisivel !== t) { topoVisivel = t; topo.classList.toggle('visivel', t); }
   }
 
@@ -179,6 +183,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     viagem = null;
     removeEventListener('keydown', aoTeclar);
     removeEventListener('resize', medir);
+    document.documentElement.classList.remove('fora-da-capa');
     nav.remove();
     topo?.remove();
   }

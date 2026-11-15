@@ -1,6 +1,6 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { SOM } from '../site/js/config.js';
-import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom } from '../site/js/core/som.js';
+import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom, convite } from '../site/js/core/som.js';
 
 const base = { carregado: true, gesto: true, preferencia: null, oculta: false };
 
@@ -43,4 +43,13 @@ test('cliqueNoBotao: tocando, desliga; sem tocar, o clique é o gesto que liga (
 test('botaoDoSom: rótulo, aria-pressed e barras derivam de "está tocando"', () => {
   assert.deepEqual(botaoDoSom(true), { rotulo: 'Desligar o som', pressionado: true, barras: 'tocando' });
   assert.deepEqual(botaoDoSom(false), { rotulo: 'Ligar o som', pressionado: false, barras: 'paradas' });
+});
+
+test('convite: só enquanto a música não tocou nesta visita e a escolha não é desligado', () => {
+  assert.equal(convite({ escolha: null, tocou: false }), true);
+  assert.equal(convite({ escolha: 'ligado', tocou: false }), true);
+  assert.equal(convite({ escolha: 'desligado', tocou: false }), false);
+  assert.equal(convite({ escolha: null, tocou: true }), false);
+  assert.equal(convite({ escolha: 'ligado', tocou: true }), false);
+  assert.equal(convite({ escolha: 'desligado', tocou: true }), false);
 });

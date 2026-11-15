@@ -4,12 +4,13 @@
 // O site abre em silêncio (os navegadores não tocam som antes de um gesto): no primeiro
 // pointerdown ou keydown do visitante a música sobe de 0 a SOM.volume em SOM.subida s. O arquivo
 // só é pedido quando main.js chama carregar() (depois da abertura); se não carregar, não há botão
-// e nada mais muda. O botão no canto superior direito liga e desliga (SOM.troca s) e a escolha
+// e nada mais muda. O botão no canto superior esquerdo (junto do nome; enquanto a música não tocou mostra o convite
+// "LIGAR O SOM") liga e desliga (SOM.troca s) e a escolha
 // fica em localStorage ('som'); a aba oculta pausa, e a volta retoma. Quem decide o estado é
 // core/som.js. Tudo o que este módulo cria (áudio, botão, ouvintes, tweens) sai em encerrar().
 import { gsap } from 'gsap';
 import { SOM } from '../config.js';
-import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom } from '../core/som.js';
+import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom, convite } from '../core/som.js';
 
 const ARQUIVO = './assets/audio/o-cisne.mp3';
 const CHAVE = 'som';
@@ -26,8 +27,10 @@ export function criarSom() {
   let botao = null;
   let carregado = false;
   let gesto = false;
+  let tocou = false; // a música já tocou nesta visita (memória; não vai para o localStorage)
   let preferencia = lerPreferencia();
   let encerrado = false;
+  let medidor = null;
   const nivel = { v: 0 }; // volume exibido (o tween anda nele e copia para audio.volume)
 
   const estado = () => estadoDoSom({ carregado, gesto, preferencia, oculta: document.hidden });
@@ -36,10 +39,12 @@ export function criarSom() {
   const tocando = () => estado().tocar && Boolean(audio) && !audio.paused;
   function atualizarBotao() {
     if (!botao) return;
+    if (tocando()) tocou = true;
     const b = botaoDoSom(tocando());
     botao.setAttribute('aria-pressed', String(b.pressionado));
     botao.setAttribute('aria-label', b.rotulo);
     botao.classList.toggle('tocando', b.barras === 'tocando');
+    botao.classList.toggle('convite', convite({ escolha: preferencia, tocou }));
   }
 
   function tocar() {
@@ -74,7 +79,7 @@ export function criarSom() {
 
   // Primeiro gesto do visitante (o do próprio botão conta como clique nele, não aqui).
   function aoGesto(e) {
-    if (gesto || (botao && botao.contains(e.target))) return;
+    if (gesto || (botao && e.target instanceof Node && botao.contains(e.target))) return;
     gesto = true;
     aplicar(SOM.subida);
   }
@@ -94,6 +99,11 @@ export function criarSom() {
       barra.setAttribute('aria-hidden', 'true');
       botao.append(barra);
     }
+    const texto = document.createElement('span'); // o convite: some quando a música toca
+    texto.className = 'som-convite';
+    texto.setAttribute('aria-hidden', 'true');
+    texto.textContent = 'LIGAR O SOM';
+    botao.append(texto);
     botao.addEventListener('click', (e) => {
       if (e.detail > 0) botao.blur(); // clicado com o ponteiro, não guarda o foco (como a fileira)
       preferencia = cliqueNoBotao({ preferencia, tocando: tocando() });
@@ -102,6 +112,12 @@ export function criarSom() {
       aplicar(SOM.troca);
     });
     document.body.append(botao);
+    // Fora da capa o botão fica à direita do nome: a largura do nome vem da medida (--nome-w), não de px fixos.
+    const nome = document.querySelector('.topo-nome');
+    if (nome && typeof ResizeObserver !== 'undefined') {
+      medidor = new ResizeObserver(() => botao?.style.setProperty('--nome-w', `${nome.getBoundingClientRect().width.toFixed(1)}px`));
+      medidor.observe(nome);
+    }
     atualizarBotao();
     requestAnimationFrame(() => botao?.classList.add('visivel'));
   }
@@ -142,6 +158,7 @@ export function criarSom() {
       audio.load(); // solta o download
       audio = null;
     }
+    medidor?.disconnect();
     botao?.remove();
     botao = null;
   }
