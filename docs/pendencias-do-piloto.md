@@ -104,7 +104,6 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Depois de cair na página base (perda do contexto WebGL), recarregar volta à capa com a abertura: a posição salva no modo base é descartada (`posicaoRestaurada` exige o mesmo modo). Visto de novo na conferência da segunda rodada.
 - Pincel: ritmo de sumiço linear (8 s numa passada, 10 s sobreposta); tinta visível através de tela translúcida na faixa de 1,5 a 3 de distância; halo da luz elíptico. Aguardam as respostas do Pedro no roteiro.
 - Pincel: o relevo da tinta num monitor de densidade 1 passa a ser medido a 1 px (antes 2 px), como já era na tela retina; o Pedro confere no monitor dele.
-- Pincel: a resolução da tinta (e a do palco) só é recalculada no `resize`. Levar a janela a um monitor de outra densidade sem mudar o tamanho dela depende de o navegador disparar `resize`; não conferido (o painel de conferência não tem dois monitores).
 - Pincel: na tela retina os dois alvos de meia precisão passaram de cerca de 21 MB para 83 MB (1512×860); no teto de 8,3 milhões de pontos chegam a 133 MB. No celular isso precisa de outra conta.
 - Pincelada da fileira: em repouso, opacidade 0,45; aberta, 0,5. A rosa fica clara.
 - Raycast a cada movimento do ponteiro.
@@ -126,6 +125,7 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - A pinça do Safari no close aberto pela marca (terceira rodada; implementada por leitura, como a da tela ampliada) e o zoom, o arrasto e o recolhimento do close com o trackpad de verdade.
 - O convite na capa do MacBook de 14" com os valores novos da capa.
 - O traço na tela retina do MacBook (terceira rodada, C4): nitidez das cerdas, mesma largura e mesmo desenho de antes, e a fluidez com tinta viva. A densidade 2 foi só emulada na conferência.
+- A troca de monitor (terceira rodada, C4): arrastar a janela entre o MacBook e o monitor externo, nos dois sentidos. Só simulada na conferência (densidade trocada à mão), sem monitor real.
 - O convite "LIGAR O SOM", a primeira entrada da música e a música ao longo de todo o percurso, inclusive nas viagens longas.
 - Arrastar a barra de rolagem no meio de uma viagem longa.
 - A página simples com "Reduzir movimento" ligado.

@@ -70,6 +70,7 @@ O pedido dizia y −0,03; com esse valor a folga ficou em 7,2 px em 1512×828 e 
 2. **A pinça no Safari.** No Safari a pinça chega por outro caminho; eu não pude testá-la. Aproxime e afaste o close com a pinça do trackpad e veja se o detalhe sob o ponteiro fica no lugar.
 3. **O trackpad de verdade.** Eu usei roda e arrasto simulados. Veja se aproximar, arrastar e recolher o close pelo trackpad parecem naturais.
 4. **O traço na tela do MacBook** (passo 11). Eu só emulei a densidade 2. Veja se as cerdas ficaram mais nítidas sem mudar de desenho e se a rolagem continua fluida com tinta viva.
+5. **A troca de monitor.** Abra o site num monitor, pinte um pouco e arraste a janela para o outro (do MacBook para o externo e de volta). Em cada um, as pinturas, os textos e o traço devem continuar nítidos, sem a página sair da parada em que estava. Eu só simulei a troca; não tenho dois monitores.
 
 ## O que mudou na segunda rodada (15/11/2026)
 
