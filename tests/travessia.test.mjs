@@ -1,5 +1,5 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
-import { retanguloNaTela, atrasosDasPalavras, caixaProjetada } from '../site/js/core/projecao.js';
+import { retanguloNaTela, atrasosDasPalavras, caixaProjetada, fracaoVisivel } from '../site/js/core/projecao.js';
 
 const perto = (a, b) => Math.abs(a - b) < 1e-9;
 
@@ -52,4 +52,16 @@ test('caixaProjetada: divide pela profundidade (perspectiva)', () => {
   const P = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0];
   const r = caixaProjetada(1, 1, mundoDe({ z: -2 }), IDENT, P, 200, 200);
   assert.ok(perto(r.esq, 75) && perto(r.dir, 125) && perto(r.topo, 75) && perto(r.base, 125));
+});
+
+test('fracaoVisivel: parte do alvo que nenhum retângulo da frente cobre', () => {
+  const r = (esq, dir, topo, base) => ({ esq, dir, topo, base });
+  const alvo = r(0, 1, 0, 2);                                              // área 2
+  assert.equal(fracaoVisivel(alvo, []), 1);
+  assert.equal(fracaoVisivel(alvo, [r(5, 6, 0, 1)]), 1);                   // não toca
+  assert.equal(fracaoVisivel(alvo, [r(-1, 2, -1, 3)]), 0);                 // cobre tudo
+  assert.ok(perto(fracaoVisivel(alvo, [r(0.5, 3, 0, 2)]), 0.5));           // metade da direita
+  assert.ok(perto(fracaoVisivel(alvo, [r(0, 1, 0, 1), r(0, 1, 0.5, 1.5)]), 0.25)); // sobreposição conta uma vez
+  assert.ok(perto(fracaoVisivel(alvo, [r(0, 0.5, 0, 1), r(0.5, 1, 1, 2)]), 0.5));  // dois cantos
+  assert.equal(fracaoVisivel(r(1, 1, 0, 2), [r(0, 2, 0, 2)]), 0);          // alvo sem área
 });

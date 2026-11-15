@@ -15,6 +15,30 @@ export function retanguloNaTela(plano, zCamera, aspecto, fov = FOV) {
   };
 }
 
+// Fração da área do retângulo `alvo` ({ esq, dir, topo, base }) que nenhum retângulo de
+// `naFrente` cobre (as sobreposições entre eles contam uma vez). Alvo sem área → 0.
+export function fracaoVisivel(alvo, naFrente) {
+  const area = (alvo.dir - alvo.esq) * (alvo.base - alvo.topo);
+  if (!(area > 0)) return 0;
+  const cortes = naFrente
+    .map((r) => ({ esq: Math.max(r.esq, alvo.esq), dir: Math.min(r.dir, alvo.dir),
+      topo: Math.max(r.topo, alvo.topo), base: Math.min(r.base, alvo.base) }))
+    .filter((r) => r.dir > r.esq && r.base > r.topo);
+  // União dos cortes por faixas verticais entre as bordas: em cada uma, os intervalos em y.
+  const xs = [...new Set(cortes.flatMap((r) => [r.esq, r.dir]))].sort((a, b) => a - b);
+  let coberta = 0;
+  for (let k = 0; k + 1 < xs.length; k++) {
+    const meio = (xs[k] + xs[k + 1]) / 2;
+    const ys = cortes.filter((r) => r.esq <= meio && meio < r.dir).map((r) => [r.topo, r.base]).sort((a, b) => a[0] - b[0]);
+    let alto = 0, fim = -Infinity;
+    for (const [t, bs] of ys) {
+      if (t > fim) { alto += bs - t; fim = bs; } else if (bs > fim) { alto += bs - fim; fim = bs; }
+    }
+    coberta += alto * (xs[k + 1] - xs[k]);
+  }
+  return Math.max(0, 1 - coberta / area);
+}
+
 // Ponto (x, y, z) por uma matriz 4×4 em coluna, com a divisão perspectiva (a mesma conta, na
 // mesma ordem, de Vector3.applyMatrix4 do three).
 function porMatriz([x, y, z], e) {
