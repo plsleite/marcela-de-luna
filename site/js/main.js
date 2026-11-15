@@ -6,6 +6,7 @@ import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { paralaxe, suavizar } from './core/paralaxe.js';
 import { corDaParada, distanciaAoRetangulo, forcaSobreTexto } from './core/pincel.js';
+import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 
 const raiz = document.getElementById('paradas');
 const html = document.documentElement;
@@ -16,19 +17,22 @@ async function json(url) {
   return r.json();
 }
 
-// Posição de leitura entre recargas: guardada ao sair e restaurada à mão depois que a página
+// Posição de leitura entre recargas: guardada ao sair, em vh (a página da travessia é medida
+// em vh: a mesma parada em qualquer altura de janela), e restaurada à mão depois que a página
 // tem a altura certa (na travessia, a altura só existe depois de montar o palco).
 const CHAVE_SCROLL = 'marcela-de-luna:scroll';
+let vhDaTravessia = null; // vh do último quadro da travessia (null fora dela)
 try { history.scrollRestoration = 'manual'; } catch { /* sem suporte: fica o padrão */ }
 addEventListener('pagehide', () => {
   try {
-    sessionStorage.setItem(CHAVE_SCROLL, JSON.stringify({ y: scrollY, travessia: html.classList.contains('travessia') }));
+    const vh = vhDaTravessia ?? vhDe(scrollY, innerHeight);
+    sessionStorage.setItem(CHAVE_SCROLL, JSON.stringify({ vh, travessia: html.classList.contains('travessia') }));
   } catch { /* armazenamento indisponível */ }
 });
 function restaurarScroll(travessia) {
   try {
-    const salvo = JSON.parse(sessionStorage.getItem(CHAVE_SCROLL));
-    if (salvo && salvo.travessia === travessia && salvo.y > 0) scrollTo(0, salvo.y);
+    const y = posicaoRestaurada(JSON.parse(sessionStorage.getItem(CHAVE_SCROLL)), travessia, innerHeight);
+    if (y !== null) scrollTo(0, y);
   } catch { /* armazenamento indisponível */ }
 }
 
@@ -73,6 +77,7 @@ async function iniciarTravessia(stops, images) {
   function desmontar(erro) {
     if (!ativo) return;
     ativo = false;
+    vhDaTravessia = null;
     if (erro) console.error(erro);
     palco.parar();
     try { mergulho?.encerrar(); } catch (e) { console.error(e); } // o resto da desmontagem roda sempre
@@ -100,6 +105,10 @@ async function iniciarTravessia(stops, images) {
     const linha = criarLinha(stops);
     raiz.style.setProperty('--altura', `${alturaDaPagina(linha)}vh`);
     restaurarScroll(true); // antes do primeiro quadro: a câmera já nasce na parada certa
+    // Altura da janela com que o vh guardado foi medido: entre a janela mudar e o resize ser
+    // tratado, um quadro não sobrescreve o vh certo com o px antigo dividido pela altura nova.
+    let alturaMedida = innerHeight;
+    vhDaTravessia = vhDe(scrollY, innerHeight);
 
     // Telas: uma por plano de cada parada.
     const telas = [];
@@ -310,7 +319,8 @@ async function iniciarTravessia(stops, images) {
     palco.aoQuadro((t, dt) => {
       pincel.obstaculos = null; // a câmera e os textos podem ter mudado
       lenis.raf(t);
-      const vh = (scrollY / innerHeight) * 100;
+      const vh = vhDe(scrollY, innerHeight);
+      if (innerHeight === alturaMedida) vhDaTravessia = vh;
       const s = situar(linha, vh);
       estado.id = s.id;
       estado.local = s.local;
@@ -353,14 +363,27 @@ async function iniciarTravessia(stops, images) {
         .then(() => { if (ativo) carregarJanela(indiceAtual); })
         .catch(desmontar);
     }
+    // Redimensionar não muda de parada: antes de tudo, o mesmo vh em px da altura nova (e o
+    // mergulho aberto passa a contar a partir dele). As texturas esperam a janela assentar.
+    let prazoTexturas = 0;
     addEventListener('resize', () => {
       if (!ativo) return;
       try {
+        const vh = vhDaTravessia ?? vhDe(scrollY, alturaMedida);
+        alturaMedida = innerHeight;
+        lenis.resize();
+        navegacao.cancelar();
+        lenis.scrollTo(pxDe(vh, innerHeight), { immediate: true, force: true });
+        vhDaTravessia = vh;
+        mergulho.reancorar();
         palco.redimensionar();
         pincel?.tinta.redimensionar();
         pincel?.preenchimento.reposicionar();
         posicionar();
-        if (indiceAtual >= 0) carregarJanela(indiceAtual);
+        clearTimeout(prazoTexturas);
+        prazoTexturas = setTimeout(() => {
+          try { if (ativo && indiceAtual >= 0) carregarJanela(indiceAtual); } catch (erro) { desmontar(erro); }
+        }, 200);
       } catch (erro) { desmontar(erro); }
     });
     document.fonts?.ready.then(() => { if (ativo) posicionar(); }).catch(desmontar);

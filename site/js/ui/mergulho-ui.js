@@ -388,5 +388,9 @@ export function criarMergulho({ palco, porId, images, telas, estado, poseDoScrol
     }
   }
 
-  return { abrir, fechar, quadro, encerrar, get aberto() { return m !== null; } };
+  // A janela mudou de altura e main.js levou o scroll ao mesmo vh: a sessão conta a partir daí
+  // (senão a correção do scroll pareceria o visitante rolando a página e fecharia o mergulho).
+  function reancorar() { if (m) m.y0 = scrollY; }
+
+  return { abrir, fechar, quadro, encerrar, reancorar, get aberto() { return m !== null; } };
 }
