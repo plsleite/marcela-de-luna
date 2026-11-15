@@ -7,8 +7,14 @@ O piloto tem seis telas: a capa, a Pesquisa Artística, a abertura de A Bailarin
 ## 1. Como abrir
 
 1. Abra o Terminal.
-2. Entre na pasta do projeto (a pasta "Ceça").
-3. Rode um comando só:
+2. Entre na pasta do projeto (a pasta "Ceça"). Copie o comando abaixo, cole no Terminal e aperte Enter:
+
+   ```
+   cd "caminho/da/pasta/Ceça"
+   ```
+
+   Se preferir, digite `cd ` (com um espaço no fim), arraste a pasta Ceça do Finder para a janela do Terminal e aperte Enter.
+3. Agora rode o comando que abre o piloto:
 
    ```
    sh tools/abrir-piloto.sh
@@ -17,7 +23,7 @@ O piloto tem seis telas: a capa, a Pesquisa Artística, a abertura de A Bailarin
 4. O navegador abre sozinho em **http://localhost:4173**. Se não abrir, copie esse endereço e cole no navegador.
 5. Para fechar o piloto, volte ao Terminal e aperte **Ctrl+C**.
 
-Se o Terminal avisar que a porta 4173 já está em uso, é porque o piloto já estava aberto. Ele só abre o navegador de novo e você pode seguir.
+Se o Terminal avisar que o endereço já está sendo usado, é porque o piloto já estava aberto. Nesse caso ele só abre o navegador de novo e você pode seguir.
 
 Use um computador (notebook ou desktop) com mouse ou trackpad. O Chrome é o navegador mais testado.
 
@@ -26,14 +32,14 @@ Use um computador (notebook ou desktop) com mouse ou trackpad. O Chrome é o nav
 Faça com calma. Se algo parecer estranho, anote o que você fez e o que viu.
 
 1. **A abertura.** Recarregue a página (Cmd+R). Você deve ver a tela branca, a pintura da capa surgir por pinceladas, "PORTFÓLIO" subir letra a letra e "MARCELA DE LUNA" se encher de tinta. Deve levar poucos segundos.
-2. **Rolar.** Role devagar, com o mouse ou o trackpad, do topo até o fim. Você deve ver a câmera avançar: a capa se abre, aparece a Pesquisa Artística com o texto, depois A Bailarina e as três obras. Nada deve travar nem pular. A barra de rolagem funciona normalmente.
+2. **Rolar.** Neste roteiro, "travessia" é o modo animado do site: a câmera avança por um espaço branco e cada página do PDF é uma parada. Role devagar, com o mouse ou o trackpad, do topo até o fim. Você deve ver a câmera avançar: a capa se abre, aparece a Pesquisa Artística com o texto, depois A Bailarina e as três obras. Nada deve travar nem pular. A barra de rolagem funciona normalmente.
 3. **Mexer o mouse.** Com uma obra em foco (por exemplo, A Dança é por Ela), mova o mouse devagar. Você deve ver duas coisas discretas: as camadas se deslocam um pouco (paralaxe) e uma luz acompanha o cursor, deixando o relevo das pinceladas aparecer. As cores da pintura não devem mudar. Com o mouse parado, nada deve tremer.
 4. **Pintar o fundo.** Passe o mouse no fundo branco. Deve surgir uma pincelada com textura de cerdas, na cor da pintura mais próxima, que some aos poucos. A tinta nunca deve cobrir uma pintura nem o texto.
 5. **Pintar os títulos.** Passe o mouse sobre um título grande, como "PESQUISA ARTÍSTICA" ou "A BAILARINA". As letras devem se encher de pintura.
-6. **Clicar numa tela.** Com uma obra em foco, clique nela. A câmera mergulha até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse para aproximar e arraste para mover a pintura.
-7. **Abrir um close.** Em A Dança é por Ela há uma pequena marca sobre a pintura. Clique nela: abre o close em alta resolução. Aperte **Esc** uma vez para voltar à tela e **Esc** de novo para voltar à travessia, no mesmo ponto onde você estava. (A lista de todas as ligações entre closes e telas está em `docs/closes.md`. Confira se cada close está no lugar certo.)
-8. **Sair do mergulho de outros jeitos.** Entre de novo numa tela e saia pelo botão "voltar", depois rolando a roda para baixo sem ter aproximado, depois com as setas do teclado. Em todos os casos você deve voltar à travessia sem ficar preso.
-9. **A fileira de pinceladas.** Na borda direita há uma fileira vertical de marcas, uma por parada. Passe o mouse: aparece o título. Clique: a câmera viaja até lá. A marca da parada atual fica mais comprida.
+6. **Clicar numa tela.** Com uma obra em foco, clique nela. O "mergulho" é isso: a câmera chega bem perto até a tela ocupar a janela, com o título e a ficha no canto e o botão "voltar". Use a roda do mouse para aproximar e arraste para mover a pintura.
+7. **Abrir um close.** Em A Dança é por Ela há uma pequena marca sobre a pintura. Neste piloto, só ela tem marca de detalhe. Clique na marca: abre o close em alta resolução. Aperte **Esc** uma vez para voltar à tela e **Esc** de novo para voltar à travessia, no mesmo ponto onde você estava. (A lista de todas as ligações entre closes e telas está em `docs/closes.md`. As outras ligações são de obras que ainda não existem neste piloto, então você só confere a de A Dança é por Ela agora.)
+8. **Sair do mergulho de outros jeitos.** Entre de novo numa tela e saia pelo botão "voltar", depois rolando a roda para baixo sem ter aproximado, depois com a seta para baixo do teclado. Esc e "voltar" devolvem ao mesmo ponto; a seta para baixo fecha o mergulho e já leva à parada seguinte. Em todos os casos você não deve ficar preso.
+9. **A fileira de pinceladas.** Na borda direita há uma fileira vertical de marcas, uma por parada. Passe o mouse: aparece o título. Clique: a câmera viaja até lá. A marca da parada atual fica mais comprida. Clique em marcas diferentes com a página parada e também logo depois de rolar rápido, e diga se a câmera sempre parou na obra escolhida.
 10. **As setas e a barra de espaço.** Com a página em foco, use seta para baixo, seta para cima e barra de espaço: cada toque leva à parada seguinte ou anterior.
 11. **O nome no canto.** Clique em "MARCELA DE LUNA" no canto superior esquerdo: volta à capa.
 12. **Recarregar no meio.** Role até a metade, recarregue a página. Ela deve abrir na mesma parada, sem repetir a abertura por cima do conteúdo.
@@ -59,6 +65,13 @@ Eu não tenho Safari para testar. Abra o piloto no Safari do seu Mac (use o mesm
 6. As letras de "MARCELA DE LUNA" e dos subtítulos aparecem preenchidas com pintura.
 7. Se algo aparecer em branco, preto ou cortado, anote em qual passo.
 
+## 4b. O que conferir com movimento reduzido
+
+1. Abra Ajustes do Sistema, Acessibilidade, Monitor e ligue "Reduzir movimento".
+2. Recarregue o piloto no navegador.
+3. Deve aparecer a página simples, sem animação, com todo o texto e todas as imagens das seis telas.
+4. Depois desligue "Reduzir movimento" de novo, para o resto do Mac voltar ao normal.
+
 ## 5. Perguntas para você responder
 
 Para cada uma, responda "está bom", "mais" ou "menos", e, se puder, diga por quê.
@@ -82,6 +95,8 @@ Estes eu encontrei ao conferir. Não foram consertados, porque esta etapa é só
 - **"PORTFÓLIO" cortado na versão simples.** Na página sem animação (celular, por exemplo), a palavra "PORTFÓLIO" é branca e invade a base da pintura; a parte que cai no fundo branco some.
 - **Imagem da capa baixada duas vezes.** A capa pequena é carregada mais de uma vez ao abrir. Não se vê nada, mas gasta internet à toa.
 - **Ícone do site.** O navegador procura um ícone e não acha. É só um aviso na lista de pedidos; não aparece para você.
+- **Legenda atrasada.** Logo depois de mudar de parada, a legenda da parada anterior pode ficar um instante na tela. Se durar, avise.
+- **Primeira tela de Intervalo perto do nome.** Em algumas janelas, a primeira pintura de Intervalo chega a poucos pixels de "MARCELA DE LUNA" no canto.
 - **Telas que ainda não chegaram.** Quando você salta para uma parada que ainda não carregou, as telas aparecem primeiro na cor dominante e depois ganham a imagem. É de propósito. Se você enxergar um clarão branco inteiro durante um salto longo, avise: eu não consegui confirmar se isso é do site ou do meu teste.
 - **Fluidez ainda não medida.** Não consegui medir a fluidez do topo ao fim num notebook real. Veja o item abaixo.
 
