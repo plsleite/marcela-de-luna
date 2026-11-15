@@ -37,3 +37,8 @@ test('antes do fim da abertura, com mergulho aberto ou sem parada: nada', () => 
   assert.equal(destinoDoClique({ parada: obra, emFoco: 'outra', ...pronto, mergulhoAberto: true }), null);
   assert.equal(destinoDoClique({ parada: null, emFoco: 'foyer', ...pronto }), null);
 });
+
+test('close e verso em foco: amplia', () => {
+  for (const tipo of ['detalhe', 'verso'])
+    assert.equal(destinoDoClique({ parada: { id: 'x', tipo }, emFoco: 'x', aberturaPronta: true, mergulhoAberto: false, viajando: false }), 'mergulho');
+});

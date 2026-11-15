@@ -1,7 +1,7 @@
-import { PILOTO_ULTIMA_PAGINA, DIST_FOCO } from './config.js';
+import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
-import { zDaCamera, zDoStop, planosDoStop, fovPara } from './core/camera.js';
+import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo } from './core/camera.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { paralaxe } from './core/paralaxe.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
@@ -119,12 +119,12 @@ async function iniciarTravessia(stops, images) {
 
     // Telas: uma por plano de cada parada.
     const telas = [];
-    let indiceDaObra = 0;
+    const indices = indicesPorTipo(stops);
     for (const stop of stops) {
-      const planos = planosDoStop(stop, stop.tipo === 'obra' ? indiceDaObra : 0, images, linha);
-      if (stop.tipo === 'obra') indiceDaObra++;
+      const planos = planosDoStop(stop, indices.get(stop.id), images, linha);
       planos.forEach((plano, indiceTela) => {
-        const mesh = criarTela(plano, { stopId: stop.id, indiceTela, cor: images[plano.imagem].cor });
+        const mesh = criarTela(plano, { stopId: stop.id, indiceTela, cor: images[plano.imagem].cor,
+          visibilidade: stop.tipo === 'detalhe' ? VISIBILIDADE_DETALHE : VISIBILIDADE });
         mesh.userData.plano = plano;
         palco.cena.add(mesh);
         telas.push(mesh);

@@ -1,7 +1,7 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { criarLinha, situar, focoDe, emFoco, alturaDaPagina, vizinho } from '../site/js/core/timeline.js';
-import { zDaCamera, zDoStop, planosDoStop } from '../site/js/core/camera.js';
+import { zDaCamera, zDoStop, planosDoStop, indicesPorTipo } from '../site/js/core/camera.js';
 import { texturasNecessarias, larguraPara } from '../site/js/core/janela.js';
 import * as cfg from '../site/js/config.js';
 
@@ -81,7 +81,9 @@ test('dados reais: linha cobre as 58 paradas e planos resolvem', () => {
   let n = 0;
   for (const s of reais) {
     const o = s.tipo === 'obra' ? n++ : 0;
-    for (const p of planosDoStop(s, o, imgs, l)) assert.ok(p.largura > 0, `${s.id}/${p.imagem}`);
+    const ps = planosDoStop(s, o, imgs, l);
+    for (const p of ps) assert.ok(p.largura > 0, `${s.id}/${p.imagem}`);
+    if (s.tipo === 'detalhe' || s.tipo === 'verso') assert.equal(ps.length, 1, s.id);
   }
 });
 
@@ -110,4 +112,23 @@ test('fovPara: campo horizontal constante abaixo da proporção 1,65', async () 
 
 test('visibilidade das telas: uma constante só', () => {
   assert.deepEqual(cfg.VISIBILIDADE, { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.08, some: [22, 28], realce: 0.63 });
+});
+
+test('indicesPorTipo e planos de detalhe e verso', () => {
+  const S = [{id:'c',tipo:'capa'},{id:'o1',tipo:'obra'},{id:'o2',tipo:'obra'},{id:'d1',tipo:'detalhe'},{id:'d2',tipo:'detalhe'},
+    {id:'a',tipo:'abertura'},{id:'o3',tipo:'obra'},{id:'e1',tipo:'detalhe'},{id:'v',tipo:'verso'}];
+  const ind = indicesPorTipo(S);
+  assert.deepEqual(['o1','o2','o3'].map(i => ind.get(i)), [0, 1, 2]);
+  assert.deepEqual(['d1','d2','e1'].map(i => ind.get(i)), [0, 1, 0]);
+  assert.equal(ind.get('c'), 0); assert.equal(ind.get('v'), 0);
+  const img = { w: { w: 2250, h: 4000 } };
+  const linhaD = criarLinha([{id:'c',tipo:'capa'},{id:'d',tipo:'detalhe',imagens:['w']},{id:'v',tipo:'verso',imagens:['w']}]);
+  const [d0] = planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 0, img, linhaD);
+  assert.deepEqual([d0.x, d0.y, d0.altura], [-1.5, 0.2, 6.2]);
+  assert.ok(Math.abs(d0.largura - 6.2 * 2250 / 4000) < 1e-9);
+  const [dd] = planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 1, img, linhaD);
+  assert.deepEqual([dd.x, dd.y], [1.5, -0.25]);
+  assert.equal(planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 5, img, linhaD)[0].y, 0.1);
+  const [pv] = planosDoStop({id:'v',tipo:'verso',imagens:['w']}, 0, img, linhaD);
+  assert.deepEqual([pv.x, pv.y, pv.altura], [0, 0, 4.6]);
 });

@@ -14,7 +14,7 @@ export function montarPincel({ palco, raiz, telas, porId, images, estado, criarT
     const cz = palco.camera.position.z;
     for (const m of telas) {
       const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
-      if (d > VISIBILIDADE.surge[0] && d < VISIBILIDADE.some[1]) telasNaJanela.push(retanguloProjetado(m, palco.camera));
+      if (d > VISIBILIDADE.surge[0] && d < m.userData.alcance) telasNaJanela.push(retanguloProjetado(m, palco.camera));
     }
     const paragrafos = [...raiz.querySelectorAll('.em-foco .corpo')].map((el) => {
       const b = el.getBoundingClientRect();
