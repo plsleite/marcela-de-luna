@@ -1,11 +1,9 @@
-import { PILOTO_ULTIMA_PAGINA, DIST_FOCO, VISIBILIDADE } from './config.js';
+import { PILOTO_ULTIMA_PAGINA, DIST_FOCO } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara } from './core/camera.js';
-import { texturasNecessarias, larguraPara } from './core/janela.js';
 import { retanguloNaTela } from './core/projecao.js';
-import { paralaxe, suavizar } from './core/paralaxe.js';
-import { corDaParada, distanciaAoRetangulo, forcaSobreTexto } from './core/pincel.js';
+import { paralaxe } from './core/paralaxe.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
 
@@ -58,10 +56,12 @@ async function iniciarTravessia(stops, images) {
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
     { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { criarNavegacao },
     { criarIma }, { criarSom }, { default: Lenis }, { gsap },
+    { criarCarregamento }, { criarLuz }, { montarPincel },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
     import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('./ui/som.js'), import('lenis'), import('gsap'),
+    import('./travessia/carregamento.js'), import('./travessia/luz.js'), import('./travessia/pincel.js'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -151,44 +151,9 @@ async function iniciarTravessia(stops, images) {
     // Depuração: ?lento=1 atrasa cada textura em 1,5 s; ?lento=trava nunca entrega a capa da abertura.
     const lento = new URLSearchParams(location.search).get('lento');
     const texturas = criarTexturas(images, { renderer: palco.renderer, atraso: lento === '1' ? 1500 : 0 });
-    const telasDe = (id) => telas.filter((m) => m.userData.imagem === id);
-    // esmaecer: a primeira textura entra sobre a cor dominante em 0,6 s (a capa, na abertura,
-    // entra direto: quem a mostra são as pinceladas).
-    function aplicar(id, tex, esmaecer = true) {
-      for (const m of telasDe(id)) {
-        const u = m.material.uniforms;
-        if (u.uMapa.value === tex) continue;
-        const jaTinha = u.uMapa.value !== null;
-        u.uMapa.value = tex;
-        if (jaTinha) continue;
-        if (esmaecer) gsap.fromTo(u.uTemMapa, { value: 0 }, { value: 1, duration: 0.6, ease: 'power1.out' });
-        else u.uTemMapa.value = 1;
-      }
-    }
-    // Durante o mergulho, a pintura aberta fica na maior largura disponível.
-    let imagemDoMergulho = null;
-    const larguraMaxima = (id) => images[id].larguras.at(-1);
-    function carregarJanela(indice) {
-      const conjunto = texturasNecessarias(linha, stops, indice);
-      const dpr = Math.min(devicePixelRatio, 2);
-      for (const id of conjunto) {
-        const m = telasDe(id)[0];
-        if (!m) continue;
-        const r = retanguloNoFoco(m);
-        const largura = id === imagemDoMergulho ? larguraMaxima(id) : larguraPara(r.dir - r.esq, dpr, images[id].larguras);
-        texturas.pedir(id, largura)
-          .then((tex) => { if (tex && ativo) aplicar(id, tex); })
-          .catch((erro) => console.error(erro));
-      }
-      for (const id of texturas.liberarForaDe(conjunto)) {
-        for (const m of telasDe(id)) {
-          const u = m.material.uniforms;
-          gsap.killTweensOf(u.uTemMapa);
-          u.uTemMapa.value = 0;
-          u.uMapa.value = null;
-        }
-      }
-    }
+    const { aplicar, carregarJanela, fixarMaxima } = criarCarregamento({
+      linha, stops, images, telas, texturas, gsap, retanguloNoFoco, ativo: () => ativo,
+    });
 
     const LERP = 0.09;
     // virtualScroll só intervém com uma viagem em andamento (a roda no mesmo sentido herda a
@@ -230,97 +195,19 @@ async function iniciarTravessia(stops, images) {
       }
     }
 
-    // Luz rasante: em cada tela, a luz fica onde o raio do ponteiro cruza o seu plano; a tela
-    // sob o cursor (a mais próxima atingida) recebe força 1, as demais 0,35, com transição suave.
-    const FORCA_SOB = 1;
-    const FORCA_DEMAIS = 0.35;
-    function aplicarLuz(dt) {
-      const raio = palco.raioDoPonteiro();
-      const pontos = telas.map((m) => pontoNaTela(m, raio));
-      let sob = -1;
-      pontos.forEach((p, i) => {
-        if (!p || p.t < 3 || p.u < 0 || p.u > 1 || p.v < 0 || p.v > 1) return;
-        if (sob < 0 || p.t < pontos[sob].t) sob = i;
-      });
-      telas.forEach((m, i) => {
-        const u = m.material.uniforms;
-        if (pontos[i]) u.uLuz.value.set(pontos[i].u, pontos[i].v);
-        u.uRelevo.value = suavizar(u.uRelevo.value, i === sob ? FORCA_SOB : FORCA_DEMAIS, dt);
-      });
-    }
-
-    // Realce dos vultos: com o ponteiro sobre uma tela que não é da parada em foco, o uRealce
-    // dela vai a 1 em ~200 ms (o vulto ganha um esmaecido mais visível) e volta a 0 ao sair. A tela
-    // da parada em foco não muda; nada disso vale na abertura nem com uma tela ampliada.
-    const REALCE_MS = 200;
-    const mouse = { x: 0, y: 0, dentro: false };
-    const aoMoverMouse = (e) => {
-      if (e.pointerType === 'touch') return;
-      mouse.x = e.clientX; mouse.y = e.clientY; mouse.dentro = true;
-    };
-    const aoSairMouse = (e) => { if (!e.relatedTarget) mouse.dentro = false; };
-    addEventListener('pointermove', aoMoverMouse, { passive: true });
-    document.addEventListener('mouseout', aoSairMouse, { passive: true });
-    aoDesmontar(() => {
-      removeEventListener('pointermove', aoMoverMouse);
-      document.removeEventListener('mouseout', aoSairMouse);
+    // Luz rasante e realce dos vultos (o realce não vale na abertura nem com uma tela ampliada).
+    const luz = criarLuz({
+      palco, telas, linha, pontoNaTela,
+      vale: () => abertura?.estado === 'fim' && !estado.mergulho && !mergulho.saindo,
     });
-    function aplicarRealce(dt, vh) {
-      const vale = mouse.dentro && abertura?.estado === 'fim' && !estado.mergulho && !mergulho.saindo;
-      const sob = vale ? palco.telaSob(mouse.x, mouse.y) : null;
-      const vulto = sob && sob.userData.stopId !== emFoco(linha, vh) ? sob : null;
-      const passo = dt / REALCE_MS;
-      for (const m of telas) {
-        const u = m.material.uniforms.uRealce;
-        const alvo = m === vulto ? 1 : 0;
-        if (u.value !== alvo) u.value = alvo > u.value ? Math.min(1, u.value + passo) : Math.max(0, u.value - passo);
-      }
-    }
+    aoDesmontar(() => luz.encerrar());
 
-    // Pincel (só com mouse): tinta no fundo branco, na cor viva da tela da parada atual, e letras
-    // dos títulos que se enchem de pintura. Não deposita sobre as telas; passa por baixo de todo
-    // texto, mais leve sobre os parágrafos da parada em foco (para não atrapalhar a leitura).
-    function montarPincel() {
-      const p = { obstaculos: null };
-      function obstaculos() {
-        const telasNaJanela = [];
-        const cz = palco.camera.position.z;
-        for (const m of telas) {
-          const d = cz - m.position.z; // telas visíveis (nem rente à câmera nem sumidas no branco)
-          if (d > VISIBILIDADE.surge[0] && d < VISIBILIDADE.some[1]) telasNaJanela.push(retanguloProjetado(m, palco.camera));
-        }
-        const paragrafos = [...raiz.querySelectorAll('.em-foco .corpo')].map((el) => {
-          const b = el.getBoundingClientRect();
-          return { esq: b.left, dir: b.right, topo: b.top, base: b.bottom };
-        });
-        return { telasNaJanela, paragrafos };
-      }
-      const forca = (x, y) => {
-        const o = (p.obstaculos ??= obstaculos());
-        if (o.telasNaJanela.some((r) => distanciaAoRetangulo(x, y, r) === 0)) return 0;
-        return forcaSobreTexto({ x, y }, o.paragrafos, { dentro: 0.3, faixa: 40 });
-      };
-      p.tinta = criarTinta(palco, { forca });
-      p.preenchimento = criarPreenchimento(raiz);
-      const aoMover = (e) => {
-        if (e.pointerType !== 'mouse' || estado.mergulho) return;
-        p.tinta.pintar(e.clientX, e.clientY, corDaParada(porId.get(estado.id), images));
-        p.preenchimento.tocar(e.clientX, e.clientY);
-      };
-      const aoSair = (e) => { if (!e.relatedTarget) { p.tinta.romper(); p.preenchimento.romper(); } };
-      addEventListener('pointermove', aoMover, { passive: true });
-      document.addEventListener('mouseout', aoSair, { passive: true });
-      p.soltar = () => {
-        removeEventListener('pointermove', aoMover);
-        document.removeEventListener('mouseout', aoSair);
-      };
-      return p;
-    }
-    pincel = montarPincel();
+    // Pincel (só com mouse): ver travessia/pincel.js.
+    pincel = montarPincel({ palco, raiz, telas, porId, images, estado, criarTinta, criarPreenchimento, retanguloProjetado });
     aoDesmontar(() => {
       const p = pincel;
       pincel = null;
-      cadaUm([() => p.soltar(), () => p.tinta.liberar(), () => p.preenchimento.desfazer()]);
+      p.encerrar();
     });
 
     // Clique numa tela (quem decide é core/clique.js): só depois da abertura; a da parada em foco
@@ -343,16 +230,12 @@ async function iniciarTravessia(stops, images) {
         pincel.tinta.ativa = false;
         pincel.tinta.romper();
         pincel.preenchimento.romper();
-        const id = mesh.userData.imagem;
-        imagemDoMergulho = id;
-        texturas.pedir(id, larguraMaxima(id))
-          .then((tex) => { if (tex && ativo) aplicar(id, tex); })
-          .catch((erro) => console.error(erro));
+        fixarMaxima(mesh.userData.imagem);
       },
       aoFechar() {
         lenis?.start();
         if (pincel) pincel.tinta.ativa = true;
-        imagemDoMergulho = null;
+        fixarMaxima(null);
         if (ativo && indiceAtual >= 0) carregarJanela(indiceAtual); // volta à largura da janela (não na desmontagem)
       },
     });
@@ -369,7 +252,7 @@ async function iniciarTravessia(stops, images) {
 
     let indiceAtual = -1;
     palco.aoQuadro((t, dt) => {
-      pincel.obstaculos = null; // a câmera e os textos podem ter mudado
+      pincel.limparObstaculos(); // a câmera e os textos podem ter mudado
       lenis.raf(t);
       ima.quadro();
       const vh = vhDe(scrollY, innerHeight);
@@ -378,8 +261,7 @@ async function iniciarTravessia(stops, images) {
       estado.id = s.id;
       estado.local = s.local;
       if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
-      aplicarLuz(dt);
-      aplicarRealce(dt, vh);
+      luz.quadro(dt, vh);
       legendas.atualizar(vh);
       // Cabeçalho e fileira só voltam depois da volta do mergulho: o 2º clique em "voltar" cairia no cabeçalho.
       navegacao.quadro(dt, { atual: s.id, oculta: abertura?.estado !== 'fim' || Boolean(estado.mergulho) || mergulho.saindo });
