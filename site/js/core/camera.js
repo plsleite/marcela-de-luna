@@ -27,8 +27,30 @@ export function indicesPorTipo(stops) {
   return indices;
 }
 
-// Planos (pinturas) de uma parada em coordenadas de mundo. `indice` vem de indicesPorTipo.
-export function planosDoStop(stop, indice, images, linha) {
+// Lado (−1 esquerda, 1 direita) de cada close (detalhe): em cada trecho, o último fica do lado
+// oposto ao da primeira tela da parada seguinte (à direita se ela está no centro ou não existe),
+// e os anteriores alternam a partir dele. Assim, do foco de um close, o próximo não se esconde
+// atrás dele, nem a parada seguinte atrás do último.
+export function ladosDosDetalhes(stops, images, linha) {
+  const indices = indicesPorTipo(stops);
+  const lados = new Map();
+  let inicio = -1;
+  stops.forEach((s, k) => {
+    if (s.tipo !== 'detalhe') return;
+    if (inicio < 0) inicio = k;
+    const prox = stops[k + 1];
+    if (prox?.tipo === 'detalhe') return;
+    const x = prox ? planosDoStop(prox, indices.get(prox.id), images, linha)[0]?.x ?? 0 : 0;
+    const ultimo = x > 0 ? -1 : 1;
+    for (let j = inicio; j <= k; j++) lados.set(stops[j].id, (k - j) % 2 === 0 ? ultimo : -ultimo);
+    inicio = -1;
+  });
+  return lados;
+}
+
+// Planos (pinturas) de uma parada em coordenadas de mundo. `indice` vem de indicesPorTipo e
+// `lado` (só dos closes) de ladosDosDetalhes.
+export function planosDoStop(stop, indice, images, linha, lado) {
   const z0 = zDoStop(linha, stop.id);
   const plano = (imagem, x, y, z, altura) => {
     const { w, h } = images[imagem];
@@ -51,7 +73,7 @@ export function planosDoStop(stop, indice, images, linha) {
     case 'abertura':
       return (stop.planos ?? []).map(p => plano(p.imagem, p.x, p.y, z0 + (p.z ?? 0), p.altura));
     case 'detalhe':
-      return [plano(stop.imagens[0], (indice % 2 === 0 ? -1 : 1) * DETALHE.x, DETALHE.ys[indice % 3], z0, DETALHE.altura)];
+      return [plano(stop.imagens[0], lado * DETALHE.x, DETALHE.ys[indice % 3], z0, DETALHE.altura)];
     case 'verso':
       return [plano(stop.imagens[0], 0, 0, z0, VERSO.altura)];
     default:

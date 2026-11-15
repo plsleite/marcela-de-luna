@@ -1,7 +1,7 @@
 import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { criarLinha, situar, focoDe, emFoco, alturaDaPagina, vizinho } from '../site/js/core/timeline.js';
-import { zDaCamera, zDoStop, planosDoStop, indicesPorTipo } from '../site/js/core/camera.js';
+import { zDaCamera, zDoStop, planosDoStop, indicesPorTipo, ladosDosDetalhes } from '../site/js/core/camera.js';
 import { texturasNecessarias, larguraPara, aoAlcance, janelaDeViagem, naVista } from '../site/js/core/janela.js';
 import * as cfg from '../site/js/config.js';
 
@@ -107,8 +107,9 @@ test('dados reais: linha cobre as 58 paradas e planos resolvem', () => {
   const l = criarLinha(reais);
   assert.equal(l.itens.length, 58);
   const ind = indicesPorTipo(reais);
+  const lados = ladosDosDetalhes(reais, imgs, l);
   for (const s of reais) {
-    const ps = planosDoStop(s, ind.get(s.id), imgs, l);
+    const ps = planosDoStop(s, ind.get(s.id), imgs, l, lados.get(s.id));
     for (const p of ps) assert.ok(p.largura > 0, `${s.id}/${p.imagem}`);
     if (s.tipo === 'detalhe' || s.tipo === 'verso') assert.equal(ps.length, 1, s.id);
   }
@@ -139,7 +140,7 @@ test('fovPara: campo horizontal constante abaixo da proporção 1,65', async () 
 
 test('visibilidade das telas: uma constante só', () => {
   assert.deepEqual(cfg.VISIBILIDADE, { surge: [1.5, 3.0], branco: [10.5, 17], residuo: 0.08, some: [22, 28], realce: 0.63 });
-  assert.deepEqual(cfg.VISIBILIDADE_DETALHE.surge, [2.0, 3.6]);
+  assert.deepEqual(cfg.VISIBILIDADE_DETALHE, { ...cfg.VISIBILIDADE, surge: [2.0, 3.6], branco: [10, 14], some: [18.6, 20.4] });
   assert.deepEqual(cfg.VISIBILIDADE.surge, [1.5, 3.0]);
 });
 
@@ -160,12 +161,47 @@ test('indicesPorTipo e planos de detalhe e verso', () => {
   assert.equal(ind.get('c'), 0); assert.equal(ind.get('v'), 0);
   const img = { w: { w: 2250, h: 4000 } };
   const linhaD = criarLinha([{id:'c',tipo:'capa'},{id:'d',tipo:'detalhe',imagens:['w']},{id:'v',tipo:'verso',imagens:['w']}]);
-  const [d0] = planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 0, img, linhaD);
+  const [d0] = planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 0, img, linhaD, -1);
   assert.deepEqual([d0.x, d0.y, d0.altura], [-1.5, 0.2, 6.2]);
   assert.ok(Math.abs(d0.largura - 6.2 * 2250 / 4000) < 1e-9);
-  const [dd] = planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 1, img, linhaD);
+  const [dd] = planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 1, img, linhaD, 1);
   assert.deepEqual([dd.x, dd.y], [1.5, -0.25]);
-  assert.equal(planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 5, img, linhaD)[0].y, 0.1);
+  // o lado vem de ladosDosDetalhes, não do índice; a altura continua pelo índice
+  assert.deepEqual(planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 0, img, linhaD, 1)[0].x, 1.5);
+  assert.equal(planosDoStop({id:'d',tipo:'detalhe',imagens:['w']}, 5, img, linhaD, -1)[0].y, 0.1);
   const [pv] = planosDoStop({id:'v',tipo:'verso',imagens:['w']}, 0, img, linhaD);
   assert.deepEqual([pv.x, pv.y, pv.altura], [0, 0, 4.6]);
+});
+
+test('ladosDosDetalhes: o último close de cada trecho fica do lado oposto ao da parada seguinte', () => {
+  const S = [{id:'c',tipo:'capa',imagens:['w']},{id:'o',tipo:'obra',telas:['w']},
+    {id:'d1',tipo:'detalhe',imagens:['w']},{id:'d2',tipo:'detalhe',imagens:['w']},{id:'d3',tipo:'detalhe',imagens:['w']},
+    {id:'a',tipo:'abertura',planos:[{imagem:'w',x:2.45,y:0,altura:4}]},
+    {id:'f1',tipo:'detalhe',imagens:['w']},{id:'f2',tipo:'detalhe',imagens:['w']},
+    {id:'t',tipo:'texto',planos:[{imagem:'w',x:-1.6,y:0,altura:3}]},
+    {id:'e1',tipo:'detalhe',imagens:['w']},{id:'e2',tipo:'detalhe',imagens:['w']},{id:'v',tipo:'verso',imagens:['w']},
+    {id:'g1',tipo:'detalhe',imagens:['w']}];
+  const img = { w: { w: 2250, h: 4000 } };
+  const lados = ladosDosDetalhes(S, img, criarLinha(S));
+  assert.deepEqual(['d1','d2','d3'].map(i => lados.get(i)), [-1, 1, -1]); // seguinte à direita: último à esquerda
+  assert.deepEqual(['f1','f2'].map(i => lados.get(i)), [-1, 1]);          // seguinte à esquerda: último à direita
+  assert.deepEqual(['e1','e2'].map(i => lados.get(i)), [-1, 1]);          // seguinte no centro (verso): à direita
+  assert.equal(lados.get('g1'), 1);                                        // sem parada seguinte: à direita
+  assert.equal(lados.has('o'), false);
+});
+
+test('ladosDosDetalhes, dados reais: 1º trecho começa à direita e acaba à esquerda; 2º não muda', () => {
+  const { stops: reais } = JSON.parse(readFileSync('site/data/content.json', 'utf8'));
+  const imgs = JSON.parse(readFileSync('site/data/images.json', 'utf8'));
+  const l = criarLinha(reais);
+  const lados = ladosDosDetalhes(reais, imgs, l);
+  const ind = indicesPorTipo(reais);
+  const x = (id) => planosDoStop(reais.find(s => s.id === id), ind.get(id), imgs, l, lados.get(id))[0].x;
+  assert.equal(x('detalhes-1-01'), 1.5);
+  assert.equal(x('detalhes-1-16'), -1.5);
+  assert.ok(x('entre-nos') > 0);
+  for (let k = 1; k <= 8; k++) {
+    const id = `detalhes-2-0${k}`;
+    assert.equal(x(id), (ind.get(id) % 2 === 0 ? -1 : 1) * 1.5, id); // como antes
+  }
 });
