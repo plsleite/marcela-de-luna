@@ -1,8 +1,8 @@
 // Luz rasante e realce dos vultos. Recebe tudo por parâmetro: palco (gl/palco.js), telas,
 // pontoNaTela (gl/tela.js), emFoco(vh) → id da parada em foco para o clique (o mesmo predicado
-// do clique, em main.js: null com o cartão no meio do giro) e vale() → true com a abertura
-// terminada, sem tela ampliada e fora da volta dela (condição do realce). Os ouvintes do mouse
-// saem em encerrar().
+// do clique, em travessia/cartao.js: null com o cartão no meio do giro) e vale() → true com a
+// abertura terminada, sem tela ampliada e fora da volta dela (condição do realce). Os ouvintes do
+// mouse saem em encerrar().
 import { suavizar } from '../core/paralaxe.js';
 import { aoAlcance } from '../core/janela.js';
 

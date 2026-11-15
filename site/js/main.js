@@ -1,11 +1,10 @@
 import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
 import { montarBase } from './ui/base.js';
-import { criarLinha, situar, emFoco, focoDe, alturaDaPagina } from './core/timeline.js';
+import { criarLinha, situar, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo, ladosDosDetalhes } from './core/camera.js';
 import { retanguloNaTela } from './core/projecao.js';
 import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
-import { cartaoFinal, noMeioDoGiro } from './core/final.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
 
@@ -58,12 +57,13 @@ async function iniciarTravessia(stops, images) {
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
     { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { criarNavegacao },
     { criarIma }, { criarSom }, { default: Lenis }, { gsap },
-    { criarCarregamento }, { criarLuz }, { montarPincel },
+    { criarCarregamento }, { criarLuz }, { montarPincel }, { montarCartao },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
     import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('./ui/som.js'), import('lenis'), import('gsap'),
     import('./travessia/carregamento.js'), import('./travessia/luz.js'), import('./travessia/pincel.js'),
+    import('./travessia/cartao.js'),
   ]);
   const palco = criarPalco(canvas);
   if (!palco) return false;
@@ -139,41 +139,12 @@ async function iniciarTravessia(stops, images) {
       const r = retanguloNaTela(mesh.userData.plano, zDoStop(linha, mesh.userData.stopId) + DIST_FOCO, aspecto, fovPara(aspecto));
       return { esq: r.esq * innerWidth, dir: r.dir * innerWidth, topo: r.topo * innerHeight, base: r.base * innerHeight };
     };
-    // Final (core/final.js): se as duas últimas paradas são o último close e o verso, as duas telas
-    // formam um cartão que acompanha a câmera entre os dois focos, centraliza e gira meia volta.
-    // Face única (gl/tela.js): a tela do verso nasce de costas (giro − π) e não aparece nem
-    // responde ao ponteiro até o giro passar de π/2. No meio do giro a luz rasante dessas telas
-    // fica neutra (travessia/luz.js supõe tela sem rotação).
-    const cartao = (() => {
-      const [a, b] = stops.slice(-2);
-      if (!a || !b || a.tipo !== 'detalhe' || b.tipo !== 'verso') return null;
-      const tela = (id) => telas.find((m) => m.userData.stopId === id && m.userData.indiceTela === 0);
-      const frente = tela(a.id), verso = tela(b.id);
-      const medidas = ({ x, y, altura }) => ({ x, y, altura });
-      return {
-        frente, verso, giro: 0,
-        p: { focoFrente: focoDe(linha, a.id), focoVerso: focoDe(linha, b.id),
-          frente: medidas(frente.userData.plano), verso: medidas(verso.userData.plano) },
-      };
-    })();
-    // Com uma tela ampliada, o cartão não se move: luzNeutra e deCostas ficam os da pose congelada,
-    // que continuam a descrevê-la (e a ampliação só abre num foco, com giro 0 ou π).
-    function moverCartao(vh) {
-      if (!cartao || estado.mergulho) return;
-      const c = cartaoFinal(vh, cartao.p);
-      for (const [m, giro, altura] of [[cartao.frente, c.giro, cartao.p.frente.altura],
-        [cartao.verso, c.giro - Math.PI, cartao.p.verso.altura]]) {
-        m.position.set(c.x, c.y, c.z);
-        m.rotation.y = giro;
-        m.scale.setScalar(c.altura / altura);
-        m.userData.luzNeutra = noMeioDoGiro(c.giro);
-        m.userData.deCostas = Math.cos(giro) < 0; // não é desenhada nem barra o pincel
-      }
-      cartao.giro = c.giro;
-    }
-    // Parada clicável como "em foco": não com o cartão no meio do giro (aí a tela da parada leva
-    // ao foco dela, em vez de ampliar).
-    const emFocoParaClique = (vh) => (cartao && noMeioDoGiro(cartao.giro) ? null : emFoco(linha, vh));
+    // Cartão final e vulto do verso (travessia/cartao.js). O vulto fica fora de `telas` (não
+    // entra no carregamento, nas legendas nem no mergulho), mas o ponteiro, a luz e o pincel o veem.
+    const cartao = montarCartao({ stops, linha, images, telas, palco, criarTela, estado,
+      ampliada: () => Boolean(estado.mergulho) || Boolean(mergulho?.saindo) });
+    aoDesmontar(() => cartao.encerrar());
+    const telasDoPalco = [...telas, ...cartao.vultos];
 
     const legendas = criarLegendas(raiz, linha);
     const posicionar = () => {
@@ -249,13 +220,13 @@ async function iniciarTravessia(stops, images) {
 
     // Luz rasante e realce dos vultos (o realce não vale na abertura nem com uma tela ampliada).
     const luz = criarLuz({
-      palco, telas, pontoNaTela, emFoco: emFocoParaClique,
+      palco, telas: telasDoPalco, pontoNaTela, emFoco: cartao.emFocoParaClique,
       vale: () => abertura?.estado === 'fim' && !estado.mergulho && !mergulho.saindo,
     });
     aoDesmontar(() => luz.encerrar());
 
     // Pincel (só com mouse): ver travessia/pincel.js.
-    pincel = montarPincel({ palco, raiz, telas, porId, images, estado, criarTinta, criarPreenchimento, retanguloProjetado });
+    pincel = montarPincel({ palco, raiz, telas: telasDoPalco, porId, images, estado, criarTinta, criarPreenchimento, retanguloProjetado });
     aoDesmontar(() => {
       const p = pincel;
       pincel = null;
@@ -270,7 +241,7 @@ async function iniciarTravessia(stops, images) {
       palco, porId, images, telas, estado, poseDoScroll,
       destino: (mesh) => destinoDoClique({
         parada: porId.get(mesh.userData.stopId),
-        emFoco: emFocoParaClique(vhDe(scrollY, innerHeight)),
+        emFoco: cartao.emFocoParaClique(vhDe(scrollY, innerHeight), mesh),
         aberturaPronta: abertura?.estado === 'fim',
         mergulhoAberto: Boolean(estado.mergulho),
         viajando: navegacao.viajando,
@@ -313,7 +284,7 @@ async function iniciarTravessia(stops, images) {
       estado.id = s.id;
       estado.local = s.local;
       if (!mergulho.quadro(dt)) aplicarParalaxe(vh); // no mergulho a câmera é dele, sem paralaxe
-      moverCartao(vh); // antes da luz (luzNeutra) e do mesh.visible
+      cartao.quadro(vh, dt); // antes da luz (luzNeutra) e do mesh.visible
       luz.quadro(dt, vh);
       legendas.atualizar(vh);
       // Cabeçalho e fileira só voltam depois da volta do mergulho: o 2º clique em "voltar" cairia no cabeçalho.
@@ -353,7 +324,7 @@ async function iniciarTravessia(stops, images) {
     aoDesmontar(() => abertura.encerrar());
     // Miniaturas: decodificadas depois que a abertura começa (sem rede: data URI em images.json).
     texturas.miniaturas()
-      .then((mapa) => { if (ativo) carregamento.usarMiniaturas(mapa); })
+      .then((mapa) => { if (ativo) { carregamento.usarMiniaturas(mapa); cartao.usarMiniaturas(mapa); } })
       .catch((erro) => console.error(erro));
     // No fim da abertura, a capa (se a definitiva não chegou) passa à miniatura.
     abertura.then(() => { if (ativo) carregamento.mostrarMiniaturas(); }).catch(desmontar);
