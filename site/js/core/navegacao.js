@@ -1,5 +1,6 @@
 // Navegação rápida: contas puras (sem DOM) da viagem até uma parada, do teclado e da fileira.
 import { vizinho } from './timeline.js';
+import { FILEIRA } from '../config.js';
 
 // Duração da viagem (s) pela distância (vh): 0,8 até 100 vh, linear até 2,4 em 700 vh ou mais.
 const CURTA = 100, LONGA = 700, MIN = 0.8, MAX = 2.4;
@@ -88,4 +89,36 @@ export function marcaAtual(marcas, id) {
 // para as margens e os espaços entre séries; entre 12 e 24 px.
 export function passoDaFileira(alturaDaJanela, n) {
   return Math.min(24, Math.max(12, (alturaDaJanela - 160) / n));
+}
+
+// Passo da fileira contraída (px), a partir do passo cheio.
+export function passoEmRepouso(passoCheio) {
+  return Math.max(FILEIRA.passoMin, FILEIRA.repouso * passoCheio);
+}
+
+// Lente da fileira: centros (px) em repouso → [{ y, fator }] com o cursor em yCursor. Perto do
+// cursor o passo vira passoCheio; a marca sob o cursor fica parada; além de R = raio · passoCheio
+// todas se afastam k · R/2. fator: 1 sob o cursor, 0 além de R. ganho (0 a 1) multiplica o
+// deslocamento e o fator (a lente entrando ou saindo). Sem cursor: identidade.
+export function lente(centros, yCursor, { passo, passoCheio, raio, ganho = 1 }) {
+  if (yCursor == null || !Number.isFinite(yCursor) || !(ganho > 0)) return centros.map((y) => ({ y, fator: 0 }));
+  const R = raio * passoCheio;
+  const k = (passoCheio / passo - 1) * ganho;
+  const g = (d) => (d <= R ? d / 2 + (R / (2 * Math.PI)) * Math.sin((Math.PI * d) / R) : R / 2);
+  return centros.map((c) => {
+    const d = c - yCursor;
+    const a = Math.abs(d);
+    return { y: c + k * Math.sign(d) * g(a), fator: a <= R ? ganho * Math.cos((Math.PI * a) / (2 * R)) ** 2 : 0 };
+  });
+}
+
+// Área de clique de cada marca (px, mesma origem de ys): do meio até a vizinha de cima ao meio
+// até a de baixo, sem buraco nem sobreposição. As das pontas estendem para fora o mesmo que para
+// dentro; com uma marca só, meio passo de cada lado.
+export function limitesDasMarcas(ys, passo = 0) {
+  return ys.map((y, i) => {
+    const acima = i > 0 ? (y - ys[i - 1]) / 2 : null;
+    const abaixo = i < ys.length - 1 ? (ys[i + 1] - y) / 2 : null;
+    return { topo: y - (acima ?? abaixo ?? passo / 2), base: y + (abaixo ?? acima ?? passo / 2) };
+  });
 }

@@ -32,3 +32,6 @@ export const SOM = { volume: 0.6, subida: 3, troca: 0.6 };
 // Pigmentos do pincel (paleta da artista, medida no acervo): azul, rosa neon, magenta, laranja.
 // O primeiro é o padrão.
 export const PIGMENTOS = ['#305fa3', '#e91b6a', '#d15ca1', '#f3953e'];
+// Fileira de navegação: em repouso o passo é `repouso` do passo cheio (nunca abaixo de
+// passoMin px); perto do ponteiro abre como lente de `raio` passos cheios (core/navegacao.js).
+export const FILEIRA = { repouso: 0.45, passoMin: 6, raio: 3 };
