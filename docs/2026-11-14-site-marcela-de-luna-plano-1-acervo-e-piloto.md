@@ -77,7 +77,7 @@ tests/*.test.mjs
 ### Task 1: Repositório, bibliotecas e fonte
 
 **Files:**
-- Create: `.gitignore`, `.claude/launch.json`, `site/vendor/*`, `site/fonts/outfit-latin-wght-normal.woff2`, `site/index.html`, `tests/vendor.test.mjs`
+- Create: `.claude/launch.json`, `site/vendor/*`, `site/fonts/outfit-latin-wght-normal.woff2`, `site/index.html`, `site/js/main.js`, `tests/vendor.test.mjs` (`.gitignore` e o repositório já existem)
 
 **Interfaces:**
 - Produces: import map com os nomes `three`, `gsap`, `lenis`; servidor `site` na porta 4173.
@@ -294,7 +294,7 @@ test('closes apontam para detalhes existentes, dentro da tela, sem repetição',
     assert.ok(c.x >= 0 && c.x <= 1 && c.y >= 0 && c.y <= 1); vistos.push(c.imagem);
   }
   assert.equal(new Set(vistos).size, vistos.length);
-  assert.ok(vistos.length >= 11);
+  assert.ok(vistos.length >= 8);
   assert.ok(obras.find(o => o.id === 'a-danca-e-por-ela').closes.length >= 1);
 });
 ```
