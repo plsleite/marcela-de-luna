@@ -2,11 +2,14 @@
 // os bytes, sem decodificar. pedir(url) é o caminho da janela de carregamento: dispara na hora,
 // sem esperar a fila nem ocupar lugar dela, e reaproveita o download em curso do mesmo arquivo.
 // buscar(url, { sinal, prioridade }) → promessa dos bytes (injetado: fetch no navegador).
+// Só guarda os bytes do que está na lista do último enfileirar (antes do primeiro, guarda tudo:
+// a fila que chega depois aproveita o que a janela já baixou); fora dela, entrega e solta.
 const abortado = () => Object.assign(new Error('Reserva encerrada'), { name: 'AbortError' });
 
 export function criarReserva({ buscar, simultaneos = 2 }) {
   const entradas = new Map(); // url → { promessa, blob, controle }
   const falhas = new Set(); // o fundo não insiste num arquivo que falhou (pedir tenta sempre)
+  let lista = null; // urls do último enfileirar (null: ainda nenhum)
   let fila = [];
   let deFundo = 0; // downloads de fundo em curso
   let encerrado = false;
@@ -17,9 +20,10 @@ export function criarReserva({ buscar, simultaneos = 2 }) {
     if (fundo) deFundo++;
     entrada.promessa = buscar(url, { sinal: entrada.controle.signal, prioridade: fundo ? 'low' : 'high' })
       .then((blob) => {
-        entrada.blob = blob;
         entrada.controle = null;
         falhas.delete(url);
+        if (lista === null || lista.has(url)) entrada.blob = blob;
+        else if (entradas.get(url) === entrada) entradas.delete(url);
         return blob;
       }, (erro) => {
         if (entradas.get(url) === entrada) entradas.delete(url);
@@ -50,7 +54,7 @@ export function criarReserva({ buscar, simultaneos = 2 }) {
   // que ficaram fora dela (outra largura, depois de redimensionar) são soltos.
   function enfileirar(urls) {
     if (encerrado) return;
-    const lista = new Set(urls);
+    lista = new Set(urls);
     for (const [url, entrada] of entradas) if (entrada.blob && !lista.has(url)) entradas.delete(url);
     fila = [...lista].filter((u) => !entradas.has(u) && !falhas.has(u));
     bombear();

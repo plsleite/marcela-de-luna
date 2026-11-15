@@ -104,9 +104,10 @@ export function criarCarregamento({ linha, stops, images, telas, texturas, gsap,
     }
     texturas.reservar(pares);
   }
-  // Uma vez, depois da abertura; nunca com economia de dados (a janela segue pedindo o que usa).
+  // Uma vez, depois da abertura; com economia de dados, a fila fica vazia (a janela segue pedindo
+  // o que usa, e a reserva solta os bytes depois de entregá-los).
   function iniciarReserva(indice) {
-    if (navigator.connection?.saveData === true) return;
+    if (navigator.connection?.saveData === true) { texturas.reservar([]); return; }
     reservando = true;
     reservar(indice);
   }
