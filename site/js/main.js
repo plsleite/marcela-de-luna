@@ -3,6 +3,7 @@ import { montarBase } from './ui/base.js';
 import { criarLinha, situar, emFoco, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo } from './core/camera.js';
 import { retanguloNaTela } from './core/projecao.js';
+import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
 import { destinoDoClique } from './core/clique.js';
@@ -151,9 +152,15 @@ async function iniciarTravessia(stops, images) {
     // Depuração: ?lento=1 atrasa cada textura em 1,5 s; ?lento=trava nunca entrega a capa da abertura.
     const lento = new URLSearchParams(location.search).get('lento');
     const texturas = criarTexturas(images, { renderer: palco.renderer, atraso: lento === '1' ? 1500 : 0 });
-    const { aplicar, carregarJanela, fixarMaxima } = criarCarregamento({
+    aoDesmontar(() => texturas.encerrar());
+    const telaDaCapa = stops[0].tipo === 'capa' ? telas.find((m) => m.userData.stopId === stops[0].id) : null;
+    let capa = null; // promessa da capa que a revelação da abertura espera (só vinda do topo)
+    const carregamento = criarCarregamento({
       linha, stops, images, telas, texturas, gsap, retanguloNoFoco, ativo: () => ativo,
+      // a capa não mostra a miniatura enquanto a abertura a revela por pinceladas
+      semMiniatura: (m) => m === telaDaCapa && capa !== null && abertura?.estado !== 'fim',
     });
+    const { aplicar, carregarJanela, carregarConjunto, fixarMaxima } = carregamento;
 
     const LERP = 0.09;
     // virtualScroll só intervém com uma viagem em andamento (a roda no mesmo sentido herda a
@@ -163,11 +170,19 @@ async function iniciarTravessia(stops, images) {
     navegacao = criarNavegacao({
       linha, stops, images, lenis, amortecimento: LERP * 60, antes: raiz,
       fecharMergulho: () => mergulho?.fechar(), // toda navegação fecha o mergulho antes de agir
+      // Viagem: só as janelas da partida e da chegada; as paradas do caminho ficam nas miniaturas.
+      aoPartir: (destino) => carregarConjunto(janelaDeViagem(linha, stops, indiceAtual, destino)),
+      aoChegar: () => {
+        if (!ativo) return;
+        indiceAtual = situar(linha, vhDe(scrollY, innerHeight)).indice;
+        carregarJanela(indiceAtual);
+      },
     });
     aoDesmontar(() => navegacao.encerrar());
     window.__site = {
       linha, estado, telas, ponteiro: palco.ponteiro,
       get abertura() { return abertura?.estado ?? null; },
+      get definitivas() { return carregamento.definitivas(); }, // telas com textura definitiva
       irPara(id) { navegacao.irPara(id); },
       abrirMergulho(stopId, indiceTela = 0) {
         mergulho?.abrir(telas.find((m) => m.userData.stopId === stopId && m.userData.indiceTela === indiceTela));
@@ -265,7 +280,11 @@ async function iniciarTravessia(stops, images) {
       legendas.atualizar(vh);
       // Cabeçalho e fileira só voltam depois da volta do mergulho: o 2º clique em "voltar" cairia no cabeçalho.
       navegacao.quadro(dt, { atual: s.id, oculta: abertura?.estado !== 'fim' || Boolean(estado.mergulho) || mergulho.saindo });
-      if (s.indice !== indiceAtual) { indiceAtual = s.indice; carregarJanela(indiceAtual); }
+      // Numa viagem, as paradas do caminho não carregam nada (aoPartir e aoChegar cuidam disso).
+      if (s.indice !== indiceAtual) { indiceAtual = s.indice; if (!navegacao.viajando) carregarJanela(indiceAtual); }
+      // mesh.visible por último: depois de toda tela que se move (o cartão final) e da câmera.
+      const zc = palco.camera.position.z;
+      for (const m of telas) m.visible = naVista(zc - m.position.z, m.userData.alcance);
     });
 
     posicionar();
@@ -278,9 +297,7 @@ async function iniciarTravessia(stops, images) {
     // certa, que troca sem salto quando chegar) espera por ela, ou pelo fim da abertura se a capa
     // travar. Recarregada no meio da página, a janela carrega já e a abertura só espera a fonte.
     const fonte = document.fonts ? document.fonts.load('1em Outfit') : Promise.resolve();
-    const telaDaCapa = stops[0].tipo === 'capa' ? telas.find((m) => m.userData.stopId === stops[0].id) : null;
     const etapas = [Promise.resolve(), Promise.resolve(), fonte];
-    let capa = null;
     if (telaDaCapa && scrollY <= 0) {
       const id = telaDaCapa.userData.imagem;
       const larguras = images[id].larguras;
@@ -296,13 +313,19 @@ async function iniciarTravessia(stops, images) {
     const fundo = telas.filter((m) => m !== telaDaCapa);
     abertura = rodarAbertura({ telaDaCapa, pronto: Promise.all(etapas), etapas, fundo });
     aoDesmontar(() => abertura.encerrar());
+    // Miniaturas: decodificadas depois que a abertura começa (sem rede: data URI em images.json).
+    texturas.miniaturas()
+      .then((mapa) => { if (ativo) carregamento.usarMiniaturas(mapa); })
+      .catch((erro) => console.error(erro));
+    // No fim da abertura, a capa (se a definitiva não chegou) passa à miniatura.
+    abertura.then(() => { if (ativo) carregamento.mostrarMiniaturas(); }).catch(desmontar);
     // Música de fundo: o arquivo só é pedido depois da abertura (sem ele, não há botão).
     const som = criarSom();
     aoDesmontar(() => som.encerrar());
     abertura.then(() => { if (ativo) som.carregar(); }).catch(desmontar);
     if (capa) {
       Promise.race([capa, abertura]).catch(() => {}) // erro da capa já registrado acima
-        .then(() => { if (ativo) carregarJanela(indiceAtual); })
+        .then(() => { if (ativo && !navegacao.viajando) carregarJanela(indiceAtual); }) // numa viagem, aoChegar carrega
         .catch(desmontar);
     }
     // Redimensionar não muda de parada: antes de tudo, o mesmo vh em px da altura nova (e o

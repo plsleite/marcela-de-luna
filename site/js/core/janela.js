@@ -9,14 +9,28 @@ export function texturasNecessarias(linha, stops, indice, antes = 1, depois = 3)
   return ids;
 }
 
-export function larguraPara(larguraPx, dpr, larguras) {
+// Viagem longa: só as janelas da parada de partida e da de chegada (as do caminho não baixam).
+export function janelaDeViagem(linha, stops, atual, destino) {
+  const ids = texturasNecessarias(linha, stops, atual);
+  for (const id of texturasNecessarias(linha, stops, destino)) ids.add(id);
+  return ids;
+}
+
+// Menor largura que, com `tolerancia` de folga (ampliada até 8%), cobre a tela em px físicos.
+export function larguraPara(larguraPx, dpr, larguras, tolerancia = 1.08) {
   const ord = [...larguras].sort((a, b) => a - b);
   const alvo = larguraPx * dpr;
-  return ord.find(l => l >= alvo) ?? ord[ord.length - 1];
+  return ord.find(l => l * tolerancia >= alvo) ?? ord[ord.length - 1];
 }
 
 // Uma tela existe para o ponteiro, o realce e o pincel só entre `perto` (o surge[0] dela: mais
 // perto, está transparente, rente à câmera) e `alcance` (o some[1]: mais longe, sumiu no branco).
 export function aoAlcance(distancia, perto, alcance) {
   return distancia >= perto && distancia < alcance;
+}
+
+// Uma tela é desenhada (mesh.visible) só entre logo atrás da câmera (−1) e o `alcance`: além
+// dele já sumiu no branco. Não confundir com aoAlcance, que decide ponteiro, realce e pincel.
+export function naVista(distancia, alcance) {
+  return distancia > -1 && distancia < alcance;
 }

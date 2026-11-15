@@ -1,8 +1,20 @@
 // Texturas das pinturas sob demanda: decodifica fora da linha principal (createImageBitmap),
-// envia à GPU assim que chega e descarta o que sai da janela de carregamento.
+// envia à GPU assim que chega e descarta o que sai da janela de carregamento. As miniaturas
+// (24 px, data URI em images.json, sem pedido de rede) ficam em todas as telas enquanto a
+// textura definitiva não chega: ampliadas pelo filtro linear, são a pintura borrada.
 import * as THREE from 'three';
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// data:image/webp;base64,… → Blob, sem passar por fetch.
+function blobDe(uri) {
+  const virgula = uri.indexOf(',');
+  const tipo = uri.slice(5, virgula).split(';')[0];
+  const bin = atob(uri.slice(virgula + 1));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: tipo });
+}
 
 // opcoes.renderer: para enviar a textura à GPU na chegada; opcoes.atraso: ms extras por textura (depuração).
 export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
@@ -56,5 +68,32 @@ export function criarTexturas(images, { renderer = null, atraso = 0 } = {}) {
     return liberadas;
   }
 
-  return { pedir, liberarForaDe };
+  // Uma textura por imagem a partir de images[id].mini (pedida uma vez; as chamadas seguintes
+  // devolvem a mesma promessa). Sem mipmaps: 24 px ampliados, o borrado é o próprio filtro.
+  let minis = null;
+  let encerrado = false;
+  function miniaturas() {
+    minis ??= Promise.all(Object.entries(images).map(async ([id, im]) => {
+      if (!im.mini) return null;
+      const bitmap = await createImageBitmap(blobDe(im.mini), { imageOrientation: 'flipY', premultiplyAlpha: 'none' });
+      if (encerrado) { bitmap.close(); return null; }
+      const tex = new THREE.Texture(bitmap);
+      tex.flipY = false;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      tex.needsUpdate = true;
+      if (renderer) renderer.initTexture(tex);
+      return [id, tex];
+    })).then((pares) => new Map(pares.filter(Boolean)));
+    return minis;
+  }
+
+  // Desmontagem: descarta as miniaturas (as que ainda chegarem nem viram textura).
+  function encerrar() {
+    encerrado = true;
+    minis?.then((mapa) => { for (const tex of mapa.values()) fora(tex); }).catch(() => {});
+  }
+
+  return { pedir, liberarForaDe, miniaturas, encerrar };
 }

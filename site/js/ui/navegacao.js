@@ -16,8 +16,10 @@ function criar(tag, classe) {
 
 // linha, stops, images: a travessia; lenis: o scroll suavizado; amortecimento: lerp do Lenis
 // × 60 (1/s), para a roda herdar a velocidade da viagem; fecharMergulho(): sai do mergulho, se
-// houver; antes: elemento antes do qual o cabeçalho e a fileira entram no DOM.
-export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fecharMergulho, antes }) {
+// houver; antes: elemento antes do qual o cabeçalho e a fileira entram no DOM; aoPartir(indice):
+// uma viagem começa rumo à parada `indice` de stops; aoChegar(): a viagem acabou (chegou, foi
+// interrompida ou cancelada), visto no primeiro quadro em que `viajando` deixa de valer.
+export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fecharMergulho, antes, aoPartir = () => {}, aoChegar = () => {} }) {
   const capa = stops.find((s) => s.tipo === 'capa') ?? null;
   const vhAgora = () => (scrollY / innerHeight) * 100;
 
@@ -39,6 +41,7 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
     const k = Math.abs(dist) >= 1 ? (velocidade * duracao) / dist : 0;
     const v = { id, ate: performance.now() + duracao * 1000 + FOLGA };
     viagem = v;
+    aoPartir(stops.findIndex((s) => s.id === id));
     lenis.scrollTo(alvo, {
       duration: duracao, easing: curvaDaViagem(k),
       onComplete: () => { if (viagem === v) viagem = null; },
@@ -143,11 +146,15 @@ export function criarNavegacao({ linha, stops, images, lenis, amortecimento, fec
   let marcaAnterior = -1;   // índice da marca atual
   let navVisivel = null;
   let topoVisivel = null;
+  let estavaViajando = false;
   // dt em ms; atual: id da parada em que o scroll está; oculta: abertura, mergulho ou a volta dele em curso.
   function quadro(dt, { atual, oculta }) {
     const y = scrollY;
     velocidade = dt > 0 ? ((y - yAnterior) / dt) * 1000 : 0;
     yAnterior = y;
+    const v = viajando();
+    if (estavaViajando && !v) aoChegar();
+    estavaViajando = v;
     if (atual !== atualAnterior) {
       atualAnterior = atual;
       const i = marcaAtual(marcas, atual); // um trecho de closes é uma marca só

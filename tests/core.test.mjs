@@ -2,7 +2,7 @@ import { test } from 'node:test'; import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { criarLinha, situar, focoDe, emFoco, alturaDaPagina, vizinho } from '../site/js/core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, indicesPorTipo } from '../site/js/core/camera.js';
-import { texturasNecessarias, larguraPara, aoAlcance } from '../site/js/core/janela.js';
+import { texturasNecessarias, larguraPara, aoAlcance, janelaDeViagem, naVista } from '../site/js/core/janela.js';
 import * as cfg from '../site/js/config.js';
 
 const stops = [{ id:'capa', tipo:'capa' }, { id:'t', tipo:'texto' }, { id:'o1', tipo:'obra', telas:['a'] }, { id:'o2', tipo:'obra', telas:['b','c'] }];
@@ -83,6 +83,22 @@ test('larguraPara', () => {
   assert.equal(larguraPara(2000, 2, [640,1280,2560]), 2560);
   assert.equal(larguraPara(320, 2, [640,1280,2560]), 640);
   assert.equal(larguraPara(500, 2, [2560,640,1280]), 1280);
+});
+
+test('larguraPara: 8% de folga antes de subir de largura', () => {
+  assert.equal(larguraPara(644, 2, [640, 1280, 2560]), 1280);     // 1288 cabe em 1280 com 8% de folga
+  assert.equal(larguraPara(700, 2, [640, 1280, 2560]), 2560);
+  assert.equal(larguraPara(500, 2, [640, 1280, 2560]), 1280);
+  assert.equal(larguraPara(9999, 2, [640, 1280, 2560]), 2560);
+});
+
+test('janelaDeViagem: só as janelas da partida e da chegada', () => {
+  // stops do teste existente: [capa, t, o1(a), o2(b,c)]
+  assert.deepEqual([...janelaDeViagem(linha, stops, 0, 3)].sort(), ['a', 'b', 'c']);
+});
+
+test('naVista: a tela é desenhada entre −1 e o alcance', () => {
+  assert.equal(naVista(5, 28), true); assert.equal(naVista(-2, 28), false); assert.equal(naVista(28, 28), false);
 });
 
 test('dados reais: linha cobre as 58 paradas e planos resolvem', () => {
