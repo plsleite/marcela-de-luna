@@ -24,6 +24,15 @@ Achados das revisões do Plano 1 que não bloqueiam a validação do piloto. Cad
 - `docs/closes.md` linha 5 diz "só certeza visual", mas a ligação 53 → Dentro é "boa"; o teste dos closes não exige `tela` inteiro ≥ 0.
 - Composição, depois do retorno do Pedro: legenda da parada anterior aparece por instantes; primeira tela de "Intervalo" perto do cabeçalho; ficha do mergulho encosta na pintura em janela quadrada.
 
+## Ajustes de 15/11/2026 (ímã, som, ampliação)
+
+- Ímã: se a barra de rolagem for solta sem o evento chegar à página, o ímã só volta a agir quando o mouse se mexe; um clique cujo alvo seja o `<html>` arma o ímã sem a página ter rolado; espaço com o foco no botão de som também arma.
+- Ímã: arrasto real da barra de rolagem e toque real não foram testados (só eventos simulados).
+- Ampliação: a classe do cursor "fora da tela" só é recalculada ao mover o mouse; com um close aberto o cursor mostra `zoom-out`, mas o clique só recolhe o close.
+- Som: erros do `play()` que não sejam recusa de autoplay são engolidos sem registro; ao ligar pelo botão a música entra em 0,6 s (a subida de 3 s vale só para o primeiro gesto); rótulo de ação junto com `aria-pressed` pode soar como estado duplo em leitor de tela.
+- Realce do vulto: um raio e um `filter` novo a cada quadro, mesmo com o mouse parado.
+- Gravação de "O Cisne": confirmar os direitos antes de publicar.
+
 ## Conceito de celular
 
 - `resize` encerra a abertura (a barra de endereço do celular dispara `resize`).

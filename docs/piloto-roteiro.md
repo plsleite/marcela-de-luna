@@ -4,6 +4,20 @@ Este roteiro é para você, Pedro. Ele diz como abrir o piloto, o que experiment
 
 O piloto tem seis telas: a capa, a Pesquisa Artística, a abertura de A Bailarina e três obras (Foyer de la Danse, A Dança é por Ela e Intervalo). O resto do portfólio ainda não está aqui.
 
+## O que mudou em 15/11/2026 (ajustes que você pediu)
+
+Estas mudanças valem por cima do que os passos abaixo descrevem.
+
+- **Ampliar a capa e os recortes.** Clicar na pintura da capa, nos dois recortes de "Pesquisa Artística" e no recorte de "A Bailarina" também amplia a imagem. Nesses casos não aparece legenda, só o botão "voltar".
+- **Clicar fora fecha.** Com uma tela ampliada, clicar em qualquer ponto fora dela faz o mesmo que "voltar".
+- **Ímã.** Quando você para de rolar, a página desliza sozinha até o ponto ideal da parada mais próxima. Rolar de novo interrompe na hora.
+- **Tela seguinte quase branca.** A tela que vem depois aparece só como um vulto claro. Ao passar o mouse, ela ganha um pouco de cor; clicar leva até ela.
+- **Legenda ao lado da base da pintura**, como etiqueta de museu.
+- **Música.** Um botão discreto de som fica no canto superior direito, e a música entra no primeiro clique ou tecla. Enquanto o arquivo da música não estiver na pasta, o botão não aparece.
+
+Perguntas novas: o ímã puxa no tempo certo, cedo demais ou tarde demais? O vulto está claro o bastante? A legenda ficou bem ao lado da base?
+
+
 ## 1. Como abrir
 
 1. Abra o Terminal.
