@@ -7,11 +7,13 @@
 // e nada mais muda. O botão no canto superior esquerdo (junto do nome; enquanto a música não tocou mostra o convite
 // "LIGAR O SOM") liga e desliga (SOM.troca s) e a escolha
 // fica em localStorage ('som'); a aba oculta pausa, e a volta retoma. Quem decide o estado é
-// core/som.js. Tudo o que este módulo cria (áudio, botão, ouvintes, tweens) sai em encerrar().
+// core/som.js. Com a música carregada, entra também o crédito da gravação no verso (ui/credito.js).
+// Tudo o que este módulo cria (áudio, botão, crédito, ouvintes, tweens) sai em encerrar().
 import { gsap } from 'gsap';
 import { SOM } from '../config.js';
 import { estadoDoSom, preferenciaLida, cliqueNoBotao, botaoDoSom, convite } from '../core/som.js';
 import { soltarFocoDoPonteiro } from './foco.js';
+import { criarCredito } from './credito.js';
 
 const ARQUIVO = './assets/audio/o-cisne.mp3';
 const CHAVE = 'som';
@@ -32,6 +34,7 @@ export function criarSom() {
   let preferencia = lerPreferencia();
   let encerrado = false;
   let medidor = null;
+  let tirarCredito = null; // remove o crédito da música (criado com o arquivo carregado)
   const nivel = { v: 0 }; // volume exibido (o tween anda nele e copia para audio.volume)
 
   const estado = () => estadoDoSom({ carregado, gesto, preferencia, oculta: document.hidden });
@@ -127,6 +130,7 @@ export function criarSom() {
     if (encerrado || carregado) return;
     carregado = true;
     criarBotao();
+    tirarCredito = criarCredito();
     aplicar(SOM.subida);
   };
   const aoTrocarReproducao = () => atualizarBotao();
@@ -162,6 +166,8 @@ export function criarSom() {
     medidor?.disconnect();
     botao?.remove();
     botao = null;
+    tirarCredito?.();
+    tirarCredito = null;
   }
 
   return { carregar, encerrar };

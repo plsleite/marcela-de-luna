@@ -108,6 +108,26 @@ html.travessia .parada--detalhe .titulo-secao {
   text-shadow: 0 0 0.6em rgb(0 0 0 / 0.18);
 }
 
+/* ---------- crédito da música (ui/credito.js) ----------
+   No verso, na margem do nome e com a base na da tela do verso, sem chegar à tela (--tela-esq).
+   Letra do rodapé da capa em tamanho de legenda, sem caixa alta. Como a linha "DETALHES", só
+   recebe ponteiro e foco visível (com o verso em foco e sem tela ampliada). */
+.credito { display: none; }
+html.travessia .parada--verso .credito {
+  --margem-credito: clamp(1rem, 2.4vw, 2.2rem); /* a do nome (.topo-site) */
+  display: block; position: absolute; margin: 0;
+  left: var(--margem-credito);
+  bottom: calc(100vh - var(--tela-base));
+  max-width: min(22rem, calc(var(--tela-esq) - 2 * var(--margem-credito)));
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; line-height: 1.45;
+  visibility: hidden; pointer-events: none; transition: visibility 0s linear 0.45s;
+}
+html.travessia .parada--verso.em-foco .credito { visibility: visible; pointer-events: auto; transition-delay: 0s; }
+html.travessia.mergulhando .parada--verso .credito { visibility: hidden; pointer-events: none; }
+html.travessia .credito a { white-space: nowrap; color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+html.travessia .credito a:focus { outline: none; }
+html.travessia .credito a:focus-visible { outline: 1.5px solid #305fa3; outline-offset: 1px; }
+
 /* ---------- letras que se enchem de tinta (preenchimento.js) ----------
    Duas camadas recortadas no texto: por cima, uma pincelada preta (--pincelada-*, SVG gerado
    no JS) que começa cobrindo a letra; por baixo, a pintura, contínua no título (--bx, --by,
