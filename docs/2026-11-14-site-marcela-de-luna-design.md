@@ -184,6 +184,10 @@ Todo o texto existe como texto de verdade na página (selecionável e legível p
   - A cópia usada para publicar fica fora do OneDrive.
   - **Nada é publicado sem o Pedro dizer "pode publicar"** a cada vez.
   - Alternativas descartadas por ora: Netlify, Cloudflare Pages e Vercel dariam repositório privado, mas exigem que o Pedro crie uma conta.
+- **Hospedagem, como ficou (preparada em 15/11/2026, `docs/2026-11-15-publicacao.md`):**
+  - Endereço: `https://plsleite.github.io/marcela-de-luna/`. Repositório público `plsleite/marcela-de-luna` com o projeto inteiro (site, documentos, testes e histórico), por decisão do Pedro; o PDF fica fora (ignorado pelo git). Isso substitui o "sobe apenas a pasta `site/`" acima: o repositório tem tudo, mas só `site/` é publicado.
+  - Fluxo de publicação: `.github/workflows/pages.yml`. A cada `push` no `main` (ou à mão), roda `node --test tests/*.test.mjs` no Node 22 e, se passar, publica a pasta `site/` com as ações oficiais do Pages (o Pages só publica direto da raiz ou de `/docs`). O site não usa caminho absoluto, para funcionar sob `/marcela-de-luna/` (há teste).
+  - Crédito da música: a gravação de "O Cisne" está sob CC BY 3.0; o crédito, com link para o arquivo no Wikimedia Commons e para a licença, aparece na parada do verso, no canto inferior esquerdo, só na travessia e só quando a música carregou. Também está no README, com as licenças de three.js, GSAP, Lenis e da fonte Outfit.
 
 Decisões tomadas depois da leitura de um revisor independente:
 

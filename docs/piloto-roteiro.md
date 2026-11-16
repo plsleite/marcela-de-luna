@@ -236,13 +236,7 @@ Estes pontos eu não consegui testar de verdade no meu ambiente:
 ## 1. Como abrir
 
 1. Abra o Terminal.
-2. Entre na pasta do projeto (a pasta "Ceça"). Copie o comando abaixo, cole no Terminal e aperte Enter:
-
-   ```
-   cd "caminho/da/pasta/Ceça"
-   ```
-
-   Se preferir, digite `cd ` (com um espaço no fim), arraste a pasta Ceça do Finder para a janela do Terminal e aperte Enter.
+2. Entre na pasta do projeto (a pasta "Ceça"): digite `cd ` (com um espaço no fim), arraste a pasta do projeto do Finder para a janela do Terminal e aperte Enter.
 3. Agora rode o comando que abre o piloto:
 
    ```

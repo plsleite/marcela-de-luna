@@ -69,7 +69,6 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Pincel: nas quinas dos controles a barreira usa o retângulo alargado, mais contido que a distância euclidiana (lado conservador: um pouco menos de tinta nos cantos). Em `redimensionar` (`gl/tinta.js`), `uTexel` fica menor que um texel quando o teto de pixels corta o alvo abaixo de um ponto de tinta por ponto de tela, o que só acontece em densidade 1 acima de 8,3 milhões de pontos (usar `max(escala, 1) / w`).
 - Pincel: telas com opacidade 0 não barram mais a tinta (mudança da segunda rodada); durante a abertura, as telas ainda ocultas do fundo deixam de ser obstáculo. A revisão confirmou que nenhuma pintura visível fica desprotegida.
 - Realce do vulto: um raio e um `filter` novo a cada quadro, mesmo com o mouse parado.
-- Gravação de "O Cisne": confirmar os direitos antes de publicar.
 - Em janela muito baixa (cerca de 320 px de altura), a legenda não encolhe com a cena e volta a encostar no vulto da tela seguinte: a fonte da legenda deveria acompanhar a altura da janela.
 - A música tem grande variação de volume (trechos suaves bem mais baixos que os fortes); se os trechos suaves sumirem em caixas de notebook, aplicar uma compressão leve ao arquivo.
 
@@ -114,11 +113,15 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 
 ## Publicação
 
-- Cabeçalhos de cache ou versão nos módulos: um `config.js` antigo em cache quebra a página depois de uma atualização.
-- 129 MB de WebP no histórico do git (84 MB na largura 2560): avaliar qualidade e tamanho da maior largura. A reserva baixa, depois da abertura, de 12 MB (largura 640) a 85 MB (maior largura) por visita, conforme a janela; em 1440×900 foram 38,3 MB.
+Preparada em 15/11/2026 (`docs/2026-11-15-publicacao.md`): fluxo `.github/workflows/pages.yml`, README com direitos e créditos e crédito da gravação de "O Cisne" na parada do verso (saiu daqui a pendência dos direitos da gravação). Nada disto bloqueia a publicação:
+
+- Cache dos módulos: o GitHub Pages costuma servir tudo com cache de 10 minutos (`Cache-Control: max-age=600`; conferir no endereço publicado) e sem versão nos nomes dos arquivos. Por até 10 minutos depois de uma atualização, quem já visitou pode receber um `config.js` antigo com um módulo novo, e a página quebra até a recarga seguinte.
+- Peso das imagens: 129 MB de WebP em `site/` e no histórico do git (84 MB na largura 2560), dentro do limite de 1 GB do site publicado. A reserva baixa, depois da abertura, de 12 MB (largura 640) a 85 MB (maior largura) por visita, conforme a janela; em 1440×900 foram 38,3 MB. Com o limite brando de banda do Pages (100 GB por mês), isso dá cerca de 1.200 visitas completas por mês na maior largura e 2.600 em 1440×900.
 - A capa de 640 px é baixada duas vezes na carga (pelo CSS e pela textura, 235 KB cada); medido em 15/11: 1,61 MB transferidos até a capa chegar (limite: 2 MB).
 - `window.__site` e `?lento` continuam no código de produção.
-- `site/vendor/three.module.min.js` teve o import editado à mão (`./three.core.min.js`): registrar num README de vendor; o teste de vendor não pega `import("https://…")` nem confere os alvos do import map.
+- `site/vendor/three.module.min.js` teve o import editado à mão (`./three.core.min.js`): registrar num README de vendor; o teste de vendor não pega `import("https://…")` nem confere os alvos do import map. GSAP e Lenis vendorizados não trazem cabeçalho de licença no arquivo (as licenças foram conferidas nos pacotes de origem e estão no README); o README de vendor pode guardar as notas de licença junto de cada arquivo.
+- Crédito da música: anda com a paralaxe dos textos (até 8 px), como os outros textos de parada; com o ponteiro no centro fica exatamente na margem do nome. Quando o verso entra em foco o cartão ainda está terminando o giro, vindo da direita: a tela nunca passa à esquerda da posição final, longe do crédito.
+- O fluxo usa `actions/setup-node` (oficial) para garantir o Node 22 nos testes, além das quatro ações do Pages. As versões principais (checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5) são as das páginas de versões das ações em 15/11/2026; o exemplo da documentação do Pages ainda mostrava versões anteriores (checkout v6, configure-pages v5, upload-pages-artifact v4, deploy-pages v4). Se o primeiro fluxo falhar numa delas, voltar à versão da documentação.
 
 ## A conferir pelo Pedro (não verificado por agentes)
 
