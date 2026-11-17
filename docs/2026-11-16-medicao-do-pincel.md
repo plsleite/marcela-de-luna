@@ -1,0 +1,45 @@
+# Medição do pincel com mouse de alta taxa (16/11/2026)
+
+O Pedro relatou que, com um mouse de jogo (1.000 posições por segundo ou mais), a pincelada arrasta atrás do cursor quando ele mexe o mouse depressa, no Safari e no Chrome, na tela retina e no monitor de 3440×1440; com o trackpad, não. Este documento registra a medição feita antes de qualquer correção.
+
+## A hipótese
+
+O site trata cada posição do ponteiro na hora em que ela chega (tinta, raio contra as telas, letras dos títulos). Com muitas posições por quadro, esse trabalho encheria o quadro, os movimentos fariam fila e o traço mostraria onde o mouse estava alguns quadros atrás.
+
+## Como foi medido
+
+Ferramenta: `tools/medir-pincel.sh` prepara, na cópia de conferência (fora de `site/`), a página `medir.html`: o mesmo site, com um relógio controlado e contadores em volta de `tinta.pintar`, das barreiras (`forca`), de `palco.telaSob` e de `preenchimento.tocar` (`tools/medicao/`). No console, `await __medir.rodar({ taxa, agrupar })` simula um trajeto rápido e curvo (até cerca de 4.100 px/s) por 300 quadros a 60 por segundo e devolve, por quadro (`__medir.ultimo.porQuadro`) e em média: posições e eventos que chegaram, tempo em cada trabalho, tempo total de script e a distância entre o último carimbo e a última posição do ponteiro. "Solto" é um evento por posição; "agrupado" é um evento por quadro com as posições em `getCoalescedEvents` (como o Chrome entrega). Janela de 1440×900, densidade 1, no painel de navegador do aplicativo (motor do Chrome), neste MacBook.
+
+## Números (médias por quadro, em milissegundos; um quadro a 60 por segundo dura 16,7 ms)
+
+Na parada "Pesquisa Artística" (título com letras que se pintam, duas telas, parágrafos):
+
+| posições por segundo | entrega | posições por quadro | script total | só os eventos | tinta (com barreiras) | raio | letras | ponta atrás do cursor (média / pior) | largura média do traço |
+|---|---|---|---|---|---|---|---|---|---|
+| 125 | solto | 2 | 2,2 | 0,15 | 0,06 | 0,01 | 0,07 | 13,7 px / 20,0 px | 30 px |
+| 125 | agrupado | 2 | 2,0 | 0,06 | 0,04 | 0,00 | 0,01 | 13,7 px / 20,0 px | 30 px |
+| 1.000 | solto | 17 | 2,5 | 0,34 | 0,06 | 0,02 | 0,16 | 4,3 px / 8,1 px | 30 px |
+| 1.000 | agrupado | 17 | 2,0 | 0,06 | 0,04 | 0,00 | 0,01 | 4,3 px / 8,1 px | 30 px |
+| 8.000 | solto | 133 | 2,7 | 1,15 | 0,06 | 0,11 | 0,49 | 3,2 px / 6,3 px | 45 px |
+| 8.000 | agrupado | 133 | 1,7 | 0,09 | 0,06 | 0,00 | 0,01 | 3,2 px / 6,3 px | 45 px |
+
+Na capa (sem letras para pintar), o script total ficou entre 0,9 e 1,5 ms por quadro em todos os casos, e os eventos entre 0,04 e 0,60 ms. Com o instante dos eventos arredondado para milissegundos inteiros (como o Safari informa), os números não mudaram.
+
+Quadros isolados de 17 a 31 ms apareceram em todas as taxas, inclusive a 125: não dependem do mouse (são da pintura de uma letra ou da coleta de lixo do navegador).
+
+## O que a medição prova
+
+- **A hipótese não se confirmou.** O trabalho por posição é pequeno: mesmo a 8.000 posições por segundo, uma a uma, os três trabalhos somam cerca de 1,2 ms num quadro de 16,7 ms. De 125 para 8.000 o script cresce 0,5 ms por quadro. Não há como isso formar fila.
+- **A ponta do traço fica mais perto do cursor com o mouse rápido, não mais longe.** O traço vai sempre até o meio do último trecho entre duas posições; com 125 posições por segundo o trecho é longo (14 px de distância em média, 20 no pior caso); com 1.000 ou mais, é curto (3 a 8 px).
+- **Um defeito de aparência acima de 1.000 posições por segundo.** A velocidade do gesto é calculada com um intervalo mínimo de 1 ms entre posições. A 8.000 por segundo o intervalo real é 0,125 ms, a velocidade sai até 8 vezes menor e o traço rápido deixa de afinar e secar: fica com 45 px de largura média em vez de 30. Não é atraso, mas é uma diferença no desenho para quem tem esse tipo de mouse. A 1.000 por segundo o traço sai igual ao de um mouse comum.
+
+## O que a medição não prova
+
+- **O que o navegador faz por conta própria a cada movimento real** (descobrir o que está sob o cursor, reavaliar o `:hover`): movimentos simulados não passam por isso.
+- **O Safari**: a simulação rodou só no motor do Chrome.
+- **O atraso entre o desenho e a tela.** O cursor é desenhado pelo sistema, direto na tela; o que a página desenha passa pelo navegador e pelo compositor e chega um a três quadros depois (17 a 50 ms). A 4.000 px/s, cada quadro de espera são 67 px de distância entre o cursor e a ponta do traço; a 10.000 px/s, 167 px. Esse atraso existe com qualquer mouse e com o trackpad, cresce com a velocidade da mão e não pode ser medido de dentro da página.
+- **O custo de desenho na placa de vídeo** na tela retina e em 3440×1440 (não depende da taxa do mouse: o número de carimbos por quadro é o mesmo).
+
+## Leitura
+
+O mais provável é que o arrasto que o Pedro vê seja o atraso entre o desenho e a tela, que fica visível porque o mouse de jogo atravessa a tela muito mais depressa que o trackpad, e não a taxa de posições. Para confirmar com o mouse dele, `sh tools/medir-ao-vivo.sh` abre no Safari e no Chrome a página `ao-vivo.html`, com um painel que mostra, nos quadros em que o mouse se moveu: o intervalo entre quadros, os movimentos e as posições por quadro, a idade de cada movimento ao ser tratado (se houver fila, esse número passa muito de um quadro), o tempo dos três trabalhos, a distância da ponta do traço ao cursor e a velocidade máxima. Se os quadros continuarem no ritmo normal e a idade ficar abaixo de um quadro, não há fila: o que resta é o atraso da tela.
