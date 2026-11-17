@@ -1,7 +1,8 @@
 // Medição ao vivo (só na conferência): um painel no canto com os números do mouse de verdade,
 // somados nos quadros em que o ponteiro se moveu (os últimos 5 s de movimento). Carregado por
-// ao-vivo.html depois de medir.js. A tecla Z zera. As teclas M (mouse) e T (trackpad) gravam 6 s
-// do gesto, posição a posição e quadro a quadro, e baixam um arquivo pincel-….json.
+// ao-vivo.html depois de medir.js. A tecla Z zera. As teclas M (mouse) e T (trackpad) gravam 20 s
+// do gesto, posição a posição e quadro a quadro, e baixam um arquivo pincel-….json. Também serve
+// a controle.html: uma página em branco, sem o site, para saber o que é do navegador.
 (() => {
   const M = window.__medir;
   const painel = document.createElement('pre');
@@ -16,7 +17,9 @@
   q = novo();
   // Gravação: cada movimento [instante em que foi tratado, e as posições [instante, x, y]] e
   // cada quadro [instante, x e y da ponta do traço, carimbos do quadro].
-  const GRAVA_MS = 6000;
+  const GRAVA_MS = 20000;
+  const controle = 'controle' in document.documentElement.dataset;
+  if (controle) { const manter = () => requestAnimationFrame(manter); manter(); } // sem o site, ninguém pede quadros
   let gravacao = null;
   function gravar(aparelho) {
     gravacao = { aparelho, inicio: performance.now(), movimentos: [], quadros: [] };
@@ -25,10 +28,10 @@
     const g = gravacao;
     gravacao = null;
     const navegador = /Chrome\//.test(navigator.userAgent) ? 'chrome' : /Safari\//.test(navigator.userAgent) ? 'safari' : 'outro';
-    const dados = { aparelho: g.aparelho, navegador, janela: [innerWidth, innerHeight, devicePixelRatio], movimentos: g.movimentos, quadros: g.quadros };
+    const dados = { aparelho: g.aparelho, navegador, pagina: controle ? 'controle' : 'site', janela: [innerWidth, innerHeight, devicePixelRatio], movimentos: g.movimentos, quadros: g.quadros };
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify(dados)], { type: 'application/json' }));
-    a.download = `pincel-${g.aparelho}-${navegador}.json`;
+    a.download = `pincel-${g.aparelho}-${navegador}-${controle ? 'controle' : 'site'}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   }
@@ -77,7 +80,7 @@
     q = novo();
     const aviso = gravacao
       ? `\nGRAVANDO ${gravacao.aparelho.toUpperCase()}: faltam ${Math.ceil((GRAVA_MS - (t - gravacao.inicio)) / 1000)} s`
-      : '\nM grava 6 s com o mouse; T, com o trackpad';
+      : '\nM grava 20 s com o mouse; T, com o trackpad';
     if (!quadros.length) { painel.textContent = `MEDIÇÃO DO PINCEL\nmexa o mouse depressa por uns 5 segundos${aviso}`; return; }
     const col = (c) => quadros.map((x) => x[c]);
     const rapidos = quadros.filter((x) => x.velocidade > 1500 && x.distancia !== null);

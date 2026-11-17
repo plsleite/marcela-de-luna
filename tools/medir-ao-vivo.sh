@@ -12,6 +12,8 @@ if ! lsof -nP -iTCP:"$PORTA" -sTCP:LISTEN >/dev/null 2>&1; then
 fi
 open -a Safari "http://localhost:$PORTA/ao-vivo.html"
 open -a "Google Chrome" "http://localhost:$PORTA/ao-vivo.html"
+open -a Safari "http://localhost:$PORTA/controle.html"
+open -a "Google Chrome" "http://localhost:$PORTA/controle.html"
 if [ -n "$SERVIDOR" ]; then
   trap 'kill "$SERVIDOR" 2>/dev/null; echo; echo "Medição encerrada."; exit 0' INT TERM
   echo "Medição aberta (Ctrl+C para encerrar)."

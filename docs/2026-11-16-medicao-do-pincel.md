@@ -76,3 +76,13 @@ O Pedro repetiu a medição ao vivo com o trackpad, que para ele nunca atrasa, p
 **A comparação não confirma a leitura anterior.** Pelo painel, o trackpad chega às mesmas velocidades do mouse (9.500 a 24.000 px/s contra 10.000 a 45.000) e a ponta do traço fica à mesma distância do cursor (15 a 21 px em média, 58 a 72 no pior caso). A explicação "o mouse é mais rápido" não se sustenta: os números que o painel resume são iguais nos dois aparelhos, e mesmo assim só o mouse parece atrasar.
 
 Continua de pé: não há fila, a página recebe um movimento por quadro e gasta 0,1 a 0,2 ms com ele. Cai: a velocidade como diferença entre os aparelhos. A diferença está em algo que as médias do painel não mostram (o ritmo em que as posições chegam, a freada, as viradas de direção). Por isso o painel ganhou uma gravação: as teclas M (mouse) e T (trackpad) gravam 6 s do gesto, posição a posição e quadro a quadro, e baixam `pincel-mouse-….json` e `pincel-trackpad-….json` para comparação.
+
+## Gravação do gesto no Chrome (17/11/2026)
+
+Duas gravações de 6 s no Chrome (janela de 1720×1289, densidade 1, quadros a cada 4,2 ms), uma com o mouse e uma com o trackpad:
+
+- **As posições chegam no mesmo ritmo nos dois aparelhos**: 120 por segundo (uma a cada 8,3 ms, quadro sim, quadro não), sem agrupamento. O mouse de 1.000 Hz não entrega mais posições que o trackpad.
+- **Velocidades parecidas** nesta gravação (mediana de 1.200 px/s no mouse e 1.900 no trackpad; 95% abaixo de 4.200 e 5.200).
+- **A idade dos movimentos é a diferença.** No trackpad, cada movimento é tratado de 5 a 10 ms depois de acontecer, do começo ao fim. No mouse, no primeiro segundo e meio do gesto a idade cresce sem parar (22, 40, 50, 72, 78, 91 e até 107 ms, medida a cada 250 ms) e de repente volta a 3 ms, com um salto de 109 ms no relógio das posições; nos 4 s seguintes fica em 5 a 7 ms. Enquanto a idade cresce, as posições continuam chegando uma a cada 8,3 ms, nenhuma agrupada, e os quadros seguem a cada 4,2 ms.
+
+Leitura: existe uma fila, mas ela se forma antes de as posições chegarem à página (no sistema ou no navegador), não no trabalho do site, que continua em 0,1 ms por quadro. Com 100 ms de idade a 3.000 px/s, o traço fica 300 px atrás do cursor: é o arrasto. O que esta gravação não diz: se a fila se forma por causa da página (o desenho a 240 quadros por segundo ocupando o navegador) ou em qualquer página com esse mouse, nem se ela volta a cada recomeço do gesto. Para separar as duas coisas, `controle.html` traz o mesmo painel numa página em branco, e a gravação passou a durar 20 s.
