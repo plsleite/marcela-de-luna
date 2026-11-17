@@ -43,3 +43,23 @@ Quadros isolados de 17 a 31 ms apareceram em todas as taxas, inclusive a 125: n�
 ## Leitura
 
 O mais provável é que o arrasto que o Pedro vê seja o atraso entre o desenho e a tela, que fica visível porque o mouse de jogo atravessa a tela muito mais depressa que o trackpad, e não a taxa de posições. Para confirmar com o mouse dele, `sh tools/medir-ao-vivo.sh` abre no Safari e no Chrome a página `ao-vivo.html`, com um painel que mostra, nos quadros em que o mouse se moveu: o intervalo entre quadros, os movimentos e as posições por quadro, a idade de cada movimento ao ser tratado (se houver fila, esse número passa muito de um quadro), o tempo dos três trabalhos, a distância da ponta do traço ao cursor e a velocidade máxima. Se os quadros continuarem no ritmo normal e a idade ficar abaixo de um quadro, não há fila: o que resta é o atraso da tela.
+
+## Medição ao vivo com o mouse do Pedro (16/11/2026)
+
+Quatro capturas do painel de `ao-vivo.html`, na capa, mexendo o mouse depressa (300 quadros com movimento em cada uma):
+
+| navegador | intervalo entre quadros (média / pior) | movimentos por quadro | posições por quadro (média / máx.) | idade do movimento (média / pior) | tinta + raio + letras (média / pior) | ponta atrás do cursor (média / pior) | velocidade máxima |
+|---|---|---|---|---|---|---|---|
+| Chrome | 4,5 ms / 22,7 ms | 1 | 1,0 / 3 | 5,4 ms / 12,3 ms | 0,1 ms / 0,4 ms | 9,5 px / 29,9 px | 19.999 px/s |
+| Chrome | 4,3 ms / 6,2 ms | 1 | 1,0 / 1 | 6,3 ms / 11,6 ms | 0,1 ms / 0,3 ms | 17,9 px / 101,4 px | 45.365 px/s |
+| Safari | 16,8 ms / 53,0 ms | 1 | 2,0 / 3 | 6,2 ms / 102,0 ms | 0,2 ms / 2,0 ms | 16,5 px / 64,9 px | 12.491 px/s |
+| Safari | 16,7 ms / 18,0 ms | 1 | 2,0 / 3 | 19,5 ms / 106,0 ms | 0,1 ms / 1,0 ms | 16,4 px / 51,4 px | 10.339 px/s |
+
+O que isso mostra:
+
+- **Não chegam mil posições por segundo à página.** O Chrome entrega um movimento por quadro com uma posição (cerca de 230 por segundo, num monitor de cerca de 240 quadros por segundo); o Safari, um movimento por quadro com duas posições (cerca de 120 por segundo). O sistema e o navegador já juntam as posições do mouse antes de entregá-las. Processar o ponteiro uma vez por quadro não mudaria nada: já é assim.
+- **O trabalho do site é desprezível**: 0,1 a 0,2 ms por quadro. Os quadros seguem no ritmo da tela. Não há fila.
+- **O que distingue o mouse é a velocidade**: 10.000 a 45.000 px/s (a tela inteira em um décimo de segundo). Entre uma posição e a seguinte o cursor anda de 90 a 200 px.
+- **A parte do atraso que é do site**: o traço vai só até o meio do último trecho entre duas posições (para a curva não fazer quinas) e só fecha até o cursor depois de 90 ms com o mouse parado (`FECHO`, `site/js/gl/tinta.js`). Com trechos de 90 a 200 px, a ponta fica de 50 a 100 px atrás no pior caso, e, quando o mouse freia de repente, esse pedaço só aparece 90 ms depois. Com o trackpad os trechos são curtos e o dedo desacelera aos poucos: o mesmo mecanismo não se vê.
+- **A parte que não é do site**: cada movimento chega à página com 5 a 20 ms de idade, e o desenho ainda leva um ou mais quadros até a tela. A 12.000 px/s no Safari, cada quadro de espera são cerca de 200 px.
+- O defeito da largura acima de 1.000 posições por segundo não aparece neste computador (a página nunca recebe tantas); pode aparecer em outros sistemas.
