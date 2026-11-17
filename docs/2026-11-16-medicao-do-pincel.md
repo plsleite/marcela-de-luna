@@ -63,3 +63,16 @@ O que isso mostra:
 - **A parte do atraso que é do site**: o traço vai só até o meio do último trecho entre duas posições (para a curva não fazer quinas) e só fecha até o cursor depois de 90 ms com o mouse parado (`FECHO`, `site/js/gl/tinta.js`). Com trechos de 90 a 200 px, a ponta fica de 50 a 100 px atrás no pior caso, e, quando o mouse freia de repente, esse pedaço só aparece 90 ms depois. Com o trackpad os trechos são curtos e o dedo desacelera aos poucos: o mesmo mecanismo não se vê.
 - **A parte que não é do site**: cada movimento chega à página com 5 a 20 ms de idade, e o desenho ainda leva um ou mais quadros até a tela. A 12.000 px/s no Safari, cada quadro de espera são cerca de 200 px.
 - O defeito da largura acima de 1.000 posições por segundo não aparece neste computador (a página nunca recebe tantas); pode aparecer em outros sistemas.
+
+## Comparação com o trackpad (17/11/2026)
+
+O Pedro repetiu a medição ao vivo com o trackpad, que para ele nunca atrasa, por mais rápido que mexa:
+
+| navegador | intervalo entre quadros | posições por quadro | idade do movimento (média / pior) | ponta atrás do cursor (média / pior) | velocidade máxima |
+|---|---|---|---|---|---|
+| Chrome | 4,4 ms | 1,0 | 9,0 ms / 15,0 ms | 15,2 px / 58,3 px | 23.879 px/s |
+| Safari | 16,7 ms | 1,9 | 11,3 ms / 19,0 ms | 21,1 px / 72,3 px | 9.568 px/s |
+
+**A comparação não confirma a leitura anterior.** Pelo painel, o trackpad chega às mesmas velocidades do mouse (9.500 a 24.000 px/s contra 10.000 a 45.000) e a ponta do traço fica à mesma distância do cursor (15 a 21 px em média, 58 a 72 no pior caso). A explicação "o mouse é mais rápido" não se sustenta: os números que o painel resume são iguais nos dois aparelhos, e mesmo assim só o mouse parece atrasar.
+
+Continua de pé: não há fila, a página recebe um movimento por quadro e gasta 0,1 a 0,2 ms com ele. Cai: a velocidade como diferença entre os aparelhos. A diferença está em algo que as médias do painel não mostram (o ritmo em que as posições chegam, a freada, as viradas de direção). Por isso o painel ganhou uma gravação: as teclas M (mouse) e T (trackpad) gravam 6 s do gesto, posição a posição e quadro a quadro, e baixam `pincel-mouse-….json` e `pincel-trackpad-….json` para comparação.
