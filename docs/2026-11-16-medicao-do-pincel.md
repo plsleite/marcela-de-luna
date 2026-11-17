@@ -86,3 +86,12 @@ Duas gravações de 6 s no Chrome (janela de 1720×1289, densidade 1, quadros a 
 - **A idade dos movimentos é a diferença.** No trackpad, cada movimento é tratado de 5 a 10 ms depois de acontecer, do começo ao fim. No mouse, no primeiro segundo e meio do gesto a idade cresce sem parar (22, 40, 50, 72, 78, 91 e até 107 ms, medida a cada 250 ms) e de repente volta a 3 ms, com um salto de 109 ms no relógio das posições; nos 4 s seguintes fica em 5 a 7 ms. Enquanto a idade cresce, as posições continuam chegando uma a cada 8,3 ms, nenhuma agrupada, e os quadros seguem a cada 4,2 ms.
 
 Leitura: existe uma fila, mas ela se forma antes de as posições chegarem à página (no sistema ou no navegador), não no trabalho do site, que continua em 0,1 ms por quadro. Com 100 ms de idade a 3.000 px/s, o traço fica 300 px atrás do cursor: é o arrasto. O que esta gravação não diz: se a fila se forma por causa da página (o desenho a 240 quadros por segundo ocupando o navegador) ou em qualquer página com esse mouse, nem se ela volta a cada recomeço do gesto. Para separar as duas coisas, `controle.html` traz o mesmo painel numa página em branco, e a gravação passou a durar 20 s.
+
+## Página de controle no Chrome (17/11/2026)
+
+Gravações de 20 s na página em branco (`controle.html`, sem o site), com pausas no gesto:
+
+- **Mouse**: a cada recomeço do movimento depois de uma pausa (quatro vezes em 20 s), a idade dos movimentos sobe em menos de um segundo até cerca de 100 ms (picos de 103, 104, 102 e 104 ms) e então volta de uma vez a 4 a 6 ms, onde fica enquanto o movimento continua. As posições chegam sempre a 120 por segundo, uma por vez, e os quadros a cada 4,2 ms.
+- **Trackpad**: 4 a 9 ms do começo ao fim, com as mesmas pausas e velocidades até maiores.
+
+**Conclusão: o atraso não é do site.** Ele aparece igual numa página em branco, só com o mouse e só no primeiro segundo de cada gesto: os movimentos já chegam atrasados ao navegador (ou saem atrasados dele) antes de qualquer código da página. O site desenha cada posição no mesmo quadro em que a recebe; não tem como desenhar uma posição que ainda não recebeu. Faltam as gravações do Safari, mas o painel do Safari já tinha mostrado o mesmo sinal com o mouse (idade de até 102 e 106 ms) e não com o trackpad (19 ms no pior caso).
