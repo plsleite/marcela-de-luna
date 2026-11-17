@@ -95,3 +95,25 @@ Gravações de 20 s na página em branco (`controle.html`, sem o site), com paus
 - **Trackpad**: 4 a 9 ms do começo ao fim, com as mesmas pausas e velocidades até maiores.
 
 **Conclusão: o atraso não é do site.** Ele aparece igual numa página em branco, só com o mouse e só no primeiro segundo de cada gesto: os movimentos já chegam atrasados ao navegador (ou saem atrasados dele) antes de qualquer código da página. O site desenha cada posição no mesmo quadro em que a recebe; não tem como desenhar uma posição que ainda não recebeu. Faltam as gravações do Safari, mas o painel do Safari já tinha mostrado o mesmo sinal com o mouse (idade de até 102 e 106 ms) e não com o trackpad (19 ms no pior caso).
+
+## As oito gravações (17/11/2026) e o achado do Pedro
+
+Todas no monitor externo (janela de 1720 de largura, densidade 1), 20 s cada, com pausas no gesto. "Episódio" é um trecho com movimentos de mais de 30 ms de idade.
+
+| aparelho | navegador | página | idade (mediana / 95% abaixo de / pior) | movimentos com mais de 30 ms | episódios (pico) |
+|---|---|---|---|---|---|
+| mouse | Chrome | controle | 5,8 / 69 / 104 ms | 9,8% | 4 em 4 arranques (103, 104, 102, 104 ms) |
+| mouse | Chrome | site | 6,6 / 76 / 107 ms | 10,4% | 5 em 5 arranques (106, 105, 103, 107, 107 ms) |
+| mouse | Safari | controle | 5,0 / 33 / 105 ms | 5,2% | 3 (105, 102, 75 ms) |
+| mouse | Safari | site | 7,0 / 12 / 22 ms | 0% | nenhum nesta gravação |
+| trackpad | Chrome | controle | 6,3 / 12 / 15 ms | 0% | nenhum |
+| trackpad | Chrome | site | 7,4 / 13 / 18 ms | 0% | nenhum |
+| trackpad | Safari | controle | 11,0 / 16 / 23 ms | 0% | nenhum |
+| trackpad | Safari | site | 9,0 / 14 / 20 ms | 0% | nenhum |
+
+- **Site e página em branco dão o mesmo resultado** no Chrome (9,8% e 10,4% dos movimentos atrasados, picos iguais). O site não causa nem agrava o atraso.
+- **No Chrome o atraso vem a cada arranque do mouse** depois de uma pausa: sobe até um teto de cerca de 105 ms e some em 0,3 a 0,5 s. No Safari é mais raro, como o Pedro percebeu.
+- **Em todos os casos chegam cerca de 118 posições por segundo**, mouse ou trackpad, embora o monitor externo mostre um quadro a cada 4,2 ms (cerca de 240 por segundo).
+- **Achado do Pedro, a olho**: o atraso só existe com o mouse no monitor externo, nos dois navegadores; com o mesmo mouse na tela retina não há atraso, nem no Chrome. Não há gravação na tela retina para confirmar com números.
+
+**Conclusão final.** O atraso nasce antes da página, na combinação deste mouse com o monitor externo neste Mac. O pincel fica como está: nenhuma mudança em `site/` foi feita, e nenhuma das correções cogitadas (uma vez por quadro, descartar posições coladas, ponta provisória) atacaria a causa. O que continua sem explicação é por que a combinação mouse + monitor externo atrasa; isso se investiga nos ajustes do sistema e do mouse, não no site (ver o roteiro).

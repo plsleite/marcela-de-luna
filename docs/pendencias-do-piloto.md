@@ -106,7 +106,10 @@ Números de referência ao fim da terceira rodada: `site/js/main.js` com 387 lin
 - Pincel: o relevo da tinta num monitor de densidade 1 passa a ser medido a 1 px (antes 2 px), como já era na tela retina; o Pedro confere no monitor dele.
 - Pincel: na tela retina os dois alvos de meia precisão passaram de cerca de 21 MB para 83 MB (1512×860); no teto de 8,3 milhões de pontos chegam a 133 MB. No celular isso precisa de outra conta.
 - Pincelada da fileira: em repouso, opacidade 0,45; aberta, 0,5. A rosa fica clara.
-- Raycast a cada movimento do ponteiro.
+- Raycast a cada movimento do ponteiro. Medido em 16/11/2026 (`docs/2026-11-16-medicao-do-pincel.md`): até 0,11 ms por quadro com 8.000 posições por segundo simuladas, e na prática a página recebe um movimento por quadro. Não pesa; fica só como limpeza.
+- Pincel com mouse de jogo no monitor externo do Pedro: o traço arrasta no primeiro meio segundo de cada gesto. Medido em 16 e 17/11/2026: os movimentos chegam à página com até 105 ms de idade, igual numa página em branco e nunca com o trackpad; a causa está antes da página e nada mudou em `site/`. Sem explicação ainda para a combinação mouse + monitor externo; sem gravação na tela retina, onde o Pedro não vê atraso.
+- Pincel acima de 1.000 posições por segundo (não ocorre no Mac do Pedro, onde chegam 120): a velocidade do gesto usa um intervalo mínimo de 1 ms (`gl/tinta.js`) e o traço rápido sai com 45 px de largura média em vez de 30. Visto só na simulação.
+- Ferramentas de medição do pincel: `tools/medir-pincel.sh`, `tools/medir-ao-vivo.sh` e `tools/medicao/` (simulação com relógio controlado, painel ao vivo, gravação do gesto, página de controle). Não entram em `site/`.
 - Falha de carga em `main.js` sem teste nem conferência no navegador.
 - Roteiro: `tools/abrir-piloto.sh` não distingue outro programa na mesma porta e sai sem mensagem se o servidor morrer.
 - A imagem da pág. 40 tem a borda direita em 3,9 un., cerca de 9 px sob a coluna da fileira em 1440×900.

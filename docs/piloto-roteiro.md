@@ -17,6 +17,25 @@ Estas mudanças valem por cima do que os passos abaixo descrevem.
 
 Perguntas novas: o ímã puxa no tempo certo, cedo demais ou tarde demais? O vulto está claro o bastante? A legenda ficou bem ao lado da base?
 
+## O arrasto do pincel com o mouse de jogo (16 e 17/11/2026)
+
+Você relatou que, com o mouse de jogo, a pincelada arrasta atrás do cursor. Medi antes de mexer, e **o site não mudou**: o pincel está exatamente como você aprovou. O relato completo, com todos os números, está em `docs/2026-11-16-medicao-do-pincel.md`.
+
+O que as medições mostraram:
+
+- O site gasta 0,1 a 0,2 ms por quadro com o ponteiro e desenha cada posição no mesmo quadro em que a recebe.
+- Com o mouse, no monitor externo, as posições chegam ao navegador com até 105 ms de atraso no começo de cada gesto. Isso acontece igual numa página em branco, sem o site. Com o trackpad não acontece nunca.
+- Você observou que na tela retina o mesmo mouse não atrasa.
+
+Ou seja: a causa está na combinação mouse + monitor externo neste Mac, antes de o movimento chegar à página. O que vale experimentar, um item de cada vez, olhando a página de controle (`sh tools/medir-ao-vivo.sh` abre as páginas; a linha "idade do movimento" do painel deve ficar abaixo de 20 ms):
+
+1. Em Ajustes do Sistema, Telas, baixar a taxa de atualização do monitor externo (para 120 ou 60 Hz) e repetir.
+2. Fechar o programa da Logitech (G HUB) e repetir.
+3. Se o mouse for sem fio, ligar pelo cabo ou trocar o receptor de porta, e repetir.
+4. Experimentar outro mouse no monitor externo.
+
+O que não pôde ser testado: a tela retina com gravação (só há a sua observação a olho), outros computadores e outros mouses. Se um visitante com um equipamento parecido notar o arrasto, a explicação provável é a mesma.
+
 ## O que mudou na terceira rodada (15/11/2026)
 
 São duas mudanças vindas das suas respostas à segunda rodada e uma pedida por você em seguida (o traço na tela retina, passo 11). Elas valem por cima de todas as outras seções. Abra o site como na seção 1 e siga os passos na ordem.
