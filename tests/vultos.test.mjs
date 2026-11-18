@@ -4,7 +4,7 @@ import { criarLinha, focoDe, emFoco } from '../site/js/core/timeline.js';
 import { cartaoFinal, deCostas, opacidadeDoVulto } from '../site/js/core/final.js';
 import { zDoStop, planosDoStop, indicesPorTipo, ladosDosDetalhes, fovPara } from '../site/js/core/camera.js';
 import { retanguloNaTela, fracaoVisivel } from '../site/js/core/projecao.js';
-import { brancura, alfa } from '../site/js/core/vulto.js';
+import { brancura, alfa, visibilidadeDasParadas } from '../site/js/core/vulto.js';
 import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE, VERSO, UNIDADES_POR_VH } from '../site/js/config.js';
 
 const perto = (a, b, tol = 1e-3) => Math.abs(a - b) < tol;
@@ -116,4 +116,42 @@ test('dados reais: vulto do verso ao lado do último close', () => {
   }
   assert.equal(alfa(DIST_FOCO - p.focoFrente * UNIDADES_POR_VH - z, VISIBILIDADE), 1);
   assert.equal(opacidadeDoVulto(p.focoVerso, p), 0);
+});
+
+// A regra do vulto único no site inteiro (C1, ajustes de 18/11/2026): do foco de cada parada, a
+// primeira tela da seguinte é um vulto inteiro (alfa 1, brancura ≥ 0,9) com pelo menos 25% da
+// área fora das telas em foco, e nenhuma tela de parada mais adiante aparece. O último close →
+// verso fica de fora: ali quem aparece é o vulto do verso (testes acima).
+test('dados reais: vulto inteiro da parada seguinte nas 57 transições', () => {
+  const { stops } = JSON.parse(readFileSync('site/data/content.json', 'utf8'));
+  const images = JSON.parse(readFileSync('site/data/images.json', 'utf8'));
+  const linha = criarLinha(stops);
+  const indices = indicesPorTipo(stops);
+  const lados = ladosDosDetalhes(stops, images, linha);
+  const planos = stops.map(s => planosDoStop(s, indices.get(s.id), images, linha, lados.get(s.id)));
+  const visDe = visibilidadeDasParadas(stops, planos, linha);
+  const dentro = (r) => ({ esq: Math.max(0, r.esq), dir: Math.min(1, r.dir), topo: Math.max(0, r.topo), base: Math.min(1, r.base) });
+  assert.equal(stops.length, 58);
+  // só as paradas longas mudam de faixa
+  const mudadas = stops.filter(s => visDe.get(s.id) !== VISIBILIDADE && visDe.get(s.id) !== VISIBILIDADE_DETALHE).map(s => s.id);
+  assert.deepEqual(mudadas, ['pesquisa-artistica', 'a-bailarina', 'foyer-de-la-danse', 'impermanencia']);
+  assert.ok(perto(visDe.get('a-bailarina').some[0], 29.5) && perto(visDe.get('a-bailarina').some[1], 35.5));
+  for (const [W, H] of [[1440, 900], [1512, 828]]) {
+    const aspecto = W / H, fov = fovPara(aspecto);
+    for (let a = 0; a + 2 < stops.length; a++) {
+      const b = a + 1;
+      const zc = zDoStop(linha, stops[a].id) + DIST_FOCO;
+      const ret = (p) => retanguloNaTela(p, zc, aspecto, fov);
+      const vulto = planos[b][0];
+      const d = zc - vulto.z;
+      const livre = fracaoVisivel(dentro(ret(vulto)), planos[a].map(ret));
+      const msg = `${W}×${H} ${stops[a].id} → ${stops[b].id}: d ${d.toFixed(2)}, livre ${(livre * 100).toFixed(0)}%`;
+      assert.equal(alfa(d, visDe.get(stops[b].id)), 1, msg);
+      assert.ok(brancura(d, visDe.get(stops[b].id)) >= 0.9, msg);
+      assert.ok(livre >= 0.25, msg);
+      for (let c = b + 1; c < stops.length - 1; c++) {
+        for (const p of planos[c]) assert.ok(alfa(zc - p.z, visDe.get(stops[c].id)) <= 0.05, `${msg}; ${stops[c].id} aparece`);
+      }
+    }
+  }
 });

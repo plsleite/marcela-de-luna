@@ -1,8 +1,9 @@
-import { DIST_FOCO, VISIBILIDADE, VISIBILIDADE_DETALHE } from './config.js';
+import { DIST_FOCO } from './config.js';
 import { montarBase } from './ui/base.js';
 import { criarLinha, situar, alturaDaPagina } from './core/timeline.js';
 import { zDaCamera, zDoStop, planosDoStop, fovPara, indicesPorTipo, ladosDosDetalhes } from './core/camera.js';
 import { retanguloNaTela } from './core/projecao.js';
+import { visibilidadeDasParadas } from './core/vulto.js';
 import { janelaDeViagem, naVista } from './core/janela.js';
 import { paralaxe } from './core/paralaxe.js';
 import { vhDe, pxDe, posicaoRestaurada } from './core/rolagem.js';
@@ -122,11 +123,11 @@ async function iniciarTravessia(stops, images) {
     // Telas: uma por plano de cada parada.
     const telas = [];
     const indices = indicesPorTipo(stops), lados = ladosDosDetalhes(stops, images, linha);
-    for (const stop of stops) {
-      const planos = planosDoStop(stop, indices.get(stop.id), images, linha, lados.get(stop.id));
-      planos.forEach((plano, indiceTela) => {
-        const mesh = criarTela(plano, { stopId: stop.id, indiceTela, cor: images[plano.imagem].cor,
-          visibilidade: stop.tipo === 'detalhe' ? VISIBILIDADE_DETALHE : VISIBILIDADE });
+    const planosDe = stops.map((stop) => planosDoStop(stop, indices.get(stop.id), images, linha, lados.get(stop.id)));
+    const visibilidades = visibilidadeDasParadas(stops, planosDe, linha); // o vulto da parada seguinte, sempre inteiro
+    for (const [k, stop] of stops.entries()) {
+      planosDe[k].forEach((plano, indiceTela) => {
+        const mesh = criarTela(plano, { stopId: stop.id, indiceTela, cor: images[plano.imagem].cor, visibilidade: visibilidades.get(stop.id) });
         mesh.userData.plano = plano;
         palco.cena.add(mesh);
         telas.push(mesh);
