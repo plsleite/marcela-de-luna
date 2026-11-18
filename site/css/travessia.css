@@ -397,7 +397,7 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
 @keyframes som-convite { 0%, 100% { transform: scaleY(0.25); } 50% { transform: scaleY(0.55); } }
 
 /* ---------- convite de rolagem (convite-rolagem.js) ----------
-   Só na capa, depois da abertura e até a primeira rolagem: no canto superior direito, na linha do
+   Só com a capa em foco, depois da abertura (some ao rolar e volta ao retornar à capa): no canto superior direito, na linha do
    nome e do som e com a mesma letra do convite "LIGAR O SOM", o rótulo e um traço fino por onde
    desce um risco, em ciclo lento. O clique viaja até a parada seguinte. */
 .convite-rolagem {
@@ -408,6 +408,7 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
   opacity: 0; transition: opacity 0.7s ease;
   -webkit-tap-highlight-color: transparent;
 }
+.convite-rolagem:not(.visivel) { pointer-events: none; }
 .convite-rolagem.visivel { opacity: 0.72; }
 .convite-rolagem.visivel:hover, .convite-rolagem.visivel:focus-visible { opacity: 1; }
 .convite-rolagem:focus { outline: none; }

@@ -33,7 +33,7 @@ Mesmo inteiro, o vulto é 92% branco sobre branco: quem chega ainda não conhece
 
 - Texto: "ROLE PARA ENTRAR", com um traço vertical fino que desce em ciclo lento. Mesma fonte, tamanho e espaçamento do convite "LIGAR O SOM".
 - Lugar: canto superior direito, na linha do nome e do som (o canto está livre desde que o som foi para a esquerda; a fileira de navegação fica mais abaixo, na borda direita).
-- Aparece só depois do fim da abertura, com a capa em foco e sem rolagem ainda. Some de vez na primeira rolagem (a partir de 3 vh), em qualquer viagem ou quando a página já abre fora da capa; não volta ao retornar à capa.
+- Aparece só depois do fim da abertura e só com a capa em foco: esconde-se ao rolar (a partir de 3 vh) e volta sempre que o visitante retorna à capa. (Primeira versão: sumia de vez na primeira rolagem; o Pedro pediu que voltasse.)
 - É um botão: o clique viaja até a parada seguinte, como o clique no vulto. Barra a tinta do pincel, como os outros controles.
 - Movimento reduzido (`prefers-reduced-motion`): o traço fica parado.
 - Lógica pura em `site/js/core/convite.js` (com teste); o elemento em `site/js/ui/convite-rolagem.js`, desfeito por `encerrar()`. A página base não muda.
