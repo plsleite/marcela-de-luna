@@ -412,7 +412,7 @@ html.travessia.mergulhando .parada.em-foco a { pointer-events: none; }
 /* as duas linhas (2 × 14 px) cabem na altura do traço (34 px); a do teclado é mais clara e não
    aparece onde não há ponteiro (aparelhos de toque, sem teclado) */
 .convite-rolagem-texto { display: flex; flex-direction: column; align-items: flex-end; }
-.convite-rolagem-teclado { opacity: 0.42; margin-top: 3px; }
+.convite-rolagem-teclado { opacity: 0.34; margin-top: 3px; }
 @media (hover: none) { .convite-rolagem-teclado { display: none; } }
 .convite-rolagem:not(.visivel) { pointer-events: none; }
 .convite-rolagem.visivel { opacity: 0.72; }
