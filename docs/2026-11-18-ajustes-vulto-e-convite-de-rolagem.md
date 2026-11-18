@@ -46,6 +46,10 @@ Com o vulto de "A Bailarina" visível, a borda direita dele (62,8% da largura da
 - Folga medida depois: 46 px em 1440×900, 67 px em 1512×828, 33 px em 1024×768, 29 px em 900×900. O texto continua inteiro na janela nos quatro tamanhos.
 - Deslocar a imagem da direita (ideia anterior) não resolveria: a folga depende do vulto e do texto, não dela.
 
+## C4. Linha do teclado no convite
+
+Nada na tela dizia que as setas navegam. O convite ganha uma segunda linha, embaixo de "ROLE PARA ENTRAR" e mais clara: "OU USE AS TECLAS ↑ ↓" (texto escolhido pelo Pedro). A primeira linha, o traço e a animação não mudam; as duas linhas cabem na altura do traço. Em aparelhos de toque (`hover: none`) a segunda linha não aparece. A fileira de navegação não muda.
+
 ## Fora desta rodada
 
 - Ajuda "COMO NAVEGAR" no canto superior direito: decidir depois de ver o convite em uso.

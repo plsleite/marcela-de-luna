@@ -1,5 +1,5 @@
-// Convite de rolagem (só na travessia): no canto superior direito da capa, "ROLE PARA ENTRAR" com
-// um traço fino que desce. Entra no fim da abertura, esconde-se ao rolar e volta sempre que o
+// Convite de rolagem (só na travessia): no canto superior direito da capa, "ROLE PARA ENTRAR" e,
+// embaixo, "OU USE AS TECLAS ↑ ↓", com um traço fino que desce ao lado. Entra no fim da abertura, esconde-se ao rolar e volta sempre que o
 // visitante retorna à capa; o clique viaja até a parada seguinte (irPara), como o clique no
 // vulto. Quem decide é core/convite.js. O botão e o ouvinte saem em encerrar().
 import { CONVITE, conviteVisivel } from '../core/convite.js';
@@ -15,8 +15,12 @@ export function criarConviteDeRolagem({ abertura, irPara }) {
   botao.className = 'convite-rolagem';
   botao.disabled = true; // escondido: fora do teclado e dos leitores de tela
   botao.dataset.barraTinta = ''; // o pincel não pinta sob o convite (travessia/pincel.js)
-  const texto = document.createElement('span');
-  texto.textContent = CONVITE.rotulo;
+  const texto = document.createElement('span'); // duas linhas: rolar e, mais clara, o teclado
+  texto.className = 'convite-rolagem-texto';
+  const teclado = document.createElement('span');
+  teclado.className = 'convite-rolagem-teclado';
+  teclado.textContent = CONVITE.teclado;
+  texto.append(CONVITE.rotulo, teclado);
   const traco = document.createElement('span');
   traco.className = 'convite-rolagem-traco';
   traco.setAttribute('aria-hidden', 'true');
