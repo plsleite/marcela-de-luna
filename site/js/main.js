@@ -57,12 +57,12 @@ async function iniciarTravessia(stops, images) {
   const [
     { criarPalco }, { criarTela, pontoNaTela, retanguloProjetado }, { criarTexturas }, { criarTinta },
     { criarLegendas }, { criarPreenchimento }, { rodarAbertura }, { ABERTURA }, { criarMergulho }, { criarNavegacao },
-    { criarIma }, { criarSom }, { default: Lenis }, { gsap },
+    { criarIma }, { criarSom }, { criarConviteDeRolagem }, { default: Lenis }, { gsap },
     { criarCarregamento }, { criarLuz }, { montarPincel }, { montarCartao },
   ] = await Promise.all([
     import('./gl/palco.js'), import('./gl/tela.js'), import('./gl/texturas.js'), import('./gl/tinta.js'),
     import('./ui/legendas.js'), import('./ui/preenchimento.js'), import('./ui/abertura.js'), import('./core/abertura.js'),
-    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('./ui/som.js'), import('lenis'), import('gsap'),
+    import('./ui/mergulho-ui.js'), import('./ui/navegacao.js'), import('./ui/ima.js'), import('./ui/som.js'), import('./ui/convite-rolagem.js'), import('lenis'), import('gsap'),
     import('./travessia/carregamento.js'), import('./travessia/luz.js'), import('./travessia/pincel.js'),
     import('./travessia/cartao.js'),
   ]);
@@ -320,12 +320,13 @@ async function iniciarTravessia(stops, images) {
     texturas.miniaturas()
       .then((mapa) => { if (ativo) { carregamento.usarMiniaturas(mapa); cartao.usarMiniaturas(mapa); } })
       .catch((erro) => console.error(erro));
-    // No fim da abertura, a capa (se a definitiva não chegou) passa à miniatura.
-    abertura.then(() => { if (ativo) carregamento.mostrarMiniaturas(); }).catch(desmontar);
-    // Música de fundo e reserva das pinturas: só pedidas depois da abertura (sem música, não há botão).
+    // No fim da abertura, a capa (se a definitiva não chegou) passa à miniatura; a música de fundo e
+    // a reserva das pinturas só então são pedidas (sem música, não há botão).
     const som = criarSom();
     aoDesmontar(() => som.encerrar());
-    abertura.then(() => { if (ativo) { som.carregar(); carregamento.iniciarReserva(indiceAtual); } }).catch(desmontar);
+    abertura.then(() => { if (ativo) { carregamento.mostrarMiniaturas(); som.carregar(); carregamento.iniciarReserva(indiceAtual); } }).catch(desmontar);
+    const convite = criarConviteDeRolagem({ abertura, irPara: () => navegacao.irPara(stops[1].id) }); // "ROLE PARA ENTRAR", na capa
+    aoDesmontar(() => convite.encerrar());
     if (capa) {
       Promise.race([capa, abertura]).catch(() => {}) // erro da capa já registrado acima
         .then(() => { if (ativo && !navegacao.viajando) carregarJanela(indiceAtual); }) // numa viagem, aoChegar carrega
