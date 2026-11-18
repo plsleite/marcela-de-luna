@@ -53,7 +53,8 @@ html.travessia .corpo {
   position: absolute; margin: 0;
   font-size: clamp(0.8rem, 0.5rem + 0.5vw, 1.06rem);
 }
-html.travessia .parada--texto .corpo { right: 6vw; bottom: 8vh; width: min(30rem, 31vw); }
+/* 28vw (era 31): folga entre a coluna e o vulto da parada seguinte, cuja borda direita fica em 62,8% da largura */
+html.travessia .parada--texto .corpo { right: 6vw; bottom: 8vh; width: min(30rem, 28vw); }
 html.travessia .parada--abertura .corpo { left: 6vw; top: calc(8vh + min(7vw, 13vh) * 0.9 + 4.5rem); width: min(28rem, 30vw); }
 html.travessia .corpo p:last-child { margin-bottom: 0; }
 

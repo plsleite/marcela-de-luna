@@ -38,6 +38,14 @@ Mesmo inteiro, o vulto é 92% branco sobre branco: quem chega ainda não conhece
 - Movimento reduzido (`prefers-reduced-motion`): o traço fica parado.
 - Lógica pura em `site/js/core/convite.js` (com teste); o elemento em `site/js/ui/convite-rolagem.js`, desfeito por `encerrar()`. A página base não muda.
 
+## C3. Folga entre o vulto e o texto da "Pesquisa Artística"
+
+Com o vulto de "A Bailarina" visível, a borda direita dele (62,8% da largura da janela nas proporções até 1,65) encostava na coluna de texto, que começava em 63%: 3 px de folga em 1440×900, 23 px em 1512×828. O Pedro achou apertado.
+
+- A coluna de texto das paradas de texto passa de `min(30rem, 31vw)` para `min(30rem, 28vw)` de largura (`site/css/travessia.css`), presa à direita como antes: começa em 66% da largura.
+- Folga medida depois: 46 px em 1440×900, 67 px em 1512×828, 33 px em 1024×768, 29 px em 900×900. O texto continua inteiro na janela nos quatro tamanhos.
+- Deslocar a imagem da direita (ideia anterior) não resolveria: a folga depende do vulto e do texto, não dela.
+
 ## Fora desta rodada
 
 - Ajuda "COMO NAVEGAR" no canto superior direito: decidir depois de ver o convite em uso.
